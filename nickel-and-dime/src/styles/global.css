@@ -1,0 +1,44 @@
+@font-face {
+    font-family: 'NDGrunge';
+    src: url('/fonts/nd-grunge.woff2') format('woff2'),
+         url('/fonts/nd-grunge.woff') format('woff'),
+         url('/fonts/nd-grunge.ttf') format('truetype'),
+         url('/fonts/nd-grunge.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  body {
+    font-family: 'NDGrunge', sans-serif;
+    background-image: url('/images/background-concrete3.png');
+    background-size: cover;
+    background-repeat: repeat;
+    background-position: center;
+    background-attachment: fixed;
+    color: white;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body { 
+    min-height: 100%; 
+  }
+
+  .nav-active {
+    background-image: url('/images/ui-elements/active-nav-item.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  * {
+    box-sizing: border-box;
+    max-width: 100vw;
+  }
+  
+  
+  
+  
+  

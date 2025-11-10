@@ -1,0 +1,17 @@
+.header {
+    width: 100vw;
+    background-image: url('/images/background-black-concrete.png') !important;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  .footer {
+    width: 100vw;
+    background-image: url('/images/background-black-concrete-footer.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  
