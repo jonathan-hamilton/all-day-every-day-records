@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider, CssBaseline } from '@mui/material'
 import { rapTheme, rapGlobalStyles } from './styles'
 import { MainLayout } from './layouts'
-import { Home, Releases, About, Contact, ReleaseDetail } from './pages'
+import { Home, Releases, About, Contact, ReleaseDetail, ApiTest } from './pages'
 import './App.css'
 
 function App() {
@@ -18,6 +18,7 @@ function App() {
             <Route path="releases/:id" element={<ReleaseDetail />} />
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
+            <Route path="api-test" element={<ApiTest />} />
           </Route>
         </Routes>
       </BrowserRouter>
