@@ -50,6 +50,8 @@ This roadmap follows a **documentation-driven development** approach where each 
 - **REQ-NFR-8**: Use MySQL/MariaDB for data persistence
 - **REQ-NFR-14**: Implement modular component architecture for maintainability
 - **REQ-NFR-15**: Support Docker containerization for deployment flexibility
+- **REQ-DEV-1**: Support hybrid development mode (local frontend + production backend)
+- **REQ-DEV-3**: Production backend CORS configuration for localhost origins
 - **REQ-UI-1**: Provide responsive navigation bar with hamburger menu for mobile
 - **REQ-UI-4**: Include about page (stub implementation initially)
 
@@ -57,11 +59,13 @@ This roadmap follows a **documentation-driven development** approach where each 
 - React/TypeScript project structure established with Vite
 - Basic Material-UI component library integrated
 - PHP backend API foundation with database connection
+- **CORS configuration implemented for hybrid development support**
 - MySQL database schema designed and initialized
 - Responsive navigation component functional across devices
 - Docker configuration for development environment
 - Basic routing structure with placeholder pages
 - Development environment documented and reproducible
+- **Frontend supports local development with production backend API calls**
 - Foundation for rap-themed styling established
 
 ### Technical Dependencies:

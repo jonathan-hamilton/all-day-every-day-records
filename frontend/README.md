@@ -44,22 +44,73 @@ React TypeScript frontend application for the All Day Every Day Records website.
 2. **Configure environment variables:**
    Edit `.env.local` for your local setup:
    ```bash
-   # For local development
+   # For hybrid development (recommended)
    NODE_ENV=local
+   VITE_DEV_MODE=hybrid-dev
+   VITE_API_BASE_URL=https://api.alldayeverydayrecords.com/api
+   VITE_DEV_TOOLS=true
+   VITE_THEME_DEBUG=true
+   ```
+
+   For full local development:
+   ```bash
+   # For full local stack
+   NODE_ENV=local
+   VITE_DEV_MODE=full-local
    VITE_API_BASE_URL=http://localhost:3001/api
    VITE_DEV_TOOLS=true
    VITE_THEME_DEBUG=true
    ```
 
-   For production deployment, update:
+   For production deployment:
    ```bash
    # For production
    NODE_ENV=production  
+   VITE_DEV_MODE=production
    VITE_API_BASE_URL=https://api.alldayeverydayrecords.com/api
    VITE_DEV_TOOLS=false
    VITE_THEME_DEBUG=false
    VITE_SOURCEMAPS=false
    ```
+
+## Development Modes
+
+### Hybrid Development (Recommended) 🚀
+**Frontend local + Backend production**
+
+This is the recommended approach for frontend development:
+- Run React development server locally for fast iteration and hot module replacement
+- API calls target the production PHP backend for stable data
+- No need to set up local database or PHP environment
+- Best developer experience with production data
+
+**Advantages:**
+- Fast frontend development cycle
+- Always up-to-date with production data
+- No local backend setup required
+- Consistent API behavior
+
+**Configuration:**
+Set `VITE_DEV_MODE=hybrid-dev` in your `.env.local` file.
+
+### Full Local Development
+**Both frontend and backend local**
+
+Use when you need to develop backend features or work offline:
+- Complete local development stack
+- Requires local PHP server and database setup
+- Full control over backend behavior and data
+
+**Configuration:**
+Set `VITE_DEV_MODE=full-local` in your `.env.local` file.
+
+### Production Mode
+**Full production configuration**
+
+For testing production builds locally:
+```bash
+npm run build && npm run preview
+```
 
 ### Installation and Development
 

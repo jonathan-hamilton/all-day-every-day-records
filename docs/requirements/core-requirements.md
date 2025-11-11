@@ -52,6 +52,14 @@
 - REQ-NFR-7: System shall implement Material-UI components for consistent design system
 - REQ-NFR-8: System shall use MySQL/MariaDB for data persistence
 
+### Development Environment
+
+- REQ-DEV-1: System shall support hybrid development mode where frontend runs locally while API calls target production backend
+- REQ-DEV-2: System shall provide environment configuration for three deployment modes: full-local, hybrid-dev, and production
+- REQ-DEV-3: Production backend shall implement CORS configuration to allow localhost origins during hybrid development
+- REQ-DEV-4: System shall provide clear environment variable configuration for switching between local and production API endpoints
+- REQ-DEV-5: Development setup shall support hot module replacement for rapid frontend iteration while maintaining production backend connectivity
+
 ### Security
 
 - REQ-NFR-9: System shall implement secure authentication for admin functions
