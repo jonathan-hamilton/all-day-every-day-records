@@ -5,11 +5,11 @@
 | Sprint | Status | Story Count | Completion |
 |--------|--------|-------------|------------|
 | **Project Scaffolding** | **COMPLETE ✅** | **3/3 stories** | **100%** |
-| Sprint 1 | PENDING ⏸️ | 0/9 stories | 0% |
+| Sprint 1 | PENDING ⏸️ | 0/3 stories | 0% |
 | Sprint 2 | PENDING ⏸️ | 0/11 stories | 0% |
 | Sprint 3 | PENDING ⏸️ | 0/8 stories | 0% |
 | Sprint 4 | PENDING ⏸️ | 0/7 stories | 0% |
-| **TOTALS** | **3/38 STORIES** | **3/38 stories** | **8%** |
+| **TOTALS** | **3/32 STORIES** | **3/32 stories** | **9%** |
 
 *Last Updated: November 10, 2025*
 
@@ -40,7 +40,7 @@ This roadmap follows a **documentation-driven development** approach where each 
 
 **Objective**: Establish technical foundation, project structure, and basic navigation
 **Target Duration**: 2 weeks
-**Story Count**: 9 stories
+**Story Count**: 3 stories
 
 ### Requirements Included:
 - **REQ-NFR-4**: Frontend built using React with TypeScript for type safety
@@ -49,7 +49,6 @@ This roadmap follows a **documentation-driven development** approach where each 
 - **REQ-NFR-7**: Implement Material-UI components for consistent design system
 - **REQ-NFR-8**: Use MySQL/MariaDB for data persistence
 - **REQ-NFR-14**: Implement modular component architecture for maintainability
-- **REQ-NFR-15**: Support Docker containerization for deployment flexibility
 - **REQ-DEV-1**: Support hybrid development mode (local frontend + production backend)
 - **REQ-DEV-3**: Production backend CORS configuration for localhost origins
 - **REQ-UI-1**: Provide responsive navigation bar with hamburger menu for mobile
@@ -62,7 +61,6 @@ This roadmap follows a **documentation-driven development** approach where each 
 - **CORS configuration implemented for hybrid development support**
 - MySQL database schema designed and initialized
 - Responsive navigation component functional across devices
-- Docker configuration for development environment
 - Basic routing structure with placeholder pages
 - Development environment documented and reproducible
 - **Frontend supports local development with production backend API calls**
@@ -74,7 +72,6 @@ This roadmap follows a **documentation-driven development** approach where each 
 - PHP 8+ backend structure with routing
 - MySQL database design and migrations
 - Vite configuration for development workflow
-- Docker compose setup for local development
 
 ---
 

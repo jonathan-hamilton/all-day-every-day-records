@@ -71,14 +71,13 @@
 
 - REQ-NFR-13: System shall use responsive design principles for mobile-first development
 - REQ-NFR-14: System shall implement modular component architecture for maintainability
-- REQ-NFR-15: System shall support Docker containerization for deployment flexibility
-- REQ-NFR-16: System shall implement proper error handling and logging mechanisms
+- REQ-NFR-15: System shall implement proper error handling and logging mechanisms
 
 ### Domain & Hosting
 
-- REQ-NFR-17: System shall be accessible via www.alldayeverydayrecords.com domain
-- REQ-NFR-18: System shall support SSL/HTTPS encryption for all traffic
-- REQ-NFR-19: System shall implement SEO-friendly URLs and meta tags
+- REQ-NFR-15: System shall be accessible via www.alldayeverydayrecords.com domain
+- REQ-NFR-16: System shall support SSL/HTTPS encryption for all traffic
+- REQ-NFR-17: System shall implement SEO-friendly URLs and meta tags
 
 ---
 
