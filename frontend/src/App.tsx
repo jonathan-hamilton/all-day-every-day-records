@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider, CssBaseline } from '@mui/material'
-import { rapTheme } from './styles'
+import { rapTheme, rapGlobalStyles } from './styles'
 import { MainLayout } from './layouts'
 import { Home, Releases, About, Contact, ReleaseDetail } from './pages'
 import './App.css'
@@ -9,6 +9,7 @@ function App() {
   return (
     <ThemeProvider theme={rapTheme}>
       <CssBaseline />
+      {rapGlobalStyles}
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainLayout />}>
