@@ -1,6 +1,3 @@
-# Reference implementations (not part of main project)
-nickel-and-dime/
-
 # IDE and Editor files
 .vscode/
 .idea/
