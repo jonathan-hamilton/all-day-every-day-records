@@ -5,7 +5,7 @@
  * Implements auto-play, navigation controls, and responsive design following
  * the project's design patterns.
  */
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Box, 
   Typography, 
@@ -51,6 +51,9 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
+  // Memoize services to prevent re-creation
+  const services = useMemo(() => createServices(), []);
+
   // Responsive slides per view calculation
   const slidesPerView = isMobile ? 1 : isTablet ? 2 : 3;
   const totalSlides = releases.length;
@@ -61,7 +64,6 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
     const fetchReleases = async () => {
       try {
         setLoading(true);
-        const services = createServices();
         const featuredReleases = await services.releases.getFeaturedReleasesForCarousel(maxSlides);
         setReleases(featuredReleases);
         setError(null);
@@ -75,7 +77,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
     };
 
     fetchReleases();
-  }, [maxSlides]);
+  }, [maxSlides, services.releases]);
 
   // Retry function for error recovery
   const handleRetry = useCallback(() => {
@@ -84,7 +86,6 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
     
     const retryFetch = async () => {
       try {
-        const services = createServices();
         const featuredReleases = await services.releases.getFeaturedReleasesForCarousel(maxSlides);
         setReleases(featuredReleases);
         setError(null);
@@ -98,7 +99,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
     };
 
     retryFetch();
-  }, [maxSlides]);
+  }, [maxSlides, services.releases]);
 
   // Navigation functions
   const goToNext = useCallback(() => {

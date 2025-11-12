@@ -28,8 +28,8 @@ export default function Releases() {
   // Debounce search to avoid excessive API calls
   const debouncedSearch = useDebounce(filters.search, 300);
 
-  // Create services using factory pattern
-  const services = createServices();
+  // Create services using factory pattern - memoize to prevent re-creation
+  const services = useMemo(() => createServices(), []);
 
   // Extract available labels from releases for filter options
   const availableLabels = useMemo(() => {

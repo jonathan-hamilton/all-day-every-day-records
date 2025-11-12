@@ -101,9 +101,14 @@ export const ReleaseCarouselSlide: React.FC<ReleaseCarouselSlideProps> = ({
         image={coverImageUrl}
         alt={`${release.title} cover art`}
         onError={(e) => {
-          // Fallback to default image on error
+          // Fallback to default image on error, prevent infinite loop
           const target = e.target as HTMLImageElement;
-          target.src = '/images/default-cover.svg';
+          if (target.src.includes('default-cover.svg')) {
+            // Use a data URL as final fallback to prevent network requests
+            target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjVmNWY1Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
+          } else {
+            target.src = '/images/default-cover.svg';
+          }
         }}
       />
 
