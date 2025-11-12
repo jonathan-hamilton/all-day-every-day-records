@@ -1,0 +1,16 @@
+<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#95a5a6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7f8c8d;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  <rect x="50" y="80" width="200" height="2" fill="#2c3e50"/>
+  <rect x="50" y="120" width="200" height="2" fill="#2c3e50"/>
+  <rect x="50" y="160" width="200" height="2" fill="#2c3e50"/>
+  <text x="50%" y="40%" text-anchor="middle" fill="#2c3e50" font-family="Arial, sans-serif" font-size="18" font-weight="bold">DEMO</text>
+  <text x="50%" y="50%" text-anchor="middle" fill="#2c3e50" font-family="Arial, sans-serif" font-size="18" font-weight="bold">TRACKS</text>
+  <text x="50%" y="70%" text-anchor="middle" fill="#34495e" font-family="Arial, sans-serif" font-size="12">UPCOMING ARTIST</text>
+  <text x="50%" y="80%" text-anchor="middle" fill="#7f8c8d" font-family="Arial, sans-serif" font-size="10">UNRELEASED</text>
+</svg>

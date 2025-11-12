@@ -46,7 +46,7 @@ all-day-every-day-records/
 
 ## Project Status
 
-**Overall Progress: 19% Complete** (6/32 stories)
+**Overall Progress: 29% Complete** (7/24 stories)
 
 ### ✅ Completed Phases
 - **Project Scaffolding**: Complete React 19 + TypeScript + Material-UI frontend (3/3 stories)
@@ -55,14 +55,19 @@ all-day-every-day-records/
   - ✅ Database Schema Design & Connection
   - ✅ Frontend-Backend API Integration (axios service layer, TypeScript types)
 
-### 🎯 Current Status: Sprint 1 Complete - Foundation Ready
-**Next up**: Sprint 2 - Core User Features & Content Display (11 stories)
+### �️ Current Status: Sprint 2 - Core User Features (1/5 stories complete - 20%)
+**Recently Completed**: S2.1 Homepage Featured Releases Carousel ✅  
+**Next up**: S2.2 Enhanced Releases Grid with Filtering
 
 ### Recent Achievements
+- **S2.1**: ✅ Homepage Featured Releases Carousel with Material-UI native components
+  - Responsive carousel with touch/swipe support and accessibility features
+  - Factory pattern compliant service layer extensions for featured releases
+  - Static seed data with realistic cover art for demonstration
+  - Complete error handling, loading states, and graceful fallbacks
+- **Design Patterns**: Comprehensive documentation for consistent development
 - **S1.3**: ✅ Complete API service layer with axios 1.7.7, TypeScript safety, error handling
 - **Full-Stack Foundation**: React frontend + PHP backend + MySQL database integration complete
-- **API Testing**: Interactive testing page at `/api-test` for validation and connectivity monitoring
-- **Environment Support**: Development/production API configuration with CORS validation
 
 ### Previous Completed Stories
 - **SC-001**: ✅ React TypeScript Project with Vite and MUI - COMPLETE

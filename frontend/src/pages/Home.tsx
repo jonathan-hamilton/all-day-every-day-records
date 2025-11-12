@@ -1,5 +1,6 @@
 import { Typography, Box, Button, Card, CardContent } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import HomepageFeaturedCarousel from '../components/HomepageFeaturedCarousel'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -41,6 +42,15 @@ export default function Home() {
           About Us
         </Button>
       </Box>
+
+      {/* S2.1 Homepage Featured Releases Carousel */}
+      <HomepageFeaturedCarousel 
+        maxSlides={8}
+        autoPlay={true}
+        autoPlayInterval={5000}
+        showNavigation={true}
+        showIndicators={true}
+      />
 
       <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, mt: 6 }}>
         <Card>

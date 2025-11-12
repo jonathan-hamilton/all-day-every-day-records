@@ -20,6 +20,7 @@ export type {
   ReleaseWithDetails, 
   ReleaseOverview, 
   ReleaseFormData, 
+  ReleaseCarouselSlide,
   ReleaseType, 
   ReleaseStatus 
 } from './Release';

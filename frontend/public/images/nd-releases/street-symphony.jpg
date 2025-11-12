@@ -1,0 +1,14 @@
+<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f7931e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  <rect x="50" y="50" width="200" height="200" fill="#fff" opacity="0.1"/>
+  <text x="50%" y="40%" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="18" font-weight="bold">STREET</text>
+  <text x="50%" y="50%" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="18" font-weight="bold">SYMPHONY</text>
+  <text x="50%" y="70%" text-anchor="middle" fill="#ffe" font-family="Arial, sans-serif" font-size="12">LYRICAL GENIUS</text>
+  <text x="50%" y="80%" text-anchor="middle" fill="#ddd" font-family="Arial, sans-serif" font-size="10">EP · 2024</text>
+</svg>

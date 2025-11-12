@@ -91,3 +91,19 @@ export interface ReleaseFormData {
   is_featured: boolean;
   display_order: number;
 }
+
+/**
+ * Release carousel slide data
+ * Type-safe interface for carousel component props
+ */
+export interface ReleaseCarouselSlide {
+  id: number;
+  title: string;
+  slug: string;
+  cover_image_url?: string;
+  release_date?: string;
+  release_type: ReleaseType;
+  label_name?: string;
+  artists_with_roles?: string;
+  bandcamp_url?: string;
+}

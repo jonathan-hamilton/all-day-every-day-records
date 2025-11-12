@@ -13,6 +13,9 @@ export { getCurrentApiConfig, getApiConfig, isDevelopment, isProduction } from '
 export { ReleaseService, createReleaseService } from './releaseService';
 export type { GetReleasesParams } from './releaseService';
 
+// Export types for convenience
+export type { ReleaseCarouselSlide } from '../types';
+
 // Service factory to create configured service instances
 import { getCurrentApiConfig } from '../config/api';
 import { createApiService } from './apiService';
