@@ -46,7 +46,7 @@ all-day-every-day-records/
 
 ## Project Status
 
-**Overall Progress: 33% Complete** (8/24 stories)
+**Overall Progress: 42% Complete** (10/24 stories)
 
 ### ✅ Completed Phases
 - **Project Scaffolding**: Complete React 19 + TypeScript + Material-UI frontend (3/3 stories)
@@ -55,9 +55,9 @@ all-day-every-day-records/
   - ✅ Database Schema Design & Connection
   - ✅ Frontend-Backend API Integration (axios service layer, TypeScript types)
 
-### 🏗️ Current Status: Sprint 2 - Core User Features (2/5 stories complete - 40%)
-**Recently Completed**: S2.2 Releases Grid Page with Search and Filtering ✅  
-**Next up**: S2.3 Release Detail Pages
+### 🏗️ Current Status: Sprint 2 - Core User Features (4/5 stories complete - 80%)
+**Recently Completed**: S2.4 Homepage YouTube Video Grid ✅  
+**Next up**: S2.5 Admin Video Management
 
 ### Recent Achievements
 - **S2.2**: ✅ Releases Grid Page with Search and Filtering - Complete responsive browsing experience
