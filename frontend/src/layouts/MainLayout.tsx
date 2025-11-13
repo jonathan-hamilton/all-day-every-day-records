@@ -24,16 +24,78 @@ export default function MainLayout() {
       <Box 
         component="footer" 
         sx={{ 
-          py: 2, 
+          py: 3, 
           px: 2,
           backgroundColor: 'background.paper',
           borderTop: '1px solid',
           borderColor: 'divider',
-          textAlign: 'center',
           mt: 'auto'
         }}
       >
-        <Box sx={{ typography: 'body2', color: 'text.secondary' }}>
+        {/* Footer Navigation Links */}
+        <Box sx={{ 
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: { xs: 2, sm: 4 },
+          mb: 2
+        }}>
+          <Box 
+            component="a" 
+            href="/contact"
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = '/contact';
+            }}
+            sx={{ 
+              typography: 'body2',
+              color: 'primary.main',
+              textDecoration: 'none',
+              '&:hover': { textDecoration: 'underline' }
+            }}
+          >
+            Contact
+          </Box>
+          <Box 
+            component="a" 
+            href="/releases"
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = '/releases';
+            }}
+            sx={{ 
+              typography: 'body2',
+              color: 'primary.main',
+              textDecoration: 'none',
+              '&:hover': { textDecoration: 'underline' }
+            }}
+          >
+            Releases
+          </Box>
+          <Box 
+            component="a" 
+            href="/about"
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = '/about';
+            }}
+            sx={{ 
+              typography: 'body2',
+              color: 'primary.main',
+              textDecoration: 'none',
+              '&:hover': { textDecoration: 'underline' }
+            }}
+          >
+            About
+          </Box>
+        </Box>
+        
+        {/* Copyright */}
+        <Box sx={{ 
+          textAlign: 'center',
+          typography: 'body2', 
+          color: 'text.secondary'
+        }}>
           &copy; 2025 All Day Every Day Records. All rights reserved.
         </Box>
       </Box>
