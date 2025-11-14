@@ -25,6 +25,16 @@ export type {
   ReleaseStatus 
 } from './Release';
 
+// Authentication types
+export type {
+  User,
+  AuthState,
+  AuthContextType,
+  LoginCredentials,
+  LoginResponse,
+  LogoutResponse
+} from './Auth';
+
 // API response types
 export type { 
   ApiResponse, 

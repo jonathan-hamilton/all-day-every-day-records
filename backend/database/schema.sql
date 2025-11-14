@@ -1,328 +1,280 @@
 -- =============================================================================
 -- All Day Every Day Records - Database Schema
 -- =============================================================================
--- This file contains the complete database schema for the All Day Every Day
--- Records platform. The schema supports music releases, artists, labels,
--- and streaming platform integration.
---
--- Schema Design Philosophy:
--- - 3rd Normal Form (3NF) for core entities to eliminate redundancy
--- - Denormalization where needed for performance
--- - Foreign key constraints for data integrity
--- - Strategic indexing for common query patterns
+-- Complete database schema for the All Day Every Day Records platform.
+-- Simplified design with 3 tables: releases, users, homepage_videos
 -- =============================================================================
 
 -- Set database configuration for consistency
 SET sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 
 -- =============================================================================
--- CORE ENTITY TABLES
+-- MAIN TABLES
 -- =============================================================================
-
--- -----------------------------------------------------------------------------
--- Artists Table
--- -----------------------------------------------------------------------------
--- Stores information about music artists, DJs, and producers
-CREATE TABLE artists (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL COMMENT 'Artist or group name',
-    slug VARCHAR(255) UNIQUE NOT NULL COMMENT 'URL-friendly identifier',
-    bio TEXT DEFAULT NULL COMMENT 'Artist biography/description',
-    image_url VARCHAR(500) DEFAULT NULL COMMENT 'Artist profile image URL',
-    website_url VARCHAR(500) DEFAULT NULL COMMENT 'Official website URL',
-    social_media JSON DEFAULT NULL COMMENT 'Social media links as JSON object',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    -- Indexes for performance
-    INDEX idx_slug (slug),
-    INDEX idx_name (name),
-    INDEX idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Music artists, DJs, and producers information';
-
--- -----------------------------------------------------------------------------
--- Labels Table
--- -----------------------------------------------------------------------------
--- Stores record label information
-CREATE TABLE labels (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL COMMENT 'Label name',
-    slug VARCHAR(255) UNIQUE NOT NULL COMMENT 'URL-friendly identifier',
-    description TEXT DEFAULT NULL COMMENT 'Label description',
-    website_url VARCHAR(500) DEFAULT NULL COMMENT 'Official label website',
-    logo_url VARCHAR(500) DEFAULT NULL COMMENT 'Label logo image URL',
-    founded_year YEAR DEFAULT NULL COMMENT 'Year the label was founded',
-    contact_email VARCHAR(255) DEFAULT NULL COMMENT 'Label contact email',
-    social_media JSON DEFAULT NULL COMMENT 'Social media links as JSON object',
-    is_active BOOLEAN DEFAULT TRUE COMMENT 'Whether the label is currently active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    -- Indexes for performance
-    INDEX idx_slug (slug),
-    INDEX idx_name (name),
-    INDEX idx_is_active (is_active),
-    INDEX idx_founded_year (founded_year)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Record label information';
 
 -- -----------------------------------------------------------------------------
 -- Releases Table
 -- -----------------------------------------------------------------------------
--- Main table for music releases (singles, EPs, albums, etc.)
+-- Main table for music releases with artist name directly included
 CREATE TABLE releases (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL COMMENT 'Release title',
+    artist VARCHAR(255) NOT NULL COMMENT 'Artist name',
     slug VARCHAR(255) UNIQUE NOT NULL COMMENT 'URL-friendly identifier',
     description TEXT DEFAULT NULL COMMENT 'Release description/notes',
     release_date DATE DEFAULT NULL COMMENT 'Official release date',
-    release_type ENUM('single', 'ep', 'album', 'compilation', 'mixtape', 'remix') 
+    release_type ENUM('single', 'ep', 'album', 'mixtape', 'remix') 
         NOT NULL DEFAULT 'single' COMMENT 'Type of release',
-    catalog_number VARCHAR(100) DEFAULT NULL COMMENT 'Label catalog number',
-    label_id INT UNSIGNED DEFAULT NULL COMMENT 'Associated record label',
-    cover_image_url VARCHAR(500) DEFAULT NULL COMMENT 'Release cover art URL',
-    bandcamp_url VARCHAR(500) DEFAULT NULL COMMENT 'Bandcamp release URL',
-    bandcamp_id VARCHAR(100) DEFAULT NULL COMMENT 'Bandcamp release ID',
-    duration_seconds INT UNSIGNED DEFAULT NULL COMMENT 'Total duration in seconds',
-    track_count INT UNSIGNED DEFAULT 1 COMMENT 'Number of tracks',
+    cover_image_url VARCHAR(500) NOT NULL COMMENT 'Release cover art URL (mandatory)',
+    
+    -- Streaming platform URLs (all optional)
+    spotify_url VARCHAR(500) DEFAULT NULL COMMENT 'Spotify streaming URL',
+    apple_music_url VARCHAR(500) DEFAULT NULL COMMENT 'Apple Music streaming URL',
+    amazon_music_url VARCHAR(500) DEFAULT NULL COMMENT 'Amazon Music streaming URL',
+    youtube_url VARCHAR(500) DEFAULT NULL COMMENT 'YouTube video URL for embedding',
+    
+    -- Admin management fields
     is_featured BOOLEAN DEFAULT FALSE COMMENT 'Featured on homepage',
-    display_order INT DEFAULT 0 COMMENT 'Order for display sorting',
+    is_new BOOLEAN DEFAULT FALSE COMMENT 'Mark as new release for highlighting',
     status ENUM('draft', 'published', 'archived') DEFAULT 'published' COMMENT 'Publication status',
-    metadata JSON DEFAULT NULL COMMENT 'Additional metadata as JSON',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    -- Foreign key constraints
-    FOREIGN KEY (label_id) REFERENCES labels(id) ON DELETE SET NULL ON UPDATE CASCADE,
-    
     -- Indexes for performance
     INDEX idx_slug (slug),
+    INDEX idx_artist (artist),
     INDEX idx_release_date (release_date),
     INDEX idx_release_type (release_type),
-    INDEX idx_label_id (label_id),
     INDEX idx_is_featured (is_featured),
+    INDEX idx_is_new (is_new),
     INDEX idx_status (status),
-    INDEX idx_display_order (display_order),
     INDEX idx_created_at (created_at),
     
     -- Composite indexes for common queries
     INDEX idx_status_featured (status, is_featured),
-    INDEX idx_status_date (status, release_date),
-    INDEX idx_type_status (release_type, status)
+    INDEX idx_status_new (status, is_new),
+    INDEX idx_artist_status (artist, status),
+    INDEX idx_featured_new_status (is_featured, is_new, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Music releases (singles, EPs, albums, etc.)';
-
--- =============================================================================
--- RELATIONSHIP TABLES
--- =============================================================================
+COMMENT='Music releases with artist names';
 
 -- -----------------------------------------------------------------------------
--- Release Artists Table (Many-to-Many)
+-- Users Table
 -- -----------------------------------------------------------------------------
--- Links releases to artists with roles (primary, featured, remixer, etc.)
-CREATE TABLE release_artists (
+-- Admin users for authentication and content management
+CREATE TABLE users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    release_id INT UNSIGNED NOT NULL COMMENT 'Release reference',
-    artist_id INT UNSIGNED NOT NULL COMMENT 'Artist reference',
-    role ENUM('primary', 'featured', 'remixer', 'producer', 'collaborator') 
-        DEFAULT 'primary' COMMENT 'Artist role on this release',
-    display_order INT DEFAULT 0 COMMENT 'Order for display purposes',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- Foreign key constraints
-    FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    
-    -- Ensure unique combinations per role
-    UNIQUE KEY unique_release_artist_role (release_id, artist_id, role),
-    
-    -- Indexes for performance
-    INDEX idx_release_id (release_id),
-    INDEX idx_artist_id (artist_id),
-    INDEX idx_role (role),
-    INDEX idx_display_order (display_order)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Many-to-many relationship between releases and artists';
-
--- -----------------------------------------------------------------------------
--- Streaming Links Table
--- -----------------------------------------------------------------------------
--- Stores streaming platform URLs for each release
-CREATE TABLE streaming_links (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    release_id INT UNSIGNED NOT NULL COMMENT 'Release reference',
-    platform VARCHAR(50) NOT NULL COMMENT 'Streaming platform name',
-    url VARCHAR(500) NOT NULL COMMENT 'Platform-specific URL',
-    platform_release_id VARCHAR(255) DEFAULT NULL COMMENT 'Platform internal ID',
-    platform_data JSON DEFAULT NULL COMMENT 'Platform-specific metadata',
-    is_active BOOLEAN DEFAULT TRUE COMMENT 'Whether link is currently active',
-    verified_at TIMESTAMP NULL DEFAULT NULL COMMENT 'Last verification timestamp',
+    username VARCHAR(100) UNIQUE NOT NULL COMMENT 'Unique username for login',
+    email VARCHAR(255) UNIQUE NOT NULL COMMENT 'User email address (required)',
+    password_hash VARCHAR(255) NOT NULL COMMENT 'Hashed password for security',
+    is_admin BOOLEAN DEFAULT FALSE COMMENT 'Admin privileges flag',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    -- Foreign key constraints
-    FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    
     -- Indexes for performance
-    INDEX idx_release_id (release_id),
-    INDEX idx_platform (platform),
-    INDEX idx_is_active (is_active),
-    INDEX idx_verified_at (verified_at),
-    
-    -- Composite indexes for common queries
-    INDEX idx_release_platform (release_id, platform),
-    INDEX idx_platform_active (platform, is_active)
+    INDEX idx_username (username),
+    INDEX idx_email (email),
+    INDEX idx_is_admin (is_admin)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Streaming platform links for releases';
-
--- =============================================================================
--- SYSTEM TABLES
--- =============================================================================
+COMMENT='System users with admin authentication';
 
 -- -----------------------------------------------------------------------------
--- Database Migrations Table
+-- Homepage Videos Table
 -- -----------------------------------------------------------------------------
--- Tracks database migration history for schema versioning
-CREATE TABLE migrations (
+-- YouTube videos displayed on the homepage (4 video grid)
+CREATE TABLE homepage_videos (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    migration VARCHAR(255) NOT NULL COMMENT 'Migration filename',
-    batch INT NOT NULL COMMENT 'Batch number for rollback grouping',
-    executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    youtube_id VARCHAR(50) NOT NULL COMMENT 'YouTube video ID extracted from URL',
+    url VARCHAR(500) NOT NULL COMMENT 'Full YouTube video URL',
+    position TINYINT UNSIGNED NOT NULL COMMENT 'Display position (1-4)',
+    is_enabled BOOLEAN DEFAULT TRUE COMMENT 'Whether video is currently displayed',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    -- Ensure unique migration names
-    UNIQUE KEY unique_migration (migration),
+    -- Ensure unique positions
+    UNIQUE KEY unique_position (position),
     
     -- Indexes for performance
-    INDEX idx_batch (batch),
-    INDEX idx_executed_at (executed_at)
+    INDEX idx_position (position),
+    INDEX idx_is_enabled (is_enabled),
+    INDEX idx_youtube_id (youtube_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Database migration tracking';
+COMMENT='Homepage YouTube video grid (4 videos max)';
 
 -- =============================================================================
 -- INITIAL DATA SETUP
 -- =============================================================================
 
--- Create default "Independent" label for releases without a specific label
-INSERT INTO labels (name, slug, description, is_active) VALUES 
-('Independent', 'independent', 'Independent releases without a specific label', TRUE);
+-- Create default admin user (password: ADE_Records_2025! - change in production!)
+-- Note: This password hash is for 'ADE_Records_2025!' using PHP password_hash()
+INSERT INTO users (username, email, password_hash, is_admin) VALUES 
+('admin', 'admin@alldayeverydayrecords.com', '$2y$10$xGZvGYm8H.aULXx/1R7Mhu7n5k4QoQJ3zN2tM6rA9cP8vK5dF2sWe', TRUE);
 
--- =============================================================================
--- VIEWS FOR COMMON QUERIES
--- =============================================================================
-
--- -----------------------------------------------------------------------------
--- Release Overview View
--- -----------------------------------------------------------------------------
--- Provides a consolidated view of releases with artist and label information
-CREATE VIEW release_overview AS
-SELECT 
-    r.id,
-    r.title,
-    r.slug,
-    r.description,
-    r.release_date,
-    r.release_type,
-    r.catalog_number,
-    r.cover_image_url,
-    r.bandcamp_url,
-    r.duration_seconds,
-    r.track_count,
-    r.is_featured,
-    r.display_order,
-    r.status,
-    r.created_at,
-    r.updated_at,
-    l.name as label_name,
-    l.slug as label_slug,
-    GROUP_CONCAT(
-        DISTINCT CONCAT(a.name, ':', ra.role)
-        ORDER BY ra.display_order, ra.role
-        SEPARATOR '|'
-    ) as artists_with_roles,
-    GROUP_CONCAT(
-        DISTINCT sl.platform
-        ORDER BY sl.platform
-        SEPARATOR ','
-    ) as available_platforms
-FROM releases r
-LEFT JOIN labels l ON r.label_id = l.id
-LEFT JOIN release_artists ra ON r.id = ra.release_id
-LEFT JOIN artists a ON ra.artist_id = a.id
-LEFT JOIN streaming_links sl ON r.id = sl.release_id AND sl.is_active = TRUE
-WHERE r.status = 'published'
-GROUP BY r.id;
+-- Insert default homepage videos (using placeholder YouTube IDs)
+-- These should be updated via the admin interface
+INSERT INTO homepage_videos (youtube_id, url, position, is_enabled) VALUES 
+('dQw4w9WgXcQ', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 1, TRUE),
+('jNQXAC9IVRw', 'https://www.youtube.com/watch?v=jNQXAC9IVRw', 2, TRUE),
+('L_jWHffIx5E', 'https://www.youtube.com/watch?v=L_jWHffIx5E', 3, TRUE),
+('fJ9rUzIMcZQ', 'https://www.youtube.com/watch?v=fJ9rUzIMcZQ', 4, TRUE);
 
 -- =============================================================================
 -- STORED PROCEDURES
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
--- Get Release with Full Details
+-- Get Release Details with Related Releases by Artist
 -- -----------------------------------------------------------------------------
 DELIMITER //
 CREATE PROCEDURE GetReleaseDetails(IN release_slug VARCHAR(255))
 BEGIN
     -- Main release information
     SELECT 
-        r.*,
-        l.name as label_name,
-        l.slug as label_slug,
-        l.website_url as label_website
-    FROM releases r
-    LEFT JOIN labels l ON r.label_id = l.id
-    WHERE r.slug = release_slug AND r.status = 'published';
+        id,
+        title,
+        artist,
+        slug,
+        description,
+        release_date,
+        release_type,
+        cover_image_url,
+        spotify_url,
+        apple_music_url,
+        amazon_music_url,
+        youtube_url,
+        is_featured,
+        is_new,
+        status,
+        created_at,
+        updated_at
+    FROM releases 
+    WHERE slug = release_slug AND status = 'published';
     
-    -- Artists information
+    -- Related releases by the same artist
     SELECT 
-        a.id,
-        a.name,
-        a.slug,
-        a.image_url,
-        ra.role,
-        ra.display_order
-    FROM release_artists ra
-    JOIN artists a ON ra.artist_id = a.id
-    JOIN releases r ON ra.release_id = r.id
-    WHERE r.slug = release_slug
-    ORDER BY ra.display_order, ra.role;
-    
-    -- Streaming links
+        id,
+        title,
+        slug,
+        release_date,
+        release_type,
+        cover_image_url
+    FROM releases 
+    WHERE artist = (SELECT artist FROM releases WHERE slug = release_slug)
+    AND slug != release_slug 
+    AND status = 'published'
+    ORDER BY release_date DESC
+    LIMIT 10;
+END //
+DELIMITER ;
+
+-- -----------------------------------------------------------------------------
+-- Get Homepage Videos
+-- -----------------------------------------------------------------------------
+DELIMITER //
+CREATE PROCEDURE GetHomepageVideos()
+BEGIN
     SELECT 
-        platform,
+        id,
+        youtube_id,
         url,
-        platform_release_id,
-        verified_at
-    FROM streaming_links sl
-    JOIN releases r ON sl.release_id = r.id
-    WHERE r.slug = release_slug AND sl.is_active = TRUE
-    ORDER BY sl.platform;
+        position,
+        is_enabled,
+        updated_at
+    FROM homepage_videos
+    WHERE is_enabled = TRUE
+    ORDER BY position;
+END //
+DELIMITER ;
+
+-- -----------------------------------------------------------------------------
+-- Update Homepage Video
+-- -----------------------------------------------------------------------------
+DELIMITER //
+CREATE PROCEDURE UpdateHomepageVideo(
+    IN video_position TINYINT,
+    IN video_url VARCHAR(500),
+    IN video_youtube_id VARCHAR(50)
+)
+BEGIN
+    INSERT INTO homepage_videos (position, url, youtube_id, is_enabled)
+    VALUES (video_position, video_url, video_youtube_id, TRUE)
+    ON DUPLICATE KEY UPDATE
+        url = VALUES(url),
+        youtube_id = VALUES(youtube_id),
+        is_enabled = TRUE,
+        updated_at = CURRENT_TIMESTAMP;
+END //
+DELIMITER ;
+
+-- -----------------------------------------------------------------------------
+-- Authenticate User
+-- -----------------------------------------------------------------------------
+DELIMITER //
+CREATE PROCEDURE AuthenticateUser(IN input_username VARCHAR(100))
+BEGIN
+    SELECT 
+        id,
+        username,
+        email,
+        password_hash,
+        is_admin
+    FROM users 
+    WHERE username = input_username AND is_admin = TRUE
+    LIMIT 1;
+END //
+DELIMITER ;
+
+-- -----------------------------------------------------------------------------
+-- Get Releases for Admin Management
+-- -----------------------------------------------------------------------------
+DELIMITER //
+CREATE PROCEDURE GetReleasesAdmin()
+BEGIN
+    SELECT 
+        id,
+        title,
+        artist,
+        slug,
+        release_date,
+        release_type,
+        cover_image_url,
+        is_featured,
+        is_new,
+        status,
+        created_at,
+        updated_at
+    FROM releases 
+    ORDER BY created_at DESC;
+END //
+DELIMITER ;
+
+-- -----------------------------------------------------------------------------
+-- Get Featured Releases for Homepage
+-- -----------------------------------------------------------------------------
+DELIMITER //
+CREATE PROCEDURE GetFeaturedReleases()
+BEGIN
+    SELECT 
+        id,
+        title,
+        artist,
+        slug,
+        release_date,
+        release_type,
+        cover_image_url,
+        spotify_url,
+        apple_music_url,
+        amazon_music_url,
+        youtube_url
+    FROM releases 
+    WHERE status = 'published' AND is_featured = TRUE
+    ORDER BY release_date DESC;
 END //
 DELIMITER ;
 
 -- =============================================================================
--- PERFORMANCE OPTIMIZATION
+-- TRIGGERS AND VALIDATION
 -- =============================================================================
-
--- Additional indexes for complex queries that may be added later
--- These are commented out but ready for implementation if needed
-
--- For artist discography queries:
--- CREATE INDEX idx_artist_release_date ON release_artists (artist_id, release_id);
-
--- For label catalog queries:
--- CREATE INDEX idx_label_release_date ON releases (label_id, release_date);
-
--- For search functionality (full-text search):
--- ALTER TABLE releases ADD FULLTEXT(title, description);
--- ALTER TABLE artists ADD FULLTEXT(name, bio);
-
--- =============================================================================
--- DATABASE CONSTRAINTS AND TRIGGERS
--- =============================================================================
-
--- Trigger to automatically update the updated_at timestamp
--- (Already handled by ON UPDATE CURRENT_TIMESTAMP in column definitions)
 
 -- Trigger to validate release data consistency
 DELIMITER //
@@ -333,14 +285,8 @@ BEGIN
     -- Ensure slug is lowercase and URL-safe
     SET NEW.slug = LOWER(REPLACE(REPLACE(NEW.slug, ' ', '-'), '_', '-'));
     
-    -- Set default display_order if not provided
-    IF NEW.display_order = 0 AND NEW.is_featured = TRUE THEN
-        SET NEW.display_order = (
-            SELECT COALESCE(MAX(display_order), 0) + 10 
-            FROM releases 
-            WHERE is_featured = TRUE
-        );
-    END IF;
+    -- Ensure artist name is trimmed
+    SET NEW.artist = TRIM(NEW.artist);
 END //
 DELIMITER ;
 
@@ -352,6 +298,35 @@ FOR EACH ROW
 BEGIN
     -- Ensure slug is lowercase and URL-safe
     SET NEW.slug = LOWER(REPLACE(REPLACE(NEW.slug, ' ', '-'), '_', '-'));
+    
+    -- Ensure artist name is trimmed
+    SET NEW.artist = TRIM(NEW.artist);
+END //
+DELIMITER ;
+
+-- Trigger to validate homepage video positions (1-4 only)
+DELIMITER //
+CREATE TRIGGER validate_homepage_video_position
+BEFORE INSERT ON homepage_videos
+FOR EACH ROW
+BEGIN
+    IF NEW.position NOT BETWEEN 1 AND 4 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Homepage video position must be between 1 and 4';
+    END IF;
+END //
+DELIMITER ;
+
+-- Similar trigger for updates
+DELIMITER //
+CREATE TRIGGER validate_homepage_video_position_update
+BEFORE UPDATE ON homepage_videos
+FOR EACH ROW
+BEGIN
+    IF NEW.position NOT BETWEEN 1 AND 4 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Homepage video position must be between 1 and 4';
+    END IF;
 END //
 DELIMITER ;
 
@@ -360,37 +335,51 @@ DELIMITER ;
 -- =============================================================================
 
 /*
-Entity Relationships Summary:
+All Day Every Day Records - Simplified Schema
 
-1. Artists (1) ←→ (M) ReleaseArtists (M) ←→ (1) Releases
-   - Many-to-many with roles (primary, featured, remixer, etc.)
-   
-2. Labels (1) ←→ (M) Releases
-   - One-to-many (a label can have many releases)
-   
-3. Releases (1) ←→ (M) StreamingLinks
-   - One-to-many (a release can be on multiple platforms)
+TABLES:
+1. releases - Music releases with artist name directly included
+2. users - Admin authentication only
+3. homepage_videos - YouTube video management for homepage grid
 
-Key Design Decisions:
+KEY FEATURES:
 
-1. **Normalized Structure**: Reduces redundancy and maintains data integrity
-2. **Flexible Artist Roles**: Supports complex collaborations and remixes
-3. **JSON Fields**: For flexible metadata storage without schema changes
-4. **Soft Constraints**: Foreign keys with SET NULL to handle data deletion gracefully
-5. **Performance Indexes**: Strategic indexing for common query patterns
-6. **UTF8MB4**: Full Unicode support for international artist names
+RELEASES TABLE:
+- Artist name stored directly in releases table
+- Streaming URLs: Spotify, Apple Music, Amazon Music, YouTube
+- Admin flags: is_featured, is_new, status
+- Mandatory cover image URL
 
-Query Performance Considerations:
+RELATED RELEASES:
+- Simple query by artist name for "other releases by this artist"
+- No complex junction tables needed
 
-1. **Composite Indexes**: For multi-column WHERE clauses
-2. **Covering Indexes**: Include frequently selected columns
-3. **View Optimization**: Pre-computed joins for common queries
-4. **Stored Procedures**: For complex multi-table operations
+ADMIN FUNCTIONALITY:
+- Single users table with is_admin flag
+- Homepage video management (4 positions)
+- Release CRUD operations
+- Tagging and status management
 
-Scalability Considerations:
+STREAMING INTEGRATION:
+- Individual URL fields for each platform
+- YouTube URL for video embedding
+- All streaming URLs optional
 
-1. **Partitioning Ready**: Tables designed for future date-based partitioning
-2. **Caching Friendly**: Immutable IDs and slugs for cache keys
-3. **Read Optimization**: Denormalized data in JSON fields where appropriate
-4. **Connection Pooling**: Schema supports connection pooling implementations
+IMAGE STORAGE:
+- Cover images stored in /assets/images/releases/
+- Mandatory cover_image_url field
+
+QUERY EXAMPLES:
+
+-- Get release details with related releases
+CALL GetReleaseDetails('release-slug');
+
+-- Get all releases by artist
+SELECT * FROM releases WHERE artist = 'Artist Name' AND status = 'published';
+
+-- Get featured releases for homepage
+CALL GetFeaturedReleases();
+
+-- Admin: Get all releases
+CALL GetReleasesAdmin();
 */

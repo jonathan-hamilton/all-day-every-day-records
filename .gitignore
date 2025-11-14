@@ -28,6 +28,21 @@ logs
 Thumbs.db
 ehthumbs.db
 
+# Images and uploads
+/frontend/public/assets/images/releases/
+/frontend/public/assets/images/uploads/
+/backend/assets/images/releases/
+/backend/assets/images/uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.bmp
+*.tiff
+*.svg
+# Keep only essential UI/design images by explicitly adding them back when needed
+
 # Node.js dependencies (backup - subprojects should have their own)
 node_modules/
 npm-debug.log*

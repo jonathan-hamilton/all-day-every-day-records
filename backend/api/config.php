@@ -8,14 +8,29 @@
 
 // Load environment variables from .env file
 function loadEnv($file = '.env') {
-    if (!file_exists($file)) {
-        return;
+    // Look for .env file in parent directory (domain root)
+    $envPath = dirname(__DIR__) . '/' . $file;
+    
+    if (!file_exists($envPath)) {
+        // Fallback: try current directory
+        $envPath = $file;
+        if (!file_exists($envPath)) {
+            return;
+        }
     }
     
-    $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) {
-            continue; // Skip comments
+        $line = trim($line);
+        
+        // Skip comments and empty lines
+        if (empty($line) || strpos($line, '#') === 0) {
+            continue;
+        }
+        
+        // Check if line contains =
+        if (strpos($line, '=') === false) {
+            continue;
         }
         
         list($name, $value) = explode('=', $line, 2);
@@ -25,11 +40,13 @@ function loadEnv($file = '.env') {
         // Remove quotes if present
         if (preg_match('/^".*"$/', $value)) {
             $value = substr($value, 1, -1);
+        } elseif (preg_match("/^'.*'$/", $value)) {
+            $value = substr($value, 1, -1);
         }
         
-        if (!array_key_exists($name, $_ENV)) {
-            $_ENV[$name] = $value;
-        }
+        // Set environment variable
+        $_ENV[$name] = $value;
+        putenv("$name=$value");
     }
 }
 

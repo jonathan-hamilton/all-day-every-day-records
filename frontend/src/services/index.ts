@@ -11,6 +11,7 @@ export { getCurrentApiConfig, getApiConfig, isDevelopment, isProduction } from '
 
 // Domain-specific services
 export { ReleaseService, createReleaseService } from './releaseService';
+export { AuthService, createAuthService } from './authService';
 export type { GetReleasesParams } from './releaseService';
 
 // Export types for convenience
@@ -20,6 +21,7 @@ export type { ReleaseCarouselSlide } from '../types';
 import { getCurrentApiConfig } from '../config/api';
 import { createApiService } from './apiService';
 import { createReleaseService } from './releaseService';
+import { createAuthService } from './authService';
 
 /**
  * Create a configured API service instance using current environment
@@ -37,6 +39,7 @@ export function createServices() {
   
   return {
     api: apiService,
-    releases: createReleaseService(apiService)
+    releases: createReleaseService(apiService),
+    auth: createAuthService(apiService)
   };
 }

@@ -51,54 +51,39 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
         
-        // Try to fetch from API endpoint
-        const videoData = await services.api.get<string[]>('/get-homepage-videos.php');
+        // Fetch from API endpoint - no fallbacks
+        const response = await services.api.get('/get-homepage-videos.php');
+        
+        // Handle API response format: {success: true, data: [...]}
+        const apiResponse = response as { data?: string[] } | string[];
+        const videoUrls = Array.isArray(response) ? response : (apiResponse as { data?: string[] }).data || [];
         
         // Convert URL array to video objects
-        const videos: HomepageVideo[] = Array.isArray(videoData) 
-          ? videoData.slice(0, maxVideos).map((url, index) => ({
+        const videos: HomepageVideo[] = Array.isArray(videoUrls) 
+          ? videoUrls.slice(0, maxVideos).map((url, index) => ({
               id: index + 1,
               title: `Featured Video ${index + 1}`,
               youtube_url: url
             }))
           : [];
 
-        setState({
-          loading: false,
-          error: null,
-          videos: videos.filter(v => v.youtube_url) // Only include videos with URLs
-        });
-      } catch (error) {
-        console.error('API not available, using hardcoded videos:', error);
-        
-        // Hardcoded fallback videos for development
-        const hardcodedVideos: HomepageVideo[] = [
-          { 
-            id: 1, 
-            title: 'All Day Every Day Records - Showcase', 
-            youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' 
-          },
-          { 
-            id: 2, 
-            title: 'MC Shadow - Featured Track', 
-            youtube_url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' 
-          },
-          { 
-            id: 3, 
-            title: 'Street Symphony - Behind the Scenes', 
-            youtube_url: 'https://www.youtube.com/watch?v=9bZkp7q19f0' 
-          },
-          { 
-            id: 4, 
-            title: 'Underground Anthems - Live Session', 
-            youtube_url: 'https://www.youtube.com/watch?v=K4TOrB7at0Y' 
-          }
-        ];
+        console.log('API Response:', response);
+        console.log('Video URLs:', videoUrls);
+        console.log('Processed Videos:', videos);
 
         setState({
           loading: false,
           error: null,
-          videos: hardcodedVideos.slice(0, maxVideos)
+          videos: videos.filter(v => v.youtube_url && v.youtube_url.trim() !== '') // Only include valid URLs
+        });
+      } catch (error) {
+        console.error('Failed to fetch homepage videos:', error);
+        
+        // Set error state instead of using hardcoded fallbacks
+        setState({
+          loading: false,
+          error: 'Unable to load featured videos. Please check your connection.',
+          videos: []
         });
       }
     };
@@ -208,18 +193,6 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
                 />
               </Box>
             ))}
-          </Box>
-
-          {/* Admin Configuration Note */}
-          <Box sx={{ mt: 4, textAlign: 'center' }}>
-            <Alert severity="success" sx={{ maxWidth: 700, mx: 'auto' }}>
-              <Typography variant="body2">
-                <strong>✅ S2.4 Complete:</strong> Homepage video grid displays {state.videos.length} featured videos. 
-                Videos are fully playable with responsive 2x2 layout (stacks vertically on mobile). 
-                <br />
-                <strong>Admin Ready:</strong> URLs will be configurable via admin interface in Sprint 3.
-              </Typography>
-            </Alert>
           </Box>
         </>
       )}

@@ -20,7 +20,8 @@ export type Environment = 'development' | 'production';
  */
 const configurations: Record<Environment, ApiConfig> = {
   development: {
-    baseURL: 'http://localhost:8000/api',
+    // Use environment variable if set, otherwise default to production for local testing
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'https://alldayeverydayrecords.com/api',
     timeout: 10000, // 10 seconds
     retryAttempts: 3,
     retryDelay: 1000, // 1 second

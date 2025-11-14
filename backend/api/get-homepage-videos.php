@@ -17,13 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 try {
     $db = getDatabase();
     
-    // Simple query to get the 4 homepage video URLs
-    // For now, we'll create a simple config table approach
+    // Query to get the 4 homepage video URLs from database
     $videos = $db->query("
-        SELECT video_url, display_order 
+        SELECT url, position 
         FROM homepage_videos 
-        WHERE is_active = 1 
-        ORDER BY display_order ASC 
+        WHERE is_enabled = 1 
+        ORDER BY position ASC 
         LIMIT 4
     ");
     
@@ -31,16 +30,16 @@ try {
     $video_urls = [];
     if ($videos && is_array($videos)) {
         foreach ($videos as $video) {
-            $video_urls[] = $video['video_url'];
+            $video_urls[] = $video['url'];
         }
     }
     
     // If no videos found or less than 4, provide fallback demo URLs
     $fallback_urls = [
-        'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        'https://www.youtube.com/watch?v=jNQXAC9IVRw',
-        'https://www.youtube.com/watch?v=9bZkp7q19f0',
-        'https://www.youtube.com/watch?v=K4TOrB7at0Y'
+        'https://youtu.be/Wd2Pt37uKmA?si=13TmJqp0qAo5Mt8p',
+        'https://youtu.be/t7ZV-6mG8_4?si=2YA_0xUsZvOigvkG',
+        'https://youtu.be/7hrhmgNMzKI?si=VYFN3MSGLzsZrPH9',
+        'https://youtu.be/neVgHSVPPjc?si=uJShPYpcrj-QH8eX'
     ];
     
     // Use fallback URLs if needed
@@ -56,10 +55,10 @@ try {
     
     // Return fallback URLs on error - frontend will handle gracefully
     jsonResponse([
-        'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        'https://www.youtube.com/watch?v=jNQXAC9IVRw',
-        'https://www.youtube.com/watch?v=9bZkp7q19f0',
-        'https://www.youtube.com/watch?v=K4TOrB7at0Y'
+        'https://youtu.be/Wd2Pt37uKmA?si=13TmJqp0qAo5Mt8p',
+        'https://youtu.be/t7ZV-6mG8_4?si=2YA_0xUsZvOigvkG',
+        'https://youtu.be/7hrhmgNMzKI?si=VYFN3MSGLzsZrPH9',
+        'https://youtu.be/neVgHSVPPjc?si=uJShPYpcrj-QH8eX'
     ]);
 }
 ?>
