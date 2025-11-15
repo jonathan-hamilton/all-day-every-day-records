@@ -4,12 +4,18 @@
  * Based on Nickel & Dime Records pattern - simple and effective
  */
 
+error_log("DEBUG: security.php loaded");
+
 // Load configuration
 function getConfig() {
+    error_log("DEBUG: getConfig() called");
     static $config = null;
     if ($config === null) {
+        error_log("DEBUG: Loading config.php");
         require_once __DIR__ . '/config.php';
+        error_log("DEBUG: config.php loaded");
         $config = $GLOBALS['config'];
+        error_log("DEBUG: Config loaded: " . json_encode($config));
     }
     return $config;
 }
@@ -37,14 +43,21 @@ function handleCORS() {
 
 // Get database connection (simplified from complex Database class)
 function getDBConnection() {
+    error_log("DEBUG: getDBConnection() called");
     $config = getConfig();
+    error_log("DEBUG: Config retrieved for DB connection");
     $db = $config['database'];
     
     try {
+        error_log("DEBUG: About to create Database instance");
         require_once __DIR__ . '/database.php';
-        return new Database($db);
+        error_log("DEBUG: database.php loaded");
+        $database = new Database($db);
+        error_log("DEBUG: Database instance created successfully");
+        return $database;
     } catch (Exception $e) {
         error_log("Database connection failed: " . $e->getMessage());
+        error_log("DEBUG: Database config: " . json_encode($db));
         http_response_code(500);
         echo json_encode(["error" => "Database connection failed"]);
         exit;
@@ -53,21 +66,16 @@ function getDBConnection() {
 
 // Simple authentication (matches N&D pattern)
 function requireAuth() {
-    $config = getConfig();
-    
-    // In development mode, bypass authentication for testing
-    if ($config['debug']) {
-        return ['id' => 1, 'username' => 'dev_user', 'is_admin' => true];
-    }
-    
-    // Set session cookie params
-    $isDevelopment = in_array($_SERVER['HTTP_ORIGIN'] ?? '', ['http://localhost:5173', 'http://127.0.0.1:5173']);
+    // Set session cookie params before session_start() - matches login.php
+    $isDevelopment = isset($_SERVER['HTTP_ORIGIN']) && strpos($_SERVER['HTTP_ORIGIN'], 'localhost') !== false;
     
     if ($isDevelopment) {
+        // Development mode: use insecure cookies for cross-origin localhost
         ini_set('session.cookie_secure', '0');
         ini_set('session.cookie_httponly', '1');
         ini_set('session.cookie_samesite', 'None');
     } else {
+        // Production mode: use secure cookies
         ini_set('session.cookie_secure', '1');
         ini_set('session.cookie_httponly', '1');
         ini_set('session.cookie_samesite', 'None');

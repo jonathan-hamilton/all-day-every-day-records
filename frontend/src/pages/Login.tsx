@@ -33,7 +33,7 @@ export const Login: React.FC = () => {
 
   // Handle login form submission
   const handleLogin = async (credentials: LoginCredentials): Promise<void> => {
-    const success = await login(credentials.username, credentials.password);
+    const success = await login(credentials.email, credentials.password);
     
     if (success) {
       // Navigation will be handled by the useEffect above

@@ -33,12 +33,12 @@ export interface LoginFormProps {
 }
 
 interface FormData {
-  username: string;
+  email: string;
   password: string;
 }
 
 interface FormErrors {
-  username?: string;
+  email?: string;
   password?: string;
 }
 
@@ -49,7 +49,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onClearError
 }) => {
   const [formData, setFormData] = useState<FormData>({
-    username: '',
+    email: '',
     password: ''
   });
   
@@ -60,8 +60,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
     
-    if (!formData.username.trim()) {
-      errors.username = 'Username is required';
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!formData.email.includes('@')) {
+      errors.email = 'Please enter a valid email address';
     }
     
     if (!formData.password) {
@@ -91,7 +93,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     // Submit login credentials
     try {
       await onSubmit({
-        username: formData.username.trim(),
+        email: formData.email.trim(),
         password: formData.password
       });
     } catch (error) {
@@ -161,25 +163,48 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           </Alert>
         )}
 
-        {/* Username Field */}
+        {/* Email Field */}
         <TextField
           fullWidth
-          label="Username"
+          label="Email"
+          type="email"
           variant="outlined"
-          value={formData.username}
-          onChange={handleInputChange('username')}
-          error={!!formErrors.username}
-          helperText={formErrors.username}
+          value={formData.email}
+          onChange={handleInputChange('email')}
+          error={!!formErrors.email}
+          helperText={formErrors.email}
           disabled={isLoading}
-          autoComplete="username"
+          autoComplete="email"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
                 <PersonIcon />
               </InputAdornment>
-            )
+            ),
+            style: {
+              color: 'white'
+            }
           }}
-          sx={{ mb: 2 }}
+          InputLabelProps={{
+            style: { color: 'rgba(255, 255, 255, 0.7)' }
+          }}
+          sx={{ 
+            mb: 2,
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: 'primary.main',
+              },
+              '& input': {
+                color: 'white',
+              }
+            }
+          }}
         />
 
         {/* Password Field */}
@@ -208,13 +233,39 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                   onMouseDown={(e) => e.preventDefault()}
                   edge="end"
                   disabled={isLoading}
+                  sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
                 >
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
-            )
+            ),
+            style: {
+              color: 'white'
+            }
           }}
-          sx={{ mb: 3 }}
+          InputLabelProps={{
+            style: { color: 'rgba(255, 255, 255, 0.7)' }
+          }}
+          sx={{ 
+            mb: 3,
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: 'primary.main',
+              },
+              '& input': {
+                color: 'white',
+              }
+            },
+            '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+              color: 'rgba(255, 255, 255, 0.7)',
+            }
+          }}
         />
 
         {/* Submit Button */}
@@ -223,7 +274,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           fullWidth
           variant="contained"
           size="large"
-          disabled={isLoading || !formData.username || !formData.password}
+          disabled={isLoading || !formData.email || !formData.password}
           sx={{
             py: 1.5,
             fontSize: '1.1rem',

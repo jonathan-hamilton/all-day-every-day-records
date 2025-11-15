@@ -1,171 +1,120 @@
 /**
- * Authentication Context for All Day Every Day Records
- * 
- * This file provides React Context for global authentication state management.
- * Handles user authentication, session persistence, and authentication state
- * across the application using localStorage for session persistence.
+ * Simplified Authentication Context for All Day Every Day Records
+ * Based on reference N&D pattern - session-based authentication only
  */
 
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { AuthContextType, AuthState, User } from '../types/Auth';
-import { createServices } from '../services';
+import type { AuthContextType, User } from '../types/Auth';
 
 // Create authentication context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Authentication context provider props
-interface AuthProviderProps {
-  children: ReactNode;
-}
+// Authentication provider component
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-// Local storage key for session persistence
-const AUTH_STORAGE_KEY = 'ader_auth_session';
+  // Check for existing session on mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
 
-// Helper function to get stored auth session
-const getStoredAuthSession = (): { user: User | null; isAuthenticated: boolean } => {
-  try {
-    const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (stored) {
-      const session = JSON.parse(stored);
-      // Validate session structure
-      if (session && session.user && typeof session.user.username === 'string') {
-        return {
-          user: session.user,
-          isAuthenticated: true
-        };
-      }
-    }
-  } catch (error) {
-    console.warn('Failed to parse stored auth session:', error);
-    // Clear invalid stored data
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-  }
-  
-  return {
-    user: null,
-    isAuthenticated: false
-  };
-};
-
-// Helper function to store auth session
-const storeAuthSession = (user: User | null) => {
-  try {
-    if (user) {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user }));
-    } else {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-    }
-  } catch (error) {
-    console.warn('Failed to store auth session:', error);
-  }
-};
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  // Initialize auth state with stored session
-  const [authState, setAuthState] = useState<AuthState>(() => {
-    const stored = getStoredAuthSession();
-    return {
-      user: stored.user,
-      isAuthenticated: stored.isAuthenticated,
-      isLoading: false,
-      error: null
-    };
-  });
-
-  // Login function - now with real API integration
-  const login = async (username: string, password: string): Promise<boolean> => {
-    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
-    
+  const checkAuthStatus = async () => {
     try {
-      // Use factory pattern to get auth service
-      const services = createServices();
-      const response = await services.auth.login({ username, password });
+      setIsLoading(true);
       
-      if (response.success && response.user) {
-        // Create user object with session data
-        const user: User = {
-          id: 1, // Backend response may not include ID in development mode
-          username: response.user.username,
-          is_admin: response.user.is_admin,
-          login_time: Date.now()
-        };
+      // Try to get user info from backend session
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/get-user-info.php`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-        setAuthState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null
-        });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.user) {
+          setUser(data.user);
+          setIsAuthenticated(true);
+        }
+      }
+    } catch {
+      console.log('No existing session found');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/login.php`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.user) {
+        setUser(data.user);
+        setIsAuthenticated(true);
         return true;
       } else {
-        // Login failed
-        setAuthState(prev => ({ 
-          ...prev, 
-          isLoading: false, 
-          error: response.message || 'Login failed'
-        }));
-        
+        setError(data.error || 'Login failed');
         return false;
       }
-
-    } catch (error) {
-      console.error('Login error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
-      
-      setAuthState(prev => ({ 
-        ...prev, 
-        isLoading: false, 
-        error: errorMessage 
-      }));
-      
+    } catch {
+      setError('Network error during login');
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Logout function with API integration
   const logout = async () => {
     try {
-      // Call logout API (gracefully handles if endpoint doesn't exist)
-      const services = createServices();
-      await services.auth.logout();
-    } catch (error) {
-      console.warn('Logout API call failed (expected in development):', error);
-    } finally {
-      // Always clear local state regardless of API response
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: null
+      // Call logout endpoint to clear session
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/logout.php`, {
+        method: 'POST',
+        credentials: 'include',
       });
-      storeAuthSession(null);
+    } catch {
+      console.log('Logout request failed, clearing local state anyway');
+    } finally {
+      setUser(null);
+      setIsAuthenticated(false);
+      setError(null);
     }
   };
 
-  // Clear error function
   const clearError = () => {
-    setAuthState(prev => ({ ...prev, error: null }));
+    setError(null);
   };
 
-  // Update localStorage when auth state changes
-  useEffect(() => {
-    storeAuthSession(authState.user);
-  }, [authState.user]);
-
-  const contextValue: AuthContextType = {
-    ...authState,
+  const value: AuthContextType = {
+    user,
+    isAuthenticated,
+    isLoading,
+    error,
     login,
     logout,
-    clearError
+    clearError,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
-
 export default AuthContext;

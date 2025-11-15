@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -9,35 +9,268 @@ import {
   Button,
   Paper,
   Avatar,
-  Divider
+  TextField,
+  MenuItem,
+  Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  IconButton,
+  CircularProgress,
+  Stack,
+  Divider,
+
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import {
   Inventory as ReleasesIcon,
-  Settings as SettingsIcon,
   People as UsersIcon,
-  Analytics as AnalyticsIcon,
-  ExitToApp as LogoutIcon
+  VideoLibrary as VideoIcon,
+  ExitToApp as LogoutIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon,
+  Upload as UploadIcon
 } from '@mui/icons-material';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
+interface Release {
+  id?: number;
+  title: string;
+  artist: string;
+  format: string;
+  release_date: string;
+  description: string;
+  cover_image_url: string;
+  spotify_url: string;
+  apple_music_url: string;
+  amazon_music_url: string;
+  youtube_url: string;
+  tag: 'None' | 'Featured' | 'New' | 'Removed';
+  created_at?: string;
+  updated_at?: string;
+}
+
 const AdminDashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Release management state
+  const [releases, setReleases] = useState<Release[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  
+  // Form state
+  const [editingRelease, setEditingRelease] = useState<Release | null>(null);
+  const [isCreating, setIsCreating] = useState(true);
+  const [formData, setFormData] = useState<Partial<Release>>({
+    title: '',
+    artist: '',
+    format: '',
+    release_date: '',
+    description: '',
+    cover_image_url: '',
+    spotify_url: '',
+    apple_music_url: '',
+    amazon_music_url: '',
+    youtube_url: '',
+    tag: 'None'
+  });
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
-  const dashboardCards = [
-    {
-      title: 'Manage Releases',
-      description: 'Add, edit, and organize music releases',
-      icon: <ReleasesIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
-      action: 'Manage',
-      path: '/admin/releases'
-    },
+  // Load releases
+  const fetchReleases = useCallback(async () => {
+    if (!isAuthenticated) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/get-releases.php?admin=1`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setReleases(data.releases || []);
+      } else {
+        setError(data.error || 'Failed to fetch releases');
+      }
+    } catch (err) {
+      setError('Network error fetching releases');
+      console.error('Fetch releases error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchReleases();
+    }
+  }, [isAuthenticated, fetchReleases]);
+
+  const handleCreateNew = () => {
+    setIsCreating(true);
+    setEditingRelease(null);
+    setFormData({
+      title: '',
+      artist: '',
+      format: '',
+      release_date: '',
+      description: '',
+      cover_image_url: '',
+      spotify_url: '',
+      apple_music_url: '',
+      amazon_music_url: '',
+      youtube_url: '',
+      tag: 'None'
+    });
+    clearMessages();
+  };
+
+  const handleEditRelease = (release: Release) => {
+    setIsCreating(false);
+    setEditingRelease(release);
+    setFormData({ ...release });
+    clearMessages();
+  };
+
+  const handleCancelEdit = () => {
+    setIsCreating(false);
+    setEditingRelease(null);
+    setFormData({
+      title: '',
+      artist: '',
+      format: '',
+      release_date: '',
+      description: '',
+      cover_image_url: '',
+      spotify_url: '',
+      apple_music_url: '',
+      amazon_music_url: '',
+      youtube_url: '',
+      tag: 'None'
+    });
+    clearMessages();
+  };
+
+  const clearMessages = () => {
+    setError(null);
+    setSuccess(null);
+  };
+
+  const handleUploadCoverImage = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpeg,image/png,image/webp,image/gif';
+    input.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        setError(null);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload-cover-image.php`, {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setFormData(prev => ({ ...prev, cover_image_url: data.url }));
+          setSuccess('Cover image uploaded successfully!');
+        } else {
+          setError(data.error || 'Failed to upload image');
+        }
+      } catch (err) {
+        setError('Network error uploading image');
+        console.error('Upload error:', err);
+      }
+    };
+    input.click();
+  };
+
+  const handleSubmit = async () => {
+    // Validate required fields including cover image
+    if (!formData.title || !formData.artist) {
+      setError('Title and Artist are required');
+      return;
+    }
+
+    if (!formData.cover_image_url) {
+      setError('Cover image is required. Please upload an image first.');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const submitData = {
+        ...formData,
+        id: editingRelease?.id
+      };
+
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upsert-release.php`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(submitData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSuccess(isCreating ? 'Release created successfully!' : 'Release updated successfully!');
+        handleCancelEdit();
+        fetchReleases();
+      } else {
+        setError(data.error || 'Failed to save release');
+      }
+    } catch (err) {
+      setError('Network error saving release');
+      console.error('Save release error:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const getTagColor = (tag: string): 'default' | 'success' | 'info' | 'error' => {
+    switch (tag) {
+      case 'Featured': return 'success';
+      case 'New': return 'info';
+      case 'Removed': return 'error';
+      default: return 'default';
+    }
+  };
+
+  const otherDashboardCards = [
     {
       title: 'User Management',
       description: 'Manage user accounts and permissions',
@@ -46,23 +279,17 @@ const AdminDashboard: React.FC = () => {
       path: '/admin/users'
     },
     {
-      title: 'Analytics',
-      description: 'View site statistics and release performance',
-      icon: <AnalyticsIcon sx={{ fontSize: 40, color: 'success.main' }} />,
-      action: 'View',
-      path: '/admin/analytics'
-    },
-    {
-      title: 'Settings',
-      description: 'Configure site settings and preferences',
-      icon: <SettingsIcon sx={{ fontSize: 40, color: 'warning.main' }} />,
-      action: 'Configure',
-      path: '/admin/settings'
+      title: 'Home Page Videos',
+      description: 'Manage YouTube videos displayed on the homepage',
+      icon: <VideoIcon sx={{ fontSize: 40, color: 'success.main' }} />,
+      action: 'Manage',
+      path: '/admin/videos'
     }
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       {/* Header Section */}
       <Paper
         elevation={3}
@@ -111,76 +338,307 @@ const AdminDashboard: React.FC = () => {
         </Box>
       </Paper>
 
-      {/* Quick Stats Section */}
-      <Box mb={4}>
-        <Typography variant="h5" component="h2" gutterBottom fontWeight="medium">
-          Quick Overview
-        </Typography>
-        <Box display="flex" flexWrap="wrap" gap={3}>
-          <Card sx={{ minWidth: 200, flex: '1 1 200px' }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Typography color="textSecondary" gutterBottom>
-                Total Releases
-              </Typography>
-              <Typography variant="h4" component="div" color="primary.main">
-                -
-              </Typography>
-              <Typography variant="body2">
-                Coming soon
-              </Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ minWidth: 200, flex: '1 1 200px' }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Typography color="textSecondary" gutterBottom>
-                Recent Uploads
-              </Typography>
-              <Typography variant="h4" component="div" color="secondary.main">
-                -
-              </Typography>
-              <Typography variant="body2">
-                This month
-              </Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ minWidth: 200, flex: '1 1 200px' }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Typography color="textSecondary" gutterBottom>
-                Site Views
-              </Typography>
-              <Typography variant="h4" component="div" color="success.main">
-                -
-              </Typography>
-              <Typography variant="body2">
-                This week
-              </Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ minWidth: 200, flex: '1 1 200px' }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Typography color="textSecondary" gutterBottom>
-                Active Users
-              </Typography>
-              <Typography variant="h4" component="div" color="warning.main">
-                -
-              </Typography>
-              <Typography variant="body2">
-                Online now
-              </Typography>
-            </CardContent>
-          </Card>
+      {/* Alerts */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={clearMessages}>
+          {error}
+        </Alert>
+      )}
+      
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={clearMessages}>
+          {success}
+        </Alert>
+      )}
+
+      {/* Release Management Section */}
+      <Box sx={{ mb: 4 }}>
+        <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
+          <ReleasesIcon sx={{ mr: 2, color: 'primary.main' }} />
+          <Typography variant="h5" component="h2" fontWeight="medium">
+            Manage Releases
+          </Typography>
         </Box>
-      </Box>
+        
+        {/* Release Form - Always Visible */}
+        <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            {isCreating ? 'Create New Release' : editingRelease ? `Edit: ${editingRelease?.title}` : 'Create New Release'}
+          </Typography>
+              
+              <Stack spacing={3} sx={{ mt: 2 }}>
+                {/* Title, Artist, and Format Row - 3 fields */}
+                <Stack direction={{ xs: 'column', sm: 'column', md: 'row' }} spacing={2}>
+                  <TextField
+                    fullWidth
+                    label="Title *"
+                    value={formData.title || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  />
+                  
+                  <TextField
+                    fullWidth
+                    label="Artist *"
+                    value={formData.artist || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, artist: e.target.value }))}
+                  />
 
-      <Divider sx={{ my: 4 }} />
+                  <TextField
+                    fullWidth
+                    label="Format"
+                    value={formData.format || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, format: e.target.value }))}
+                    placeholder="e.g. Single, EP, Album, Mixtape"
+                  />
+                </Stack>
 
-      {/* Main Dashboard Cards */}
+                {/* Release Date and Tag Row */}
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                  <DatePicker
+                    label="Release Date"
+                    value={formData.release_date ? dayjs(formData.release_date) : null}
+                    onChange={(date: Dayjs | null) => {
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        release_date: date ? date.format('YYYY-MM-DD') : '' 
+                      }));
+                    }}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        variant: 'outlined'
+                      }
+                    }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    select
+                    label="Tag"
+                    value={formData.tag || 'None'}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tag: e.target.value as Release['tag'] }))}
+                  >
+                    <MenuItem value="None">None</MenuItem>
+                    <MenuItem value="Featured">Featured</MenuItem>
+                    <MenuItem value="New">New</MenuItem>
+                    <MenuItem value="Removed">Removed</MenuItem>
+                  </TextField>
+                </Stack>
+
+                {/* Hidden Cover Image URL field - populated by upload */}
+                <input
+                  type="hidden"
+                  value={formData.cover_image_url || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, cover_image_url: e.target.value }))}
+                />
+
+                {/* Upload Cover Image Button - Primary way to set cover image */}
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Cover Image *
+                  </Typography>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Button
+                      variant={formData.cover_image_url ? "outlined" : "contained"}
+                      startIcon={<UploadIcon />}
+                      onClick={handleUploadCoverImage}
+                      color={formData.cover_image_url ? "success" : "primary"}
+                    >
+                      {formData.cover_image_url ? "Change Cover Image" : "Upload Cover Image"}
+                    </Button>
+                    {formData.cover_image_url && (
+                      <Typography variant="body2" color="success.main">
+                        ✓ Image uploaded successfully
+                      </Typography>
+                    )}
+                  </Stack>
+                </Box>
+
+                {/* Description */}
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  label="Description"
+                  value={formData.description || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                />
+
+                {/* Streaming URLs */}
+                <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                  Streaming Links
+                </Typography>
+                
+                {/* First row of streaming links */}
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                  <TextField
+                    fullWidth
+                    label="Spotify URL"
+                    value={formData.spotify_url || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, spotify_url: e.target.value }))}
+                    placeholder="https://open.spotify.com/..."
+                  />
+                  
+                  <TextField
+                    fullWidth
+                    label="Apple Music URL"
+                    value={formData.apple_music_url || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, apple_music_url: e.target.value }))}
+                    placeholder="https://music.apple.com/..."
+                  />
+                </Stack>
+                
+                {/* Second row of streaming links */}
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                  <TextField
+                    fullWidth
+                    label="Amazon Music URL"
+                    value={formData.amazon_music_url || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, amazon_music_url: e.target.value }))}
+                    placeholder="https://music.amazon.com/..."
+                  />
+                  
+                  <TextField
+                    fullWidth
+                    label="YouTube URL"
+                    value={formData.youtube_url || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, youtube_url: e.target.value }))}
+                    placeholder="https://www.youtube.com/..."
+                  />
+                </Stack>
+              </Stack>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* Form Actions */}
+              <Stack direction="row" spacing={2}>
+                <Button
+                  variant="contained"
+                  startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
+                  onClick={handleSubmit}
+                  disabled={saving || !formData.title || !formData.artist || !formData.cover_image_url}
+                >
+                  {saving ? 'Saving...' : (isCreating ? 'Create Release' : 'Update Release')}
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<CancelIcon />}
+                  onClick={handleCancelEdit}
+                  disabled={saving}
+                >
+                  Cancel
+                </Button>
+              </Stack>
+            </Paper>
+
+          {/* Releases List Header and Button */}
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+            <Typography variant="h6">
+              All Releases
+            </Typography>
+            <Box>
+              {editingRelease ? (
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={handleCreateNew}
+                  size="large"
+                  sx={{ mr: 1 }}
+                >
+                  Create New
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleCreateNew}
+                  size="large"
+                  disabled={isCreating}
+                >
+                  {isCreating ? 'Creating...' : 'Create New Release'}
+                </Button>
+              )}
+            </Box>
+          </Box>
+
+          {/* Releases Table */}
+          <Paper elevation={2}>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Title</TableCell>
+                    <TableCell>Artist</TableCell>
+                    <TableCell>Format</TableCell>
+                    <TableCell>Release Date</TableCell>
+                    <TableCell>Tag</TableCell>
+                    <TableCell align="center">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  ) : releases.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        <Typography color="text.secondary">
+                          No releases found. Create your first release to get started.
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    releases.map((release) => (
+                      <TableRow key={release.id} hover sx={{ cursor: 'pointer' }}>
+                        <TableCell onClick={() => handleEditRelease(release)}>
+                          <Typography variant="subtitle2" fontWeight="medium">
+                            {release.title}
+                          </Typography>
+                        </TableCell>
+                        <TableCell onClick={() => handleEditRelease(release)}>
+                          {release.artist || 'Unknown Artist'}
+                        </TableCell>
+                        <TableCell onClick={() => handleEditRelease(release)}>
+                          {release.format || 'Not specified'}
+                        </TableCell>
+                        <TableCell onClick={() => handleEditRelease(release)}>
+                          {release.release_date ? new Date(release.release_date).toLocaleDateString() : 'TBD'}
+                        </TableCell>
+                        <TableCell onClick={() => handleEditRelease(release)}>
+                          <Chip
+                            label={release.tag}
+                            color={getTagColor(release.tag)}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <IconButton
+                            onClick={() => handleEditRelease(release)}
+                            size="small"
+                            title="Edit Release"
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Box>
+
+      {/* Other Dashboard Cards */}
       <Box>
         <Typography variant="h5" component="h2" gutterBottom fontWeight="medium">
-          Administration Tools
+          Other Administration Tools
         </Typography>
         <Box display="grid" gridTemplateColumns="repeat(auto-fit, minmax(300px, 1fr))" gap={3}>
-          {dashboardCards.map((card, index) => (
+          {otherDashboardCards.map((card, index) => (
             <Card
               key={index}
               sx={{
@@ -227,6 +685,7 @@ const AdminDashboard: React.FC = () => {
         </Typography>
       </Box>
     </Container>
+    </LocalizationProvider>
   );
 };
 

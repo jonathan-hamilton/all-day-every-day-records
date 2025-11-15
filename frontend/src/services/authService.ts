@@ -12,12 +12,12 @@ export class AuthService {
   constructor(private readonly apiService: ApiService) {}
 
   /**
-   * Authenticate user with username and password
+   * Authenticate user with email and password
    */
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
       const response = await this.apiService.post<LoginResponse>('/login.php', {
-        username: credentials.username,
+        email: credentials.email,
         password: credentials.password
       });
 

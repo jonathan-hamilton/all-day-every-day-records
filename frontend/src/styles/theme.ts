@@ -138,6 +138,26 @@ const components = {
       },
     },
   },
+  MuiContainer: {
+    styleOverrides: {
+      root: {
+        '&.MuiContainer-maxWidthXl': {
+          maxWidth: '2000px', // Significantly increased from 1600px for much wider layout
+        },
+        paddingLeft: '24px',
+        paddingRight: '24px',
+      },
+    },
+  },
+  MuiTextField: {
+    styleOverrides: {
+      root: {
+        '& .MuiInputBase-root': {
+          fontSize: '1rem',
+        },
+      },
+    },
+  },
   MuiPaper: {
     styleOverrides: {
       root: {
@@ -156,6 +176,15 @@ export const rapTheme = createTheme({
     borderRadius: 8,
   },
   spacing: 8, // Base spacing unit
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536, // Increased from default 1200
+    },
+  },
 })
 
 // Export individual pieces for use in styled components

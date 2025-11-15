@@ -33,6 +33,7 @@ interface RetryConfig {
 export class ApiService {
   private readonly client: AxiosInstance;
   private readonly retryConfig: RetryConfig;
+  private getDevToken?: () => string | null;
 
   constructor(config: ApiConfig) {
     // Create axios instance with configuration
@@ -62,11 +63,44 @@ export class ApiService {
   }
 
   /**
+   * Set the function to get dev_token for authenticated requests
+   */
+  setDevTokenGetter(getToken: () => string | null): void {
+    this.getDevToken = getToken;
+  }
+
+  /**
    * Setup request interceptors for logging and authentication
    */
   private setupRequestInterceptors(): void {
     this.client.interceptors.request.use(
       (config) => {
+        // Add dev_token for authenticated requests
+        if (this.getDevToken && config.url !== '/login.php' && config.url !== '/health.php') {
+          const devToken = this.getDevToken();
+          if (devToken) {
+            // For POST requests, add to request body
+            if (config.method === 'post' && config.data) {
+              if (typeof config.data === 'string') {
+                try {
+                  const parsed = JSON.parse(config.data);
+                  parsed.dev_token = devToken;
+                  config.data = JSON.stringify(parsed);
+                } catch {
+                  // If not JSON, try form data
+                  if (config.data instanceof FormData) {
+                    config.data.append('dev_token', devToken);
+                  }
+                }
+              } else if (config.data instanceof FormData) {
+                config.data.append('dev_token', devToken);
+              } else if (typeof config.data === 'object') {
+                config.data.dev_token = devToken;
+              }
+            }
+          }
+        }
+
         // Log requests in development
         if (import.meta.env.MODE === 'development') {
           console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`, {
@@ -224,7 +258,7 @@ export class ApiService {
     try {
       const response = await this.client.get<HealthCheckResponse>('/health.php');
       return response.data;
-    } catch (error) {
+    } catch {
       // Return unhealthy status if health check fails
       return {
         status: 'unhealthy',
@@ -251,7 +285,7 @@ export class ApiService {
   /**
    * Generic POST request method
    */
-  async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.post<T>(url, data, config);
     return response.data;
   }
@@ -259,7 +293,7 @@ export class ApiService {
   /**
    * Generic PUT request method
    */
-  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.put<T>(url, data, config);
     return response.data;
   }
@@ -270,6 +304,14 @@ export class ApiService {
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.delete<T>(url, config);
     return response.data;
+  }
+
+  /**
+   * File upload method using FormData
+   * Automatically includes authentication tokens when available
+   */
+  async upload<T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> {
+    return this.post<T>(url, formData, config);
   }
 
   /**

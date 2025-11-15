@@ -23,8 +23,8 @@ if (!$input) {
 
 $input = sanitizeInput($input);
 
-// Validate required fields
-$required = ['title', 'catalog_number'];
+// Validate required fields (only title and artist are required)
+$required = ['title', 'artist'];
 foreach ($required as $field) {
     if (empty($input[$field])) {
         jsonResponse(["error" => "Field '$field' is required"], 400);
@@ -40,88 +40,61 @@ try {
     if ($isUpdate) {
         // Update existing release
         $sql = "UPDATE releases 
-                SET title = ?, catalog_number = ?, release_date = ?, 
-                    description = ?, status = ?, label_id = ?, 
-                    cover_image_url = ?, updated_at = NOW()
+                SET title = ?, 
+                    artist = ?, 
+                    description = ?, 
+                    release_date = ?, 
+                    format = ?, 
+                    cover_image_url = ?, 
+                    spotify_url = ?, 
+                    apple_music_url = ?, 
+                    amazon_music_url = ?, 
+                    youtube_url = ?, 
+                    tag = ?, 
+                    updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?";
         
         $params = [
             $input['title'],
-            $input['catalog_number'],
-            $input['release_date'] ?? null,
+            $input['artist'],
             $input['description'] ?? null,
-            $input['status'] ?? 'active',
-            $input['label_id'] ?? null,
-            $input['cover_image_url'] ?? null,
+            $input['release_date'] ?? null,
+            $input['format'] ?? null,
+            $input['cover_image_url'] ?? '',
+            $input['spotify_url'] ?? null,
+            $input['apple_music_url'] ?? null,
+            $input['amazon_music_url'] ?? null,
+            $input['youtube_url'] ?? null,
+            $input['tag'] ?? 'None',
             $releaseId
         ];
         
         $db->execute($sql, $params);
         
-        // Clear existing artist relationships
-        $db->execute("DELETE FROM release_artists WHERE release_id = ?", [$releaseId]);
-        
-        // Clear existing streaming links
-        $db->execute("DELETE FROM streaming_links WHERE release_id = ?", [$releaseId]);
-        
     } else {
         // Create new release
         $sql = "INSERT INTO releases 
-                (title, catalog_number, release_date, description, status, label_id, cover_image_url, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+                (title, artist, description, release_date, format, cover_image_url, 
+                 spotify_url, apple_music_url, amazon_music_url, youtube_url, tag, 
+                 created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         
         $params = [
             $input['title'],
-            $input['catalog_number'],
-            $input['release_date'] ?? null,
+            $input['artist'],
             $input['description'] ?? null,
-            $input['status'] ?? 'active',
-            $input['label_id'] ?? null,
-            $input['cover_image_url'] ?? null
+            $input['release_date'] ?? null,
+            $input['format'] ?? null,
+            $input['cover_image_url'] ?? '',
+            $input['spotify_url'] ?? null,
+            $input['apple_music_url'] ?? null,
+            $input['amazon_music_url'] ?? null,
+            $input['youtube_url'] ?? null,
+            $input['tag'] ?? 'None'
         ];
         
         $db->execute($sql, $params);
         $releaseId = $db->lastInsertId();
-    }
-    
-    // Add artist relationships
-    if (!empty($input['artists']) && is_array($input['artists'])) {
-        foreach ($input['artists'] as $index => $artist) {
-            $artistId = $artist['id'] ?? null;
-            
-            if (!$artistId) {
-                // Create new artist if needed
-                $artistSql = "INSERT INTO artists (name, created_at, updated_at) VALUES (?, NOW(), NOW())";
-                $db->execute($artistSql, [$artist['name']]);
-                $artistId = $db->lastInsertId();
-            }
-            
-            // Link artist to release
-            $linkSql = "INSERT INTO release_artists (release_id, artist_id, order_index, role) 
-                        VALUES (?, ?, ?, ?)";
-            $db->execute($linkSql, [
-                $releaseId,
-                $artistId,
-                $index,
-                $artist['role'] ?? 'artist'
-            ]);
-        }
-    }
-    
-    // Add streaming links
-    if (!empty($input['streaming_links']) && is_array($input['streaming_links'])) {
-        foreach ($input['streaming_links'] as $link) {
-            if (!empty($link['platform']) && !empty($link['url'])) {
-                $linkSql = "INSERT INTO streaming_links (release_id, platform, url, is_active, created_at, updated_at) 
-                            VALUES (?, ?, ?, ?, NOW(), NOW())";
-                $db->execute($linkSql, [
-                    $releaseId,
-                    $link['platform'],
-                    $link['url'],
-                    $link['is_active'] ?? 1
-                ]);
-            }
-        }
     }
     
     $db->commit();

@@ -23,12 +23,39 @@ import { createApiService } from './apiService';
 import { createReleaseService } from './releaseService';
 import { createAuthService } from './authService';
 
+// Global dev token getter for API service
+let globalDevTokenGetter: (() => string | null) | null = null;
+
+/**
+ * Set the global dev token getter (called from AuthContext)
+ */
+export function setGlobalDevTokenGetter(getter: () => string | null) {
+  globalDevTokenGetter = getter;
+  
+  // Update existing API service instance if available
+  if (globalApiServiceInstance) {
+    globalApiServiceInstance.setDevTokenGetter(getter);
+  }
+}
+
+// Global API service instance for reuse
+let globalApiServiceInstance: ReturnType<typeof createApiService> | null = null;
+
 /**
  * Create a configured API service instance using current environment
  */
 export function createConfiguredApiService() {
-  const config = getCurrentApiConfig();
-  return createApiService(config);
+  if (!globalApiServiceInstance) {
+    const config = getCurrentApiConfig();
+    globalApiServiceInstance = createApiService(config);
+    
+    // Set dev token getter if available
+    if (globalDevTokenGetter) {
+      globalApiServiceInstance.setDevTokenGetter(globalDevTokenGetter);
+    }
+  }
+  
+  return globalApiServiceInstance;
 }
 
 /**

@@ -75,7 +75,7 @@ $config = [
     // CORS configuration  
     'cors' => [
         'enabled' => env('CORS_ENABLED', 'true') === 'true',
-        'origins' => explode(',', env('CORS_ORIGINS', 'http://localhost:5173')),
+        'origins' => explode(',', env('CORS_ORIGINS', 'http://localhost:5173,https://alldayeverydayrecords.com')),
         'methods' => explode(',', env('CORS_METHODS', 'GET,POST,PUT,DELETE,OPTIONS')),
         'headers' => explode(',', env('CORS_HEADERS', 'Content-Type,Authorization,X-Requested-With')),
     ],
@@ -94,6 +94,9 @@ $config = [
     ]
 ];
 
+// Make config available globally for other scripts
+$GLOBALS['config'] = $config;
+
 // Set error reporting based on environment
 if ($config['debug']) {
     error_reporting(E_ALL);
@@ -101,56 +104,6 @@ if ($config['debug']) {
 } else {
     error_reporting(0);
     ini_set('display_errors', 0);
-}
-
-// CORS handling
-function handleCors($config) {
-    if (!$config['cors']['enabled']) {
-        return;
-    }
-    
-    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    
-    if (in_array($origin, $config['cors']['origins'])) {
-        header("Access-Control-Allow-Origin: $origin");
-    }
-    
-    header('Access-Control-Allow-Methods: ' . implode(', ', $config['cors']['methods']));
-    header('Access-Control-Allow-Headers: ' . implode(', ', $config['cors']['headers']));
-    header('Access-Control-Allow-Credentials: true');
-    header('Access-Control-Max-Age: 86400');
-    
-    // Handle preflight requests
-    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        http_response_code(200);
-        exit;
-    }
-}
-
-// Apply CORS
-handleCors($config);
-
-// Simple response helper
-function jsonResponse($data, $message = null, $status = 200) {
-    http_response_code($status);
-    header('Content-Type: application/json');
-    
-    $response = [
-        'success' => $status < 400,
-        'data' => $data
-    ];
-    
-    if ($message) {
-        $response['message'] = $message;
-    }
-    
-    if ($status >= 400) {
-        $response['error'] = $data;
-        unset($response['data']);
-    }
-    
-    echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-    exit;
 }
 
 // Simple error handler
