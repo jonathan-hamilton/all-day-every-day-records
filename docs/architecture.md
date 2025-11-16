@@ -44,7 +44,7 @@ src/
 ├── layouts/            # Layout components for consistent page structure
 ├── types/              # TypeScript type definitions and interfaces
 ├── utils/              # Pure utility functions and helpers
-├── services/           # API communication and external service integration
+├── services/           # API communication and external service integration (IMPROVED ✅)
 ├── hooks/              # Custom React hooks for state and side effects
 ├── styles/             # Global styles, themes, and style utilities
 └── assets/             # Static assets (images, fonts, icons)
@@ -56,6 +56,15 @@ src/
 - **Component Composition**: Favor composition over inheritance
 - **Custom Hooks**: Extract and reuse stateful logic
 - **Error Boundaries**: Graceful error handling and user feedback
+- **Service Layer Architecture**: Clean API abstraction with factory patterns (IMPROVED ✅)
+
+### Recent Architectural Improvements
+- **Service Layer Cleanup (Nov 16, 2025)**: Comprehensive refactoring of release service
+  - Eliminated development seed data and fallback logic for cleaner architecture
+  - Reduced codebase from 1,055 to 263 lines (75% reduction) in releaseService.ts
+  - Streamlined API integration for exclusive real data usage
+  - Enhanced TypeScript safety by replacing 'any' types with proper constraints
+  - Improved component naming consistency (HomepageFeaturedCarousel → ReleaseCarousel)
 
 ## Configuration Management
 

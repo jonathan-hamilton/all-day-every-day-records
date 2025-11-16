@@ -1,7 +1,8 @@
 /**
- * Homepage Featured Releases Carousel Component
+ * Release Carousel Component
  * 
- * Displays featured releases in a responsive carousel format using Material-UI.
+ * Displays new releases in a responsive carousel format using Material-UI.
+ * Shows releases marked with 'New' tag from the admin dashboard.
  * Implements auto-play, navigation controls, and responsive design following
  * the project's design patterns.
  */
@@ -23,20 +24,22 @@ import { createServices } from '../services';
 import type { ReleaseCarouselSlide as ReleaseSlideData } from '../types';
 import ReleaseCarouselSlide from './ReleaseCarouselSlide';
 
-interface HomepageFeaturedCarouselProps {
+interface ReleaseCarouselProps {
   autoPlay?: boolean;
   autoPlayInterval?: number;
   maxSlides?: number;
   showNavigation?: boolean;
   showIndicators?: boolean;
+  tag?: string; // Optional tag filter ('New', 'Featured', etc.)
 }
 
-export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> = ({
+export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
   autoPlay = true,
   autoPlayInterval = 5000,
   maxSlides = 8,
   showNavigation = true,
-  showIndicators = true
+  showIndicators = true,
+  tag = 'New' // Default to 'New' releases
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -59,16 +62,19 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
   const totalSlides = releases.length;
   const maxSlideIndex = Math.max(0, totalSlides - slidesPerView);
 
-  // Fetch featured releases data
+  // Fetch new releases data
   useEffect(() => {
     const fetchReleases = async () => {
       try {
         setLoading(true);
-        const featuredReleases = await services.releases.getFeaturedReleasesForCarousel(maxSlides);
-        setReleases(featuredReleases);
+        const releases = await services.releases.getReleasesForCarousel({ 
+          limit: maxSlides, 
+          tag: tag 
+        });
+        setReleases(releases);
         setError(null);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load featured releases';
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load new releases';
         setError(errorMessage);
         console.error('Carousel error:', err);
       } finally {
@@ -77,7 +83,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
     };
 
     fetchReleases();
-  }, [maxSlides, services.releases]);
+  }, [maxSlides, tag, services.releases]);
 
   // Retry function for error recovery
   const handleRetry = useCallback(() => {
@@ -86,11 +92,14 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
     
     const retryFetch = async () => {
       try {
-        const featuredReleases = await services.releases.getFeaturedReleasesForCarousel(maxSlides);
-        setReleases(featuredReleases);
+        const releases = await services.releases.getReleasesForCarousel({ 
+          limit: maxSlides, 
+          tag: tag 
+        });
+        setReleases(releases);
         setError(null);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load featured releases';
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load new releases';
         setError(errorMessage);
         console.error('Carousel retry error:', err);
       } finally {
@@ -186,7 +195,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
       <Box 
         sx={{ width: '100%', mb: 4 }}
         role="region"
-        aria-label="Loading featured releases"
+        aria-label="Loading new releases"
         aria-live="polite"
       >
         <Typography 
@@ -199,7 +208,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
             fontWeight: 'bold'
           }}
         >
-          Featured Releases
+          New Releases
         </Typography>
         
         <Box sx={{ 
@@ -230,7 +239,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
         
         {/* Screen reader loading message */}
         <Typography sx={{ position: 'absolute', left: '-10000px' }}>
-          Loading featured releases, please wait...
+          Loading new releases, please wait...
         </Typography>
       </Box>
     );
@@ -246,7 +255,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
         py: 4 
       }}
       role="region"
-      aria-label="Featured releases error"
+      aria-label="new releases error"
       aria-live="assertive"
       >
         <Typography 
@@ -255,7 +264,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
           gutterBottom 
           sx={{ fontWeight: 'bold' }}
         >
-          Featured Releases
+          new releases
         </Typography>
         <Typography 
           variant="body1" 
@@ -278,7 +287,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
           id="retry-description" 
           sx={{ position: 'absolute', left: '-10000px' }}
         >
-          Click to retry loading featured releases
+          Click to retry loading new releases
         </Typography>
       </Box>
     );
@@ -294,7 +303,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
         py: 4 
       }}
       role="region"
-      aria-label="No featured releases available"
+      aria-label="No new releases available"
       >
         <Typography 
           variant="h4" 
@@ -302,10 +311,10 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
           gutterBottom 
           sx={{ fontWeight: 'bold' }}
         >
-          Featured Releases
+          new releases
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-          No featured releases available at this time.
+          No new releases available at this time.
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Check back soon for new music!
@@ -326,7 +335,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="region"
-      aria-label="Featured releases carousel"
+      aria-label="new releases carousel"
       aria-live="polite"
       aria-describedby="carousel-description"
     >
@@ -345,7 +354,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
             fontWeight: 'bold'
           }}
         >
-          Featured Releases
+          new releases
         </Typography>
         
         {/* Auto-play indicator */}
@@ -588,7 +597,7 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
         sx={{ position: 'absolute', left: '-10000px' }}
         component="p"
       >
-        Use arrow keys or swipe to navigate through {totalSlides} featured releases. 
+        Use arrow keys or swipe to navigate through {totalSlides} new releases. 
         Currently showing slide {currentSlide + 1} of {maxSlideIndex + 1}. 
         {autoPlay && !isHovered ? 'Auto-play is active.' : 'Auto-play is paused.'}
       </Typography>
@@ -596,4 +605,4 @@ export const HomepageFeaturedCarousel: React.FC<HomepageFeaturedCarouselProps> =
   );
 };
 
-export default HomepageFeaturedCarousel;
+export default ReleaseCarousel;

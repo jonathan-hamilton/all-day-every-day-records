@@ -12,14 +12,31 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(["error" => "Method not allowed"], 405);
 }
 
-// Configuration for uploads - use correct paths for production
-$uploadConfig = [
-    'upload_dir' => '/home/dh_9d47dc/alldayeverydayrecords.com/release-images/',
-    'base_url' => 'https://alldayeverydayrecords.com/release-images/',
-    'max_size' => 5 * 1024 * 1024, // 5MB
-    'allowed_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-    'allowed_extensions' => ['jpg', 'jpeg', 'png', 'webp', 'gif']
-];
+// Configuration for uploads - environment-aware with production persistence
+$config = getConfig();
+
+// Determine upload strategy based on environment
+$isDevelopment = $config['environment'] === 'development';
+
+if ($isDevelopment) {
+    // Development: Upload to mounted volume but return production-compatible URLs
+    $uploadConfig = [
+        'upload_dir' => '/var/www/html/uploads/covers/',
+        'base_url' => 'https://alldayeverydayrecords.com/release-images/',  // Production URL for frontend compatibility
+        'max_size' => $config['uploads']['max_size'],
+        'allowed_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+        'allowed_extensions' => $config['uploads']['allowed_types']
+    ];
+} else {
+    // Production: Direct upload to domain file system
+    $uploadConfig = [
+        'upload_dir' => '/home/dh_9d47dc/alldayeverydayrecords.com/release-images/',
+        'base_url' => 'https://alldayeverydayrecords.com/release-images/',
+        'max_size' => $config['uploads']['max_size'],
+        'allowed_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+        'allowed_extensions' => $config['uploads']['allowed_types']
+    ];
+}
 
 // Validate file upload
 if (!isset($_FILES["file"])) {

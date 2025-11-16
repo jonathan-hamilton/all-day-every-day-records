@@ -1,6 +1,6 @@
 import { Typography, Box, Button, Card, CardContent } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import HomepageFeaturedCarousel from '../components/HomepageFeaturedCarousel'
+import ReleaseCarousel from '../components/ReleaseCarousel'
 import HomepageVideoGrid from '../components/HomepageVideoGrid'
 
 export default function Home() {
@@ -44,8 +44,8 @@ export default function Home() {
         </Button>
       </Box>
 
-      {/* S2.1 Homepage Featured Releases Carousel */}
-      <HomepageFeaturedCarousel 
+      {/* S2.1 Homepage New Releases Carousel */}
+      <ReleaseCarousel 
         maxSlides={8}
         autoPlay={true}
         autoPlayInterval={5000}

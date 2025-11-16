@@ -30,7 +30,6 @@ Write-Host ""
 # Start Frontend with Docker API URL
 Write-Host "Starting frontend with Docker API URL..." -ForegroundColor Green
 Set-Location "..\\frontend"
-$env:VITE_API_BASE_URL = "http://localhost:8080"
-Write-Host "Frontend API URL: $env:VITE_API_BASE_URL" -ForegroundColor Cyan
+Write-Host "Frontend API URL: http://localhost:8080" -ForegroundColor Cyan
 Write-Host "Starting React dev server..." -ForegroundColor Yellow
-npm run dev
+npm run dev:local

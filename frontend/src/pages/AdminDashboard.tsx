@@ -42,6 +42,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentApiConfig } from '../config/api';
 
 interface Release {
   id?: number;
@@ -63,6 +64,9 @@ interface Release {
 const AdminDashboard: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Get API configuration
+  const apiConfig = getCurrentApiConfig();
 
   // Release management state
   const [releases, setReleases] = useState<Release[]>([]);
@@ -103,7 +107,7 @@ const AdminDashboard: React.FC = () => {
     try {
       // Add timestamp to prevent caching
       const timestamp = new Date().getTime();
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/get-releases.php?admin=1&_t=${timestamp}`, {
+      const response = await fetch(`${apiConfig.baseURL}/get-releases.php?admin=1&_t=${timestamp}`, {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
@@ -198,7 +202,7 @@ const AdminDashboard: React.FC = () => {
 
       try {
         setError(null);
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload-cover-image.php`, {
+        const response = await fetch(`${apiConfig.baseURL}/upload-cover-image.php`, {
           method: 'POST',
           credentials: 'include',
           body: formData,
@@ -241,7 +245,7 @@ const AdminDashboard: React.FC = () => {
         id: editingRelease?.id
       };
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upsert-release.php`, {
+      const response = await fetch(`${apiConfig.baseURL}/upsert-release.php`, {
         method: 'POST',
         credentials: 'include',
         headers: {

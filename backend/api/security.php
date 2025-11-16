@@ -17,7 +17,12 @@ function getConfig() {
 // CORS handling (matches N&D pattern)
 function handleCORS() {
     // Set CORS headers to support React 19 cache-busting headers
-    $allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+    $allowedOrigins = [
+        'http://localhost:5173', 
+        'http://127.0.0.1:5173',
+        'https://alldayeverydayrecords.com',
+        'https://www.alldayeverydayrecords.com'
+    ];
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
     
     if (in_array($origin, $allowedOrigins)) {
@@ -38,21 +43,15 @@ function handleCORS() {
 // Get database connection (simplified from complex Database class)
 if (!function_exists('getDBConnection')) {
     function getDBConnection() {
-        error_log("DEBUG: getDBConnection() called");
         $config = getConfig();
-        error_log("DEBUG: Config retrieved for DB connection");
         $db = $config['database'];
         
         try {
-            error_log("DEBUG: About to create Database instance");
             require_once __DIR__ . '/database.php';
-            error_log("DEBUG: database.php loaded");
             $database = new Database($db);
-            error_log("DEBUG: Database instance created successfully");
             return $database;
         } catch (Exception $e) {
             error_log("Database connection failed: " . $e->getMessage());
-            error_log("DEBUG: Database config: " . json_encode($db));
             http_response_code(500);
             echo json_encode(["error" => "Database connection failed"]);
             exit;

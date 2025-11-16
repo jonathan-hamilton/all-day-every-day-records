@@ -8,6 +8,7 @@ import type { StreamingLink } from './StreamingLink';
  */
 export type ReleaseType = 'single' | 'ep' | 'album' | 'compilation' | 'mixtape' | 'remix';
 export type ReleaseStatus = 'draft' | 'published' | 'archived';
+export type ReleaseTag = 'None' | 'Featured' | 'New' | 'Removed';
 
 /**
  * Basic release entity type definition
@@ -30,7 +31,8 @@ export interface Release {
   is_featured: boolean;
   display_order: number;
   status: ReleaseStatus;
-  metadata?: Record<string, any>;
+  tag: ReleaseTag;
+  metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -64,6 +66,7 @@ export interface ReleaseOverview {
   is_featured: boolean;
   display_order: number;
   status: ReleaseStatus;
+  tag: ReleaseTag;
   created_at: string;
   updated_at: string;
   label_name?: string;
@@ -90,6 +93,7 @@ export interface ReleaseFormData {
   track_count: number;
   is_featured: boolean;
   display_order: number;
+  tag: ReleaseTag;
 }
 
 /**
@@ -106,4 +110,5 @@ export interface ReleaseCarouselSlide {
   label_name?: string;
   artists_with_roles?: string;
   bandcamp_url?: string;
+  tag: ReleaseTag;
 }

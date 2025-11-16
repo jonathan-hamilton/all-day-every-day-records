@@ -6,6 +6,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { AuthContextType, User } from '../types/Auth';
+import { getCurrentApiConfig } from '../config/api';
 
 // Create authentication context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,6 +18,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Get API configuration
+  const apiConfig = getCurrentApiConfig();
+
   // Check for existing session on mount
   useEffect(() => {
     checkAuthStatus();
@@ -27,7 +31,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsLoading(true);
       
       // Try to get user info from backend session
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/get-user-info.php`, {
+      const response = await fetch(`${apiConfig.baseURL}/get-user-info.php`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -54,7 +58,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/login.php`, {
+      const response = await fetch(`${apiConfig.baseURL}/login.php`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -84,7 +88,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = async () => {
     try {
       // Call logout endpoint to clear session
-      await fetch(`${import.meta.env.VITE_API_BASE_URL}/logout.php`, {
+      await fetch(`${apiConfig.baseURL}/logout.php`, {
         method: 'POST',
         credentials: 'include',
       });
