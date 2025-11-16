@@ -6,16 +6,19 @@
  * These URLs are configurable via the admin interface.
  */
 
-require_once 'config.php';
+require_once __DIR__ . '/security.php';
+
+// Handle CORS
+handleCORS();
 
 // Only allow GET requests
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    jsonResponse('Method not allowed', null, 405);
+    jsonResponse(['error' => 'Method not allowed'], 405);
     exit;
 }
 
 try {
-    $db = getDatabase();
+    $db = getDBConnection();
     
     // Query to get the 4 homepage video URLs from database
     $videos = $db->query("
@@ -48,17 +51,23 @@ try {
     }
     
     // Return exactly 4 URLs
-    jsonResponse(array_slice($video_urls, 0, 4));
+    jsonResponse([
+        'success' => true,
+        'videos' => array_slice($video_urls, 0, 4)
+    ]);
     
 } catch (Exception $e) {
     error_log("Homepage Videos API Error: " . $e->getMessage());
     
     // Return fallback URLs on error - frontend will handle gracefully
     jsonResponse([
-        'https://youtu.be/Wd2Pt37uKmA?si=13TmJqp0qAo5Mt8p',
-        'https://youtu.be/t7ZV-6mG8_4?si=2YA_0xUsZvOigvkG',
-        'https://youtu.be/7hrhmgNMzKI?si=VYFN3MSGLzsZrPH9',
-        'https://youtu.be/neVgHSVPPjc?si=uJShPYpcrj-QH8eX'
+        'success' => true,
+        'videos' => [
+            'https://youtu.be/Wd2Pt37uKmA?si=13TmJqp0qAo5Mt8p',
+            'https://youtu.be/t7ZV-6mG8_4?si=2YA_0xUsZvOigvkG',
+            'https://youtu.be/7hrhmgNMzKI?si=VYFN3MSGLzsZrPH9',
+            'https://youtu.be/neVgHSVPPjc?si=uJShPYpcrj-QH8eX'
+        ]
     ]);
 }
 ?>

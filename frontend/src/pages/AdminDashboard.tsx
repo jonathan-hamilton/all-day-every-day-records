@@ -101,16 +101,22 @@ const AdminDashboard: React.FC = () => {
     setError(null);
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/get-releases.php?admin=1`, {
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime();
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/get-releases.php?admin=1&_t=${timestamp}`, {
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         }
       });
 
       const data = await response.json();
       
       if (data.success) {
+        console.log('DEBUG: Releases data received:', data.releases);
         setReleases(data.releases || []);
       } else {
         setError(data.error || 'Failed to fetch releases');
@@ -248,8 +254,28 @@ const AdminDashboard: React.FC = () => {
 
       if (data.success) {
         setSuccess(isCreating ? 'Release created successfully!' : 'Release updated successfully!');
+        
+        // Optimistic update: immediately update the local state
+        if (editingRelease?.id) {
+          setReleases(prev => prev.map(release => 
+            release.id === editingRelease.id 
+              ? { 
+                  ...release, 
+                  ...submitData,
+                  // Ensure the id is preserved
+                  id: editingRelease.id
+                }
+              : release
+          ));
+        }
+        
         handleCancelEdit();
-        fetchReleases();
+        
+        // Fetch fresh data in the background without showing loading state
+        // The optimistic update already shows the changes immediately
+        setTimeout(() => {
+          fetchReleases();
+        }, 100); // Small delay to ensure smooth UI transition
       } else {
         setError(data.error || 'Failed to save release');
       }
@@ -403,6 +429,8 @@ const AdminDashboard: React.FC = () => {
                         release_date: date ? date.format('YYYY-MM-DD') : '' 
                       }));
                     }}
+                    minDate={dayjs('1980-01-01')}
+                    maxDate={dayjs('2040-12-31')}
                     slotProps={{
                       textField: {
                         fullWidth: true,
@@ -567,6 +595,7 @@ const AdminDashboard: React.FC = () => {
               <Table>
                 <TableHead>
                   <TableRow>
+                    <TableCell>Cover</TableCell>
                     <TableCell>Title</TableCell>
                     <TableCell>Artist</TableCell>
                     <TableCell>Format</TableCell>
@@ -578,21 +607,49 @@ const AdminDashboard: React.FC = () => {
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center">
+                      <TableCell colSpan={7} align="center">
                         <CircularProgress />
                       </TableCell>
                     </TableRow>
                   ) : releases.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center">
+                      <TableCell colSpan={7} align="center">
                         <Typography color="text.secondary">
                           No releases found. Create your first release to get started.
                         </Typography>
                       </TableCell>
                     </TableRow>
                   ) : (
-                    releases.map((release) => (
+                    releases.map((release) => {
+                      console.log(`DEBUG: Release ${release.title} has tag:`, release.tag);
+                      return (
                       <TableRow key={release.id} hover sx={{ cursor: 'pointer' }}>
+                        <TableCell onClick={() => handleEditRelease(release)} sx={{ width: 80 }}>
+                          <Box
+                            component="img"
+                            src={release.cover_image_url}
+                            alt={`${release.title} cover`}
+                            sx={{
+                              width: 60,
+                              height: 60,
+                              objectFit: 'cover',
+                              borderRadius: 1,
+                              border: '1px solid',
+                              borderColor: 'divider',
+                              backgroundColor: 'grey.100'
+                            }}
+                            onError={(e) => {
+                              // Fallback to placeholder if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.parentElement!.style.backgroundColor = '#f5f5f5';
+                              target.parentElement!.style.display = 'flex';
+                              target.parentElement!.style.alignItems = 'center';
+                              target.parentElement!.style.justifyContent = 'center';
+                              target.parentElement!.innerHTML = '🎵';
+                            }}
+                          />
+                        </TableCell>
                         <TableCell onClick={() => handleEditRelease(release)}>
                           <Typography variant="subtitle2" fontWeight="medium">
                             {release.title}
@@ -624,7 +681,8 @@ const AdminDashboard: React.FC = () => {
                           </IconButton>
                         </TableCell>
                       </TableRow>
-                    ))
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>

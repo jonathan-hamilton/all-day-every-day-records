@@ -1,9 +1,11 @@
 <?php
 
 /**
- * Simple Configuration
+ * Simple Configuration - FORCE CACHE BUST 2025-11-15-14:30
  * 
  * Loads environment variables and provides basic configuration
+ * Updated: 2025-11-15 - CORS headers fixed for cache-busting
+ * CACHE BUSTER: Fixed CORS headers to include Cache-Control,Pragma,Expires
  */
 
 // Load environment variables from .env file
@@ -55,6 +57,13 @@ loadEnv();
 
 // Helper function to get environment variables with defaults
 function env($key, $default = null) {
+    // Check getenv() first (for Docker environment variables)
+    $value = getenv($key);
+    if ($value !== false) {
+        return $value;
+    }
+    
+    // Fall back to $_ENV (for .env file variables)
     return $_ENV[$key] ?? $default;
 }
 
@@ -66,18 +75,20 @@ $config = [
     
     // Database configuration
     'database' => [
-        'host' => env('DATABASE_HOST', 'localhost'),
-        'database' => env('DATABASE_NAME', 'alldayeveryday_records'),
-        'username' => env('DATABASE_USERNAME', 'root'),
-        'password' => env('DATABASE_PASSWORD', ''),
+        'host' => env('DB_HOST', 'localhost'),
+        'database' => env('DB_NAME', 'alldayeveryday_records'),
+        'username' => env('DB_USER', 'root'),
+        'password' => env('DB_PASS', ''),
+        'port' => env('DB_PORT', '3306'),
     ],
     
-    // CORS configuration  
+    // CORS configuration - FORCED UPDATE 2025-11-15 - CACHE BUSTING HEADERS
     'cors' => [
         'enabled' => env('CORS_ENABLED', 'true') === 'true',
-        'origins' => explode(',', env('CORS_ORIGINS', 'http://localhost:5173,https://alldayeverydayrecords.com')),
-        'methods' => explode(',', env('CORS_METHODS', 'GET,POST,PUT,DELETE,OPTIONS')),
-        'headers' => explode(',', env('CORS_HEADERS', 'Content-Type,Authorization,X-Requested-With')),
+        'origins' => explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,https://alldayeverydayrecords.com')),
+        'methods' => explode(',', env('CORS_ALLOWED_METHODS', 'GET,POST,PUT,DELETE,OPTIONS')),
+        // CRITICAL FIX: Added Cache-Control,Pragma,Expires headers for frontend compatibility
+        'headers' => explode(',', env('CORS_ALLOWED_HEADERS', 'Content-Type,Authorization,X-Requested-With,Cache-Control,Pragma,Expires')),
     ],
     
     // Upload configuration
@@ -135,3 +146,6 @@ function getDatabase() {
     
     return $database;
 }
+
+// CORS HEADERS FIXED: Content-Type,Authorization,X-Requested-With,Cache-Control,Pragma,Expires
+?>

@@ -234,7 +234,7 @@ const AdminReleases: React.FC = () => {
             <BackIcon />
           </IconButton>
           <Typography variant="h4" component="h1" fontWeight="bold">
-            Release Management
+            All Day Every Day Records - Release Management
           </Typography>
         </Box>
         
@@ -420,6 +420,7 @@ const AdminReleases: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell>Cover</TableCell>
                   <TableCell>Title</TableCell>
                   <TableCell>Artist</TableCell>
                   <TableCell>Format</TableCell>
@@ -431,13 +432,13 @@ const AdminReleases: React.FC = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
+                    <TableCell colSpan={7} align="center">
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
                 ) : releases.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
+                    <TableCell colSpan={7} align="center">
                       <Typography color="text.secondary">
                         No releases found. Create your first release to get started.
                       </Typography>
@@ -446,6 +447,32 @@ const AdminReleases: React.FC = () => {
                 ) : (
                   releases.map((release) => (
                     <TableRow key={release.id} hover sx={{ cursor: 'pointer' }}>
+                      <TableCell onClick={() => handleEditRelease(release)} sx={{ width: 80 }}>
+                        <Box
+                          component="img"
+                          src={release.cover_image_url}
+                          alt={`${release.title} cover`}
+                          sx={{
+                            width: 60,
+                            height: 60,
+                            objectFit: 'cover',
+                            borderRadius: 1,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            backgroundColor: 'grey.100'
+                          }}
+                          onError={(e) => {
+                            // Fallback to placeholder if image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            target.parentElement!.style.backgroundColor = '#f5f5f5';
+                            target.parentElement!.style.display = 'flex';
+                            target.parentElement!.style.alignItems = 'center';
+                            target.parentElement!.style.justifyContent = 'center';
+                            target.parentElement!.innerHTML = '🎵';
+                          }}
+                        />
+                      </TableCell>
                       <TableCell onClick={() => handleEditRelease(release)}>
                         <Typography variant="subtitle2" fontWeight="medium">
                           {release.title}

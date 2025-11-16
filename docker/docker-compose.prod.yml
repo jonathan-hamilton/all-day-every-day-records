@@ -1,0 +1,27 @@
+version: '3.8'
+
+# Production overrides for docker-compose.yml
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  frontend:
+    build:
+      target: production
+    ports:
+      - "80:80"  # Serve on port 80 for production
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8080
+
+  backend:
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - CORS_ALLOWED_ORIGINS=http://localhost
+
+  db:
+    # Use stronger password in production
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    # Don't expose database port in production
+    ports: []

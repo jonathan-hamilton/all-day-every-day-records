@@ -16,65 +16,103 @@ if ($isAdmin) {
 
 try {
     if ($isAdmin) {
-        // Admin view: show all releases with enhanced data
+        // Admin view: show all releases with all data including removed
         $sql = "SELECT 
-                    r.id,
-                    r.title,
-                    r.catalog_number,
-                    r.release_date,
-                    r.description,
-                    r.status,
-                    r.label_id,
-                    r.cover_image_url,
-                    r.is_featured,
-                    r.is_new,
-                    r.created_at,
-                    r.updated_at,
-                    GROUP_CONCAT(DISTINCT CONCAT(a.name, ':', ra.role) SEPARATOR '|') as artists_data,
-                    GROUP_CONCAT(DISTINCT CONCAT(sl.platform, ':', sl.url) SEPARATOR '|') as streaming_links_data,
-                    l.name as label_name
-                FROM releases r
-                LEFT JOIN release_artists ra ON r.id = ra.release_id
-                LEFT JOIN artists a ON ra.artist_id = a.id
-                LEFT JOIN streaming_links sl ON r.id = sl.release_id AND sl.is_active = 1
-                LEFT JOIN labels l ON r.label_id = l.id
-                GROUP BY r.id
-                ORDER BY r.created_at DESC";
+                    id,
+                    title,
+                    artist,
+                    description,
+                    release_date,
+                    format,
+                    cover_image_url,
+                    spotify_url,
+                    apple_music_url,
+                    amazon_music_url,
+                    youtube_url,
+                    tag,
+                    created_at,
+                    updated_at
+                FROM releases
+                ORDER BY created_at DESC";
         $releases = $db->query($sql);
         
-        // Process admin releases with enhanced data
+        // Convert database format to expected frontend format for admin
         foreach ($releases as &$release) {
-            // Add computed tag field based on database flags
-            $release['tag'] = computeTagFromFlags($release['is_featured'], $release['is_new'], $release['status']);
+            // Create artists array from single artist field
+            $release['artists'] = [
+                [
+                    'name' => $release['artist'],
+                    'role' => 'Artist'
+                ]
+            ];
             
-            // Process artists array
-            $release['artists'] = parseArtists($release['artists_data']);
+            // Create streaming_links array from individual URL fields
+            $release['streaming_links'] = [];
+            if ($release['spotify_url']) {
+                $release['streaming_links'][] = [
+                    'platform' => 'Spotify',
+                    'url' => $release['spotify_url'],
+                    'is_active' => true
+                ];
+            }
+            if ($release['apple_music_url']) {
+                $release['streaming_links'][] = [
+                    'platform' => 'Apple Music',
+                    'url' => $release['apple_music_url'],
+                    'is_active' => true
+                ];
+            }
+            if ($release['amazon_music_url']) {
+                $release['streaming_links'][] = [
+                    'platform' => 'Amazon Music',
+                    'url' => $release['amazon_music_url'],
+                    'is_active' => true
+                ];
+            }
+            if ($release['youtube_url']) {
+                $release['streaming_links'][] = [
+                    'platform' => 'YouTube',
+                    'url' => $release['youtube_url'],
+                    'is_active' => true
+                ];
+            }
             
-            // Process streaming links array  
-            $release['streaming_links'] = parseStreamingLinks($release['streaming_links_data']);
-            
-            // Clean up the raw data fields
-            unset($release['artists_data'], $release['streaming_links_data']);
+            // Keep the tag field as is for admin
+            // Add computed fields for consistency
+            $release['is_featured'] = ($release['tag'] === 'Featured');
+            $release['is_new'] = ($release['tag'] === 'New');
+            $release['status'] = ($release['tag'] === 'Removed') ? 'archived' : 'published';
         }
     } else {
         // Public view: exclude removed releases
-        $sql = "SELECT r.*, 
-                       GROUP_CONCAT(DISTINCT a.name ORDER BY ra.order_index ASC SEPARATOR ', ') as artists,
-                       l.name as label_name
-                FROM releases r
-                LEFT JOIN release_artists ra ON r.id = ra.release_id
-                LEFT JOIN artists a ON ra.artist_id = a.id
-                LEFT JOIN labels l ON r.label_id = l.id
-                WHERE r.status != 'archived'
-                GROUP BY r.id
+        $sql = "SELECT 
+                    id,
+                    title,
+                    artist,
+                    description,
+                    release_date,
+                    format,
+                    cover_image_url,
+                    spotify_url,
+                    apple_music_url,
+                    amazon_music_url,
+                    youtube_url,
+                    tag
+                FROM releases
+                WHERE tag != 'Removed'
                 ORDER BY 
-                    CASE 
-                        WHEN r.is_featured = 1 THEN 1 
-                        WHEN r.is_new = 1 THEN 2 
+                    CASE tag 
+                        WHEN 'Featured' THEN 1 
+                        WHEN 'New' THEN 2 
                         ELSE 3 
                     END, 
-                    a.name ASC";
+                    release_date DESC";
         $releases = $db->query($sql);
+        
+        // Convert to frontend format with artists as string for public view
+        foreach ($releases as &$release) {
+            $release['artists'] = $release['artist']; // Simple string for public API
+        }
     }
     
     // Process release dates to extract year only
@@ -100,69 +138,5 @@ try {
 } catch (Exception $e) {
     logError("Exception in get-releases", ['error' => $e->getMessage()]);
     jsonResponse(["error" => "Failed to fetch releases"], 500);
-}
-
-/**
- * Compute tag field from database flags
- */
-function computeTagFromFlags($is_featured, $is_new, $status) {
-    if ($status === 'archived') {
-        return 'Removed';
-    } elseif ($is_featured) {
-        return 'Featured';
-    } elseif ($is_new) {
-        return 'New';
-    } else {
-        return 'None';
-    }
-}
-
-/**
- * Parse artists string into array
- */
-function parseArtists($artistsString) {
-    if (empty($artistsString)) {
-        return [];
-    }
-    
-    $artists = [];
-    $artistPairs = explode('|', $artistsString);
-    
-    foreach ($artistPairs as $pair) {
-        $parts = explode(':', $pair, 2);
-        if (count($parts) === 2) {
-            $artists[] = [
-                'name' => $parts[0],
-                'role' => $parts[1]
-            ];
-        }
-    }
-    
-    return $artists;
-}
-
-/**
- * Parse streaming links string into array
- */
-function parseStreamingLinks($linksString) {
-    if (empty($linksString)) {
-        return [];
-    }
-    
-    $links = [];
-    $linkPairs = explode('|', $linksString);
-    
-    foreach ($linkPairs as $pair) {
-        $parts = explode(':', $pair, 2);
-        if (count($parts) === 2) {
-            $links[] = [
-                'platform' => $parts[0],
-                'url' => $parts[1],
-                'is_active' => true
-            ];
-        }
-    }
-    
-    return $links;
 }
 ?>

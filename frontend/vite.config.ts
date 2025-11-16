@@ -6,6 +6,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    host: '0.0.0.0', // Allow external connections for Docker
+    watch: {
+      usePolling: true, // Enable polling for Docker volume mounting
+    },
   },
   resolve: {
     alias: {

@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Backend API container for CORS debugging
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: aeder-backend-cors-debug
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      # Mount source code for development
+      - ../backend/api:/var/www/html
+      - ../backend/uploads:/var/www/html/uploads
+    environment:
+      # Database Configuration (Production DB)
+      - DB_HOST=${DB_HOST:-eredia.iad1-mysql-e2-9a.dreamhost.com}
+      - DB_NAME=${DB_NAME:-all_day_every_day}
+      - DB_USER=${DB_USER:-admin_jham}
+      - DB_PASS=${DB_PASS:-XTGY8z_iWiqx!zP}
+      - DB_PORT=${DB_PORT:-3306}
+      # CORS Configuration - CRITICAL for React 19 cache-busting headers
+      - CORS_ALLOWED_HEADERS=Content-Type,Authorization,X-Requested-With,Cache-Control,Pragma,Expires
+      - CORS_ALLOWED_ORIGINS=http://localhost:5173
+      - UPLOAD_MAX_SIZE=50M
+      - ENVIRONMENT=development
+      - DEBUG=true
+    networks:
+      - aeder-network
+
+  # Optional: phpMyAdmin for database management
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: aeder-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_HOST=${DB_HOST:-eredia.iad1-mysql-e2-9a.dreamhost.com}
+      - PMA_PORT=${DB_PORT:-3306}
+      - PMA_USER=${DB_USER:-admin_jham}
+      - PMA_PASSWORD=${DB_PASS:-XTGY8z_iWiqx!zP}
+    networks:
+      - aeder-network
+
+networks:
+  aeder-network:
+    driver: bridge

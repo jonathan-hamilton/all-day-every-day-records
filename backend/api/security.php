@@ -4,63 +4,59 @@
  * Based on Nickel & Dime Records pattern - simple and effective
  */
 
-error_log("DEBUG: security.php loaded");
-
 // Load configuration
 function getConfig() {
-    error_log("DEBUG: getConfig() called");
     static $config = null;
     if ($config === null) {
-        error_log("DEBUG: Loading config.php");
         require_once __DIR__ . '/config.php';
-        error_log("DEBUG: config.php loaded");
         $config = $GLOBALS['config'];
-        error_log("DEBUG: Config loaded: " . json_encode($config));
     }
     return $config;
 }
 
 // CORS handling (matches N&D pattern)
 function handleCORS() {
-    $config = getConfig();
+    // Set CORS headers to support React 19 cache-busting headers
+    $allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
     
-    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        if (in_array($origin, $config['cors']['origins'])) {
-            header("Access-Control-Allow-Origin: $origin");
-            header("Access-Control-Allow-Credentials: true");
-            header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-            header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-        }
-        exit(0);
-    }
-    
-    if (in_array($origin, $config['cors']['origins'])) {
+    if (in_array($origin, $allowedOrigins)) {
         header("Access-Control-Allow-Origin: $origin");
         header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma, Expires, cache-control, pragma, expires");
+        header("Access-Control-Max-Age: 3600");
+    }
+    
+    // Handle OPTIONS preflight requests
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit(0);
     }
 }
 
 // Get database connection (simplified from complex Database class)
-function getDBConnection() {
-    error_log("DEBUG: getDBConnection() called");
-    $config = getConfig();
-    error_log("DEBUG: Config retrieved for DB connection");
-    $db = $config['database'];
-    
-    try {
-        error_log("DEBUG: About to create Database instance");
-        require_once __DIR__ . '/database.php';
-        error_log("DEBUG: database.php loaded");
-        $database = new Database($db);
-        error_log("DEBUG: Database instance created successfully");
-        return $database;
-    } catch (Exception $e) {
-        error_log("Database connection failed: " . $e->getMessage());
-        error_log("DEBUG: Database config: " . json_encode($db));
-        http_response_code(500);
-        echo json_encode(["error" => "Database connection failed"]);
-        exit;
+if (!function_exists('getDBConnection')) {
+    function getDBConnection() {
+        error_log("DEBUG: getDBConnection() called");
+        $config = getConfig();
+        error_log("DEBUG: Config retrieved for DB connection");
+        $db = $config['database'];
+        
+        try {
+            error_log("DEBUG: About to create Database instance");
+            require_once __DIR__ . '/database.php';
+            error_log("DEBUG: database.php loaded");
+            $database = new Database($db);
+            error_log("DEBUG: Database instance created successfully");
+            return $database;
+        } catch (Exception $e) {
+            error_log("Database connection failed: " . $e->getMessage());
+            error_log("DEBUG: Database config: " . json_encode($db));
+            http_response_code(500);
+            echo json_encode(["error" => "Database connection failed"]);
+            exit;
+        }
     }
 }
 
@@ -84,7 +80,10 @@ function requireAuth() {
     session_start();
     
     if (!isset($_SESSION['user']) || !$_SESSION['user']['is_admin']) {
+        // Ensure CORS headers are sent before auth failure response
+        handleCORS();
         http_response_code(401);
+        header("Content-Type: application/json");
         echo json_encode(["error" => "Authentication required"]);
         exit;
     }
@@ -93,11 +92,13 @@ function requireAuth() {
 }
 
 // JSON response helper (matches N&D pattern)
-function jsonResponse($data, $httpCode = 200) {
-    http_response_code($httpCode);
-    header("Content-Type: application/json");
-    echo json_encode($data);
-    exit;
+if (!function_exists('jsonResponse')) {
+    function jsonResponse($data, $httpCode = 200) {
+        http_response_code($httpCode);
+        header("Content-Type: application/json");
+        echo json_encode($data);
+        exit;
+    }
 }
 
 // Validate file upload (matches N&D pattern)
@@ -155,7 +156,7 @@ function sanitizeInput($data) {
 
 // Simple rate limiting
 function checkRateLimit($identifier, $maxAttempts = 5, $timeWindow = 300) {
-    $isDevelopment = in_array($_SERVER['HTTP_ORIGIN'] ?? '', ['http://localhost:5173', 'http://127.0.0.1:5173']);
+    $isDevelopment = in_array($_SERVER['HTTP_ORIGIN'] ?? '', ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174']);
     
     if ($isDevelopment) {
         ini_set('session.cookie_secure', '0');

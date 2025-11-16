@@ -101,15 +101,6 @@ export class ApiService {
           }
         }
 
-        // Log requests in development
-        if (import.meta.env.MODE === 'development') {
-          console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`, {
-            headers: config.headers,
-            data: config.data,
-            params: config.params
-          });
-        }
-
         // Add timestamp to track request duration
         config.metadata = { startTime: Date.now() };
         return config;
@@ -127,24 +118,9 @@ export class ApiService {
   private setupResponseInterceptors(): void {
     this.client.interceptors.response.use(
       (response: AxiosResponse) => {
-        // Log successful responses in development
-        if (import.meta.env.MODE === 'development') {
-          const duration = Date.now() - (response.config.metadata?.startTime || Date.now());
-          console.log(`✅ API Response: ${response.status} ${response.config.url} (${duration}ms)`, {
-            data: response.data,
-            headers: response.headers
-          });
-        }
-
         return response;
       },
       async (error: AxiosError) => {
-        // Log errors in development
-        if (import.meta.env.MODE === 'development') {
-          const duration = Date.now() - (error.config?.metadata?.startTime || Date.now());
-          console.error(`❌ API Error: ${error.response?.status || 'Network'} ${error.config?.url} (${duration}ms)`, error);
-        }
-
         // Implement retry logic
         if (this.shouldRetry(error)) {
           return this.retryRequest(error);
@@ -181,8 +157,6 @@ export class ApiService {
     
     // Calculate delay with exponential backoff
     const delay = this.retryConfig.delay * Math.pow(this.retryConfig.backoffMultiplier, retryCount - 1);
-    
-    console.log(`🔄 Retrying request (attempt ${retryCount}/${this.retryConfig.attempts}) after ${delay}ms...`);
     
     // Wait before retrying
     await new Promise(resolve => setTimeout(resolve, delay));

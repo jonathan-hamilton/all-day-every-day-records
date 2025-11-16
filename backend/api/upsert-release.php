@@ -39,6 +39,9 @@ try {
     
     if ($isUpdate) {
         // Update existing release
+        error_log("DEBUG: Updating release ID: " . $releaseId);
+        error_log("DEBUG: Update data: " . json_encode($input));
+        
         $sql = "UPDATE releases 
                 SET title = ?, 
                     artist = ?, 
@@ -69,7 +72,10 @@ try {
             $releaseId
         ];
         
-        $db->execute($sql, $params);
+        error_log("DEBUG: SQL params: " . json_encode($params));
+        
+        $result = $db->execute($sql, $params);
+        error_log("DEBUG: Update result: " . ($result ? "success" : "failed"));
         
     } else {
         // Create new release

@@ -1,0 +1,21 @@
+# Docker files
+.env
+docker-compose.override.yml
+
+# Logs
+*.log
+
+# Database files
+*.sql.backup
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+tmp/
+temp/

@@ -54,9 +54,9 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
         // Fetch from API endpoint - no fallbacks
         const response = await services.api.get('/get-homepage-videos.php');
         
-        // Handle API response format: {success: true, data: [...]}
-        const apiResponse = response as { data?: string[] } | string[];
-        const videoUrls = Array.isArray(response) ? response : (apiResponse as { data?: string[] }).data || [];
+        // Handle API response format: {success: true, videos: [...]}
+        const apiResponse = response as { success?: boolean; videos?: string[] };
+        const videoUrls = apiResponse.videos || [];
         
         // Convert URL array to video objects
         const videos: HomepageVideo[] = Array.isArray(videoUrls) 
@@ -66,10 +66,6 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
               youtube_url: url
             }))
           : [];
-
-        console.log('API Response:', response);
-        console.log('Video URLs:', videoUrls);
-        console.log('Processed Videos:', videos);
 
         setState({
           loading: false,
