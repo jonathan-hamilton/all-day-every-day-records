@@ -17,7 +17,6 @@ import type { SelectChangeEvent } from '@mui/material/Select';
 export interface FilterState {
   search: string;
   releaseType: string;
-  label: string;
   sortBy: 'release_date' | 'title' | 'created_at';
   sortOrder: 'asc' | 'desc';
 }
@@ -27,15 +26,13 @@ interface ReleaseFiltersProps {
   onFiltersChange: (filters: FilterState) => void;
   resultCount: number;
   isLoading: boolean;
-  availableLabels: string[];
 }
 
 export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
   filters,
   onFiltersChange,
   resultCount,
-  isLoading,
-  availableLabels
+  isLoading
 }) => {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onFiltersChange({
@@ -48,13 +45,6 @@ export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
     onFiltersChange({
       ...filters,
       releaseType: event.target.value
-    });
-  };
-
-  const handleLabelChange = (event: SelectChangeEvent<string>) => {
-    onFiltersChange({
-      ...filters,
-      label: event.target.value
     });
   };
 
@@ -71,13 +61,12 @@ export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
     onFiltersChange({
       search: '',
       releaseType: '',
-      label: '',
       sortBy: 'release_date',
       sortOrder: 'desc'
     });
   };
 
-  const hasActiveFilters = filters.search || filters.releaseType || filters.label;
+  const hasActiveFilters = filters.search || filters.releaseType;
 
   return (
     <Paper elevation={1} sx={{ p: 3, mb: 4 }}>
@@ -126,8 +115,7 @@ export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
         gap: 2, 
         gridTemplateColumns: { 
           xs: '1fr', 
-          sm: 'repeat(2, 1fr)', 
-          md: 'repeat(3, 1fr)' 
+          sm: 'repeat(2, 1fr)' 
         } 
       }}>
         {/* Release Type Filter */}
@@ -144,23 +132,6 @@ export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
             <MenuItem value="album">Album</MenuItem>
             <MenuItem value="mixtape">Mixtape</MenuItem>
             <MenuItem value="compilation">Compilation</MenuItem>
-          </Select>
-        </FormControl>
-
-        {/* Label Filter */}
-        <FormControl size="small">
-          <InputLabel>Label</InputLabel>
-          <Select
-            value={filters.label}
-            onChange={handleLabelChange}
-            label="Label"
-          >
-            <MenuItem value="">All Labels</MenuItem>
-            {availableLabels.map((label) => (
-              <MenuItem key={label} value={label}>
-                {label}
-              </MenuItem>
-            ))}
           </Select>
         </FormControl>
 
@@ -201,14 +172,6 @@ export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
                 label={`Type: ${filters.releaseType}`} 
                 size="small"
                 onDelete={() => onFiltersChange({ ...filters, releaseType: '' })}
-                variant="outlined"
-              />
-            )}
-            {filters.label && (
-              <Chip 
-                label={`Label: ${filters.label}`} 
-                size="small"
-                onDelete={() => onFiltersChange({ ...filters, label: '' })}
                 variant="outlined"
               />
             )}

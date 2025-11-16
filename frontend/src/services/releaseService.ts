@@ -9,8 +9,38 @@ import type { ApiService } from './apiService';
 import type { 
   ReleaseWithDetails, 
   ReleaseOverview,
-  ReleaseCarouselSlide
+  ReleaseCarouselSlide,
+  ReleaseType,
+  ReleaseStatus,
+  ReleaseTag
 } from '../types';
+
+/**
+ * API response format from PHP backend
+ */
+interface ApiReleaseResponse {
+  success: boolean;
+  releases: Array<{
+    id: number;
+    title: string;
+    artist?: string;
+    artists?: string;
+    description?: string;
+    release_date?: string;
+    format?: string;
+    cover_image_url?: string;
+    spotify_url?: string;
+    apple_music_url?: string;
+    amazon_music_url?: string;
+    youtube_url?: string;
+    tag?: string;
+    created_at?: string;
+    updated_at?: string;
+    slug?: string;
+    track_count?: number;
+    display_order?: number;
+  }>;
+}
 
 /**
  * Query parameters for release listing endpoints
@@ -53,11 +83,32 @@ export class ReleaseService {
       const endpoint = '/get-releases.php';
       const url = `${endpoint}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       
-      // The PHP endpoint returns an array directly, not wrapped in ApiResponse
-      const releases = await this.apiService.get<ReleaseOverview[]>(url);
+      // The PHP endpoint returns an object with success and releases properties
+      const response = await this.apiService.get<ApiReleaseResponse>(url);
       
-      // Ensure we always return an array
-      return Array.isArray(releases) ? releases : [];
+      // Extract the releases array from the response
+      const releases = response?.releases || [];
+      
+      // Ensure we always return an array and map fields to expected format
+      if (Array.isArray(releases)) {
+        return releases.map(release => ({
+          ...release,
+          // Map API fields to expected frontend fields
+          artists_with_roles: release.artists || release.artist || '',
+          release_type: (release.format || 'album') as ReleaseType,
+          is_featured: release.tag === 'Featured',
+          status: (release.tag === 'Removed' ? 'archived' : 'published') as ReleaseStatus,
+          tag: (release.tag || 'None') as ReleaseTag,
+          // Ensure required fields have defaults
+          slug: release.slug || `release-${release.id}`,
+          track_count: release.track_count || 1,
+          display_order: release.display_order || 0,
+          created_at: release.created_at || new Date().toISOString(),
+          updated_at: release.updated_at || new Date().toISOString(),
+        } satisfies ReleaseOverview));
+      }
+      
+      return [];
       
     } catch (error) {
       console.error('Error fetching releases:', error);

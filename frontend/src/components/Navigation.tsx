@@ -16,9 +16,9 @@ import {
   Box
 } from '@mui/material'
 import { Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material'
+import { useAuth } from '../hooks/useAuth'
 
-const navigationItems = [
-  { label: 'Home', path: '/' },
+const baseNavigationItems = [
   { label: 'Releases', path: '/releases' },
   { label: 'About', path: '/about' },
   { label: 'Contact', path: '/contact' }
@@ -26,10 +26,26 @@ const navigationItems = [
 
 export default function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [imageError, setImageError] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const { isAuthenticated, user, logout } = useAuth()
+
+  // Create dynamic navigation items based on auth state
+  const navigationItems = [...baseNavigationItems]
+  if (isAuthenticated && user?.is_admin) {
+    navigationItems.push({ label: 'Admin', path: '/admin/dashboard' })
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/')
+    if (isMobile) {
+      setMobileOpen(false)
+    }
+  }
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
@@ -51,7 +67,13 @@ export default function Navigation() {
 
   // Desktop Navigation
   const DesktopNav = () => (
-    <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
+    <Box sx={{ 
+      display: { xs: 'none', md: 'flex' }, 
+      gap: 1, 
+      alignItems: 'center',
+      minWidth: '400px', // Fixed minimum width to prevent shifting
+      justifyContent: 'center' // Center the items within the fixed width
+    }}>
       {navigationItems.map((item) => (
         <Button
           key={item.path}
@@ -59,12 +81,32 @@ export default function Navigation() {
           onClick={() => handleNavigation(item.path)}
           sx={{
             fontWeight: isActivePath(item.path) ? 'bold' : 'normal',
-            textDecoration: isActivePath(item.path) ? 'underline' : 'none'
+            textDecoration: isActivePath(item.path) ? 'underline' : 'none',
+            minWidth: '80px' // Fixed minimum width for buttons
           }}
         >
           {item.label}
         </Button>
       ))}
+      {isAuthenticated && user?.is_admin && (
+        <Button
+          color="inherit"
+          variant="outlined"
+          onClick={handleLogout}
+          sx={{
+            ml: 1,
+            backgroundColor: 'transparent',
+            borderColor: 'rgba(255, 255, 255, 0.5)',
+            minWidth: '80px', // Fixed minimum width for consistency
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              borderColor: 'rgba(255, 255, 255, 0.7)',
+            }
+          }}
+        >
+          Logout
+        </Button>
+      )}
     </Box>
   )
 
@@ -108,42 +150,114 @@ export default function Navigation() {
             </ListItemButton>
           </ListItem>
         ))}
+        {isAuthenticated && user?.is_admin && (
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={handleLogout}
+              sx={{
+                borderTop: '1px solid rgba(0, 0, 0, 0.12)',
+                mt: 1
+              }}
+            >
+              <ListItemText 
+                primary="Logout"
+                sx={{
+                  color: 'text.secondary',
+                  fontStyle: 'italic'
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        )}
       </List>
     </Drawer>
   )
 
   return (
     <>
-      <AppBar position="static" color="primary">
-        <Toolbar>
-          {/* Mobile Menu Icon */}
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
+      <AppBar position="static" color="primary" sx={{ width: '100%' }}>
+        <Box sx={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
+          <Toolbar sx={{ 
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            px: { xs: 2, sm: 3 },
+            minHeight: { xs: 56, sm: 64 }
+          }}>
+            {/* Mobile Menu Icon & Brand Name Container */}
+            <Box sx={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}>
+              {/* Mobile Menu Icon */}
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+                sx={{ mr: 2, display: { md: 'none' } }}
+              >
+                <MenuIcon />
+              </IconButton>
 
-          {/* Brand Name */}
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ 
-              flexGrow: 1,
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-            onClick={() => handleNavigation('/')}
-          >
-            All Day Every Day Records
-          </Typography>
+              {/* Brand Name */}
+              <Typography
+                variant="h6"
+                component="div"
+                sx={{ 
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap'
+                }}
+                onClick={() => handleNavigation('/')}
+              >
+                All Day Every Day Records
+              </Typography>
+            </Box>
 
-          {/* Desktop Navigation */}
-          <DesktopNav />
-        </Toolbar>
+            {/* Desktop Navigation - Center */}
+            <Box sx={{ 
+              display: { xs: 'none', md: 'flex' }, 
+              flex: '1 1 auto',
+              justifyContent: 'center',
+              mx: 2
+            }}>
+              <DesktopNav />
+            </Box>
+
+            {/* PANNES AVE Image - Right */}
+            <Box sx={{ flex: '0 0 auto' }}>
+              {!imageError ? (
+                <Box 
+                  component="img"
+                  src="/images/pannes-ave.jpg"
+                  alt="Pannes Ave"
+                  onError={() => setImageError(true)}
+                  sx={{
+                    height: 40,
+                    width: 'auto',
+                    display: { xs: 'none', sm: 'block' },
+                    borderRadius: 1
+                  }}
+                />
+              ) : (
+                <Box 
+                  sx={{
+                    height: 40,
+                    minWidth: 60,
+                    display: { xs: 'none', sm: 'flex' },
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    borderRadius: 1,
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    fontSize: '10px',
+                    color: 'rgba(255,255,255,0.7)',
+                    textAlign: 'center'
+                  }}
+                >
+                  PANNES<br/>AVE
+                </Box>
+              )}
+            </Box>
+          </Toolbar>
+        </Box>
       </AppBar>
 
       {/* Mobile Drawer */}

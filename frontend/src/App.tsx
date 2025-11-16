@@ -19,20 +19,6 @@ function App() {
             {/* Login route outside of MainLayout */}
             <Route path="/login" element={<Login />} />
             
-            {/* Admin routes outside of MainLayout */}
-            <Route path="/admin/dashboard" element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
-            
-            {/* Catch-all for other admin routes */}
-            <Route path="/admin/*" element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
-            
             {/* Main site routes with layout */}
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Home />} />
@@ -40,6 +26,21 @@ function App() {
               <Route path="releases/:slug" element={<ReleaseDetailPage />} />
               <Route path="about" element={<About />} />
               <Route path="contact" element={<Contact />} />
+              
+              {/* Admin routes now inside MainLayout */}
+              <Route path="admin/dashboard" element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              
+              {/* Catch-all for other admin routes */}
+              <Route path="admin/*" element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              
               <Route path="api-test" element={<ApiTest />} />
               <Route path="404" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />

@@ -20,7 +20,6 @@ export default function Releases() {
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     releaseType: '',
-    label: '',
     sortBy: 'release_date',
     sortOrder: 'desc'
   });
@@ -30,16 +29,6 @@ export default function Releases() {
 
   // Create services using factory pattern - memoize to prevent re-creation
   const services = useMemo(() => createServices(), []);
-
-  // Extract available labels from releases for filter options
-  const availableLabels = useMemo(() => {
-    const labels = new Set(
-      releases
-        .map(release => release.label_name)
-        .filter((label): label is string => Boolean(label))
-    );
-    return Array.from(labels).sort();
-  }, [releases]);
 
   // Fetch releases with current filters
   const fetchReleases = useCallback(async () => {
@@ -52,8 +41,7 @@ export default function Releases() {
         sort: filters.sortBy,
         order: filters.sortOrder,
         ...(debouncedSearch && { search: debouncedSearch }),
-        ...(filters.releaseType && { release_type: filters.releaseType }),
-        ...(filters.label && { label_name: filters.label })
+        ...(filters.releaseType && { release_type: filters.releaseType })
       };
 
       const data = await services.releases.getReleases(params);
@@ -64,7 +52,7 @@ export default function Releases() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, filters.releaseType, filters.label, filters.sortBy, filters.sortOrder, services.releases]);
+  }, [debouncedSearch, filters.releaseType, filters.sortBy, filters.sortOrder, services.releases]);
 
   // Effect to fetch releases when filters change
   useEffect(() => {
@@ -121,7 +109,6 @@ export default function Releases() {
         onFiltersChange={handleFiltersChange}
         resultCount={releases.length}
         isLoading={loading}
-        availableLabels={availableLabels}
       />
 
       {/* Error State */}
@@ -200,7 +187,6 @@ export default function Releases() {
                 onClick={() => handleFiltersChange({
                   search: '',
                   releaseType: '',
-                  label: '',
                   sortBy: 'release_date',
                   sortOrder: 'desc'
                 })}

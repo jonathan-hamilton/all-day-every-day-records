@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Container,
   Typography,
   Box,
   Card,
@@ -8,7 +7,6 @@ import {
   CardActions,
   Button,
   Paper,
-  Avatar,
   TextField,
   MenuItem,
   Alert,
@@ -33,7 +31,6 @@ import {
   Inventory as ReleasesIcon,
   People as UsersIcon,
   VideoLibrary as VideoIcon,
-  ExitToApp as LogoutIcon,
   Add as AddIcon,
   Edit as EditIcon,
   Save as SaveIcon,
@@ -62,7 +59,7 @@ interface Release {
 }
 
 const AdminDashboard: React.FC = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Get API configuration
@@ -91,11 +88,6 @@ const AdminDashboard: React.FC = () => {
     youtube_url: '',
     tag: 'None'
   });
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
 
   // Load releases
   const fetchReleases = useCallback(async () => {
@@ -131,7 +123,7 @@ const AdminDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, apiConfig.baseURL]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -319,56 +311,13 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-      {/* Header Section */}
-      <Paper
-        elevation={3}
-        sx={{
-          p: 3,
-          mb: 4,
-          background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
-          color: 'white'
-        }}
-      >
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box display="flex" alignItems="center">
-            <Avatar
-              sx={{
-                bgcolor: 'rgba(255, 255, 255, 0.2)',
-                mr: 2,
-                width: 60,
-                height: 60
-              }}
-            >
-              {user?.username?.charAt(0).toUpperCase() || 'A'}
-            </Avatar>
-            <Box>
-              <Typography variant="h4" component="h1" fontWeight="bold">
-                Admin Dashboard
-              </Typography>
-              <Typography variant="h6" sx={{ opacity: 0.9 }}>
-                Welcome back, {user?.username || 'Administrator'}
-              </Typography>
-            </Box>
-          </Box>
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<LogoutIcon />}
-            onClick={handleLogout}
-            sx={{
-              bgcolor: 'rgba(255, 255, 255, 0.2)',
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.3)'
-              }
-            }}
-          >
-            Logout
-          </Button>
-        </Box>
-      </Paper>
+      <Box sx={{ mt: 4, mb: 4, width: '100%', overflow: 'hidden' }}>
+        {/* Page Title */}
+        <Typography variant="h3" component="h1" gutterBottom fontWeight="bold" sx={{ mb: 4 }}>
+          Admin Dashboard
+        </Typography>
 
-      {/* Alerts */}
+        {/* Alerts */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={clearMessages}>
           {error}
@@ -746,7 +695,7 @@ const AdminDashboard: React.FC = () => {
           All Day Every Day Records - Admin Panel v1.0
         </Typography>
       </Box>
-    </Container>
+    </Box>
     </LocalizationProvider>
   );
 };

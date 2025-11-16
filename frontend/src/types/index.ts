@@ -22,7 +22,8 @@ export type {
   ReleaseFormData, 
   ReleaseCarouselSlide,
   ReleaseType, 
-  ReleaseStatus 
+  ReleaseStatus,
+  ReleaseTag
 } from './Release';
 
 // Authentication types

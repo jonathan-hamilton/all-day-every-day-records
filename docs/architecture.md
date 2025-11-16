@@ -148,6 +148,26 @@ src/
 - **Dependency Management**: Exact versioning prevents supply chain vulnerabilities
 - **Build Security**: Secure build process with dependency verification
 
+## API Integration Patterns
+
+### Service Layer Architecture
+- **Factory Pattern**: Centralized service creation with consistent error handling
+- **Response Type Safety**: Strongly typed API responses with proper error boundaries
+- **Data Mapping**: Automatic mapping between backend and frontend data structures
+- **Real-time Integration**: Exclusive backend API integration without development fallbacks
+
+### API Response Handling
+- **Structured Responses**: Consistent backend response format with success/data wrapping
+- **Type Mapping**: Automatic conversion between backend fields (artist, format) and frontend fields (artists_with_roles, release_type)
+- **Error Handling**: Comprehensive error catching with user-friendly messaging
+- **Performance Optimization**: Efficient service layer with reduced codebase and improved type safety
+
+### Recent Improvements (November 2025)
+- **Service Layer Refactoring**: ReleaseService reduced from 1,055 to 263 lines (75% reduction)
+- **API Response Structure**: Fixed API response handling for proper data display
+- **Type Safety Enhancement**: Eliminated 'any' types in favor of proper TypeScript constraints
+- **Component Consistency**: Improved naming conventions and interface standardization
+
 ## Next Phase Planning
 
 ### Sprint 1 Preparation
