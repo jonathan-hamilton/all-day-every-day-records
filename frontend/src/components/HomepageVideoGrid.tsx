@@ -11,9 +11,7 @@ import {
   Box, 
   Typography, 
   CircularProgress,
-  Alert,
-  Button,
-  Fab
+  Alert
 } from '@mui/material';
 import { PlayCircleFilled as PlayIcon } from '@mui/icons-material';
 import { createServices } from '../services';
@@ -50,7 +48,6 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
     videos: []
   });
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [updating, setUpdating] = useState(false);
 
   // Fetch homepage videos from API
   useEffect(() => {
@@ -90,17 +87,16 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
         });
       }
     };
-
+  
     fetchVideos();
   }, [maxVideos, services.api]);
 
   // Handle video updates (admin only)
   const handleVideoUpdate = async (videoUrls: string[]) => {
-    setUpdating(true);
     try {
       const response = await services.api.post('/update-homepage-videos.php', {
         videos: videoUrls
-      });
+      }) as { success?: boolean };
       
       if (response.success) {
         // Refresh the video list
@@ -125,8 +121,6 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
     } catch (error) {
       console.error('Failed to update videos:', error);
       throw new Error('Failed to update videos. Please try again.');
-    } finally {
-      setUpdating(false);
     }
   };
 

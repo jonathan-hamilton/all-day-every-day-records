@@ -38,10 +38,9 @@ export default function Releases() {
 
       const params = {
         status: 'published' as const,
-        sort: filters.sortBy,
-        order: filters.sortOrder,
-        ...(debouncedSearch && { search: debouncedSearch }),
-        ...(filters.releaseType && { release_type: filters.releaseType })
+        sort: 'release_date' as const,
+        order: 'desc' as const,
+        ...(debouncedSearch && { search: debouncedSearch })
       };
 
       const data = await services.releases.getReleases(params);
@@ -52,7 +51,7 @@ export default function Releases() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, filters.releaseType, filters.sortBy, filters.sortOrder, services.releases]);
+  }, [debouncedSearch, services.releases]);
 
   // Effect to fetch releases when filters change
   useEffect(() => {

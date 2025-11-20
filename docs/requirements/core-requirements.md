@@ -16,7 +16,13 @@
 - REQ-RM-1: System shall store release data including title, artist, label, format, release date, cover image, and description
 - REQ-RM-2: System shall support streaming service links (Spotify, YouTube, Apple Music, Amazon Music)
 - REQ-RM-3: System shall categorize releases with tags (featured, new, removed)
-- REQ-RM-4: System shall provide filtering capabilities on releases page by artist and title
+- REQ-RM-4: System shall provide filtering capabilities on releases page by artist and title with real-time search
+- REQ-RM-4.1: System shall implement server-side pagination for releases with configurable page size (default 20 items)
+- REQ-RM-4.2: System shall support individual filtering by artist name with partial text matching
+- REQ-RM-4.3: System shall support individual filtering by release title with partial text matching
+- REQ-RM-4.4: System shall provide combined search functionality across both artist and title fields
+- REQ-RM-4.5: System shall display pagination controls with current page, total pages, and navigation
+- REQ-RM-4.6: System shall return pagination metadata including total count and page information
 - REQ-RM-5: System shall display release count and filtering status to users
 - REQ-RM-6: System shall support embedded YouTube video content on detail pages
 - REQ-RM-7: System shall display related releases by the same artist on detail pages
