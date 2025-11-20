@@ -74,6 +74,7 @@ export const ReleaseCarouselSlide: React.FC<ReleaseCarouselSlideProps> = ({
         display: 'flex',
         flexDirection: 'column',
         cursor: 'pointer',
+        borderRadius: 0, // Square corners
         transition: 'all 0.2s ease-in-out',
         '&:hover': {
           transform: 'translateY(-4px)',

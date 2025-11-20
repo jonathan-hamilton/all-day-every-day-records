@@ -19,6 +19,7 @@ import { Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material'
 import { useAuth } from '../hooks/useAuth'
 
 const baseNavigationItems = [
+  { label: 'Home', path: '/' },
   { label: 'Releases', path: '/releases' },
   { label: 'About', path: '/about' },
   { label: 'Contact', path: '/contact' }
@@ -75,18 +76,41 @@ export default function Navigation() {
       justifyContent: 'center' // Center the items within the fixed width
     }}>
       {navigationItems.map((item) => (
-        <Button
-          key={item.path}
-          color="inherit"
-          onClick={() => handleNavigation(item.path)}
-          sx={{
-            fontWeight: isActivePath(item.path) ? 'bold' : 'normal',
-            textDecoration: isActivePath(item.path) ? 'underline' : 'none',
-            minWidth: '80px' // Fixed minimum width for buttons
-          }}
-        >
-          {item.label}
-        </Button>
+        <Box key={item.path} sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <Button
+            color="inherit"
+            onClick={() => handleNavigation(item.path)}
+            sx={{
+              fontWeight: isActivePath(item.path) ? 'bold' : 'normal',
+              color: isActivePath(item.path) ? 'red' : 'inherit', // Red text for active page
+              textDecoration: 'none', // Remove underline completely
+              minWidth: '80px', // Fixed minimum width for buttons
+              borderRadius: 0, // Remove rounded corners - make square
+              px: 1, // Reduced horizontal padding (50% less than default)
+              py: 0.5, // Reduced vertical padding (50% less than default)
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: slight background highlight
+              }
+            }}
+          >
+            {item.label}
+          </Button>
+          {isActivePath(item.path) && (
+            <Box
+              sx={{
+                position: 'absolute',
+                right: 0,
+                bottom: 4,
+                width: 0,
+                height: 0,
+                borderLeft: '6px solid red',
+                borderTop: '4px solid transparent',
+                borderBottom: '4px solid transparent',
+                transform: 'rotate(45deg)' // Triangle points down-right at 45 degrees
+              }}
+            />
+          )}
+        </Box>
       ))}
       {isAuthenticated && user?.is_admin && (
         <Button
@@ -98,6 +122,9 @@ export default function Navigation() {
             backgroundColor: 'transparent',
             borderColor: 'rgba(255, 255, 255, 0.5)',
             minWidth: '80px', // Fixed minimum width for consistency
+            borderRadius: 0, // Remove rounded corners - make square
+            px: 1, // Reduced horizontal padding
+            py: 0.5, // Reduced vertical padding
             '&:hover': {
               backgroundColor: 'rgba(255, 255, 255, 0.1)',
               borderColor: 'rgba(255, 255, 255, 0.7)',
@@ -175,14 +202,46 @@ export default function Navigation() {
 
   return (
     <>
-      <AppBar position="static" color="primary" sx={{ width: '100%' }}>
-        <Box sx={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
-          <Toolbar sx={{ 
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            px: { xs: 2, sm: 3 },
-            minHeight: { xs: 56, sm: 64 }
-          }}>
+      <AppBar position="static" color="primary" sx={{ 
+        width: '100vw',
+        left: 0,
+        right: 0,
+        margin: 0,
+        padding: 0,
+        backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'scroll', // Changed from 'local' to prevent bleeding
+        overflow: 'hidden',
+        height: 'auto',
+        position: 'relative', // Ensure proper containment
+        zIndex: 1000, // Higher z-index to prevent interference
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          zIndex: 1,
+          pointerEvents: 'none' // Prevent interference with clicks
+        },
+        '& .MuiToolbar-root': {
+          position: 'relative',
+          zIndex: 2
+        }
+      }}>
+        <Toolbar sx={{ 
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          px: { xs: 2, sm: 3 },
+          minHeight: { xs: 67, sm: 77 }, // Increased by 20%: 56*1.2=67, 64*1.2=77
+          maxWidth: 1200,
+          margin: '0 auto',
+          width: '100%'
+        }}>
             {/* Mobile Menu Icon & Brand Name Container */}
             <Box sx={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}>
               {/* Mobile Menu Icon */}
@@ -196,19 +255,19 @@ export default function Navigation() {
                 <MenuIcon />
               </IconButton>
 
-              {/* Brand Name */}
-              <Typography
-                variant="h6"
-                component="div"
+              {/* Brand Logo */}
+              <Box
+                component="img"
+                src="/images/ALL_DAY_EVERY_DAY_Logo.png"
+                alt="All Day Every Day Records"
                 sx={{ 
                   cursor: 'pointer',
-                  fontWeight: 'bold',
-                  whiteSpace: 'nowrap'
+                  height: { xs: 48, sm: 60 },
+                  width: 'auto',
+                  objectFit: 'contain'
                 }}
                 onClick={() => handleNavigation('/')}
-              >
-                All Day Every Day Records
-              </Typography>
+              />
             </Box>
 
             {/* Desktop Navigation - Center */}
@@ -257,7 +316,6 @@ export default function Navigation() {
               )}
             </Box>
           </Toolbar>
-        </Box>
       </AppBar>
 
       {/* Mobile Drawer */}

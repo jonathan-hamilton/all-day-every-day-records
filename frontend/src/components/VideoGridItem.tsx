@@ -48,7 +48,7 @@ const VideoGridItem: React.FC<VideoGridItemProps> = ({ videoUrl, title }) => {
 
   if (hasError) {
     return (
-      <Alert severity="warning" sx={{ borderRadius: 2 }}>
+      <Alert severity="warning" sx={{ borderRadius: 0 }}>
         Unable to load video. <a href={videoUrl} target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
       </Alert>
     );
@@ -62,7 +62,7 @@ const VideoGridItem: React.FC<VideoGridItemProps> = ({ videoUrl, title }) => {
         height: 0,
         overflow: 'hidden',
         backgroundColor: 'grey.100',
-        borderRadius: 2,
+        borderRadius: 0,
         boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
       }}
     >
@@ -79,7 +79,7 @@ const VideoGridItem: React.FC<VideoGridItemProps> = ({ videoUrl, title }) => {
           left: 0,
           width: '100%',
           height: '100%',
-          borderRadius: '8px'
+          borderRadius: '0px'
         }}
       />
     </Box>

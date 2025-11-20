@@ -11,11 +11,15 @@ import {
   Box, 
   Typography, 
   CircularProgress,
-  Alert
+  Alert,
+  Button,
+  Fab
 } from '@mui/material';
 import { PlayCircleFilled as PlayIcon } from '@mui/icons-material';
 import { createServices } from '../services';
+import { useAuth } from '../hooks/useAuth';
 import VideoGridItem from './VideoGridItem';
+import VideoManageDialog from './VideoManageDialog';
 
 interface HomepageVideoGridProps {
   maxVideos?: number;
@@ -39,11 +43,14 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
   showTitle = true
 }) => {
   const services = useMemo(() => createServices(), []);
+  const { isAuthenticated } = useAuth();
   const [state, setState] = useState<VideoGridState>({
     loading: true,
     error: null,
     videos: []
   });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   // Fetch homepage videos from API
   useEffect(() => {
@@ -86,6 +93,53 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
 
     fetchVideos();
   }, [maxVideos, services.api]);
+
+  // Handle video updates (admin only)
+  const handleVideoUpdate = async (videoUrls: string[]) => {
+    setUpdating(true);
+    try {
+      const response = await services.api.post('/update-homepage-videos.php', {
+        videos: videoUrls
+      });
+      
+      if (response.success) {
+        // Refresh the video list
+        const apiResponse = await services.api.get('/get-homepage-videos.php');
+        const updatedVideoUrls = (apiResponse as { videos?: string[] }).videos || [];
+        
+        const videos: HomepageVideo[] = updatedVideoUrls
+          .slice(0, maxVideos)
+          .map((url, index) => ({
+            id: index + 1,
+            title: `Featured Video ${index + 1}`,
+            youtube_url: url
+          }))
+          .filter(v => v.youtube_url && v.youtube_url.trim() !== '');
+        
+        setState(prev => ({
+          ...prev,
+          videos,
+          error: null
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to update videos:', error);
+      throw new Error('Failed to update videos. Please try again.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  // Get current video URLs for dialog
+  const getCurrentVideoUrls = (): string[] => {
+    const urls = new Array(4).fill('');
+    state.videos.forEach((video, index) => {
+      if (index < 4) {
+        urls[index] = video.youtube_url || '';
+      }
+    });
+    return urls;
+  };
 
   // Loading state
   if (state.loading) {
@@ -146,7 +200,7 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
 
   // Success state with video grid
   return (
-    <Box sx={{ py: 6 }}>
+    <Box sx={{ py: 6, position: 'relative' }}>
       {showTitle && (
         <Typography 
           variant="h4" 
@@ -191,6 +245,16 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
             ))}
           </Box>
         </>
+      )}
+
+      {/* Video Management Dialog (Admin Only) */}
+      {isAuthenticated && (
+        <VideoManageDialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          onSave={handleVideoUpdate}
+          currentVideos={getCurrentVideoUrls()}
+        />
       )}
     </Box>
   );

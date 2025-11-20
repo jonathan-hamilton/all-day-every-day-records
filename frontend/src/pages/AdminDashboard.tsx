@@ -72,6 +72,16 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   
+  // Auto-clear success messages after 3 seconds
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+  
   // Form state
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
   const [isCreating, setIsCreating] = useState(true);
@@ -88,6 +98,22 @@ const AdminDashboard: React.FC = () => {
     youtube_url: '',
     tag: 'None'
   });
+
+  // Homepage videos state
+  const [homepageVideos, setHomepageVideos] = useState<string[]>(['', '', '', '']);
+  const [videosSaving, setVideosSaving] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const [videoSuccess, setVideoSuccess] = useState<string | null>(null);
+  
+  // Auto-clear video success messages after 3 seconds
+  useEffect(() => {
+    if (videoSuccess) {
+      const timer = setTimeout(() => {
+        setVideoSuccess(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [videoSuccess]);
 
   // Load releases
   const fetchReleases = useCallback(async () => {
@@ -125,11 +151,39 @@ const AdminDashboard: React.FC = () => {
     }
   }, [isAuthenticated, apiConfig.baseURL]);
 
+  // Load homepage videos
+  const fetchHomepageVideos = useCallback(async () => {
+    if (!isAuthenticated) return;
+    
+    try {
+      const response = await fetch(`${apiConfig.baseURL}/get-homepage-videos.php`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success && Array.isArray(data.videos)) {
+        // Ensure we always have exactly 4 URLs
+        const videos = [...data.videos];
+        while (videos.length < 4) {
+          videos.push('');
+        }
+        setHomepageVideos(videos.slice(0, 4));
+      }
+    } catch (err) {
+      console.error('Fetch homepage videos error:', err);
+    }
+  }, [isAuthenticated, apiConfig.baseURL]);
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchReleases();
+      fetchHomepageVideos();
     }
-  }, [isAuthenticated, fetchReleases]);
+  }, [isAuthenticated, fetchReleases, fetchHomepageVideos]);
 
   const handleCreateNew = () => {
     setIsCreating(true);
@@ -179,6 +233,50 @@ const AdminDashboard: React.FC = () => {
   const clearMessages = () => {
     setError(null);
     setSuccess(null);
+  };
+
+  const clearVideoMessages = () => {
+    setVideoError(null);
+    setVideoSuccess(null);
+  };
+
+  // Handle homepage video updates
+  const handleUpdateVideos = async () => {
+    setVideosSaving(true);
+    setVideoError(null);
+    setVideoSuccess(null);
+    
+    try {
+      const response = await fetch(`${apiConfig.baseURL}/update-homepage-videos.php?admin=true`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ videos: homepageVideos })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setVideoSuccess('Homepage videos updated successfully!');
+        // Update local state with response data
+        if (Array.isArray(data.videos)) {
+          const videos = [...data.videos];
+          while (videos.length < 4) {
+            videos.push('');
+          }
+          setHomepageVideos(videos.slice(0, 4));
+        }
+      } else {
+        setVideoError(data.error || 'Failed to update homepage videos');
+      }
+    } catch (err) {
+      setVideoError('Network error updating videos');
+      console.error('Update videos error:', err);
+    } finally {
+      setVideosSaving(false);
+    }
   };
 
   const handleUploadCoverImage = async () => {
@@ -299,13 +397,6 @@ const AdminDashboard: React.FC = () => {
       icon: <UsersIcon sx={{ fontSize: 40, color: 'secondary.main' }} />,
       action: 'Manage',
       path: '/admin/users'
-    },
-    {
-      title: 'Home Page Videos',
-      description: 'Manage YouTube videos displayed on the homepage',
-      icon: <VideoIcon sx={{ fontSize: 40, color: 'success.main' }} />,
-      action: 'Manage',
-      path: '/admin/videos'
     }
   ];
 
@@ -642,6 +733,112 @@ const AdminDashboard: React.FC = () => {
             </TableContainer>
           </Paper>
         </Box>
+
+      {/* Homepage Videos Management Section */}
+      <Box sx={{ mb: 4 }}>
+        <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
+          <VideoIcon sx={{ mr: 2, color: 'success.main' }} />
+          <Typography variant="h5" component="h2" fontWeight="medium">
+            Homepage Videos
+          </Typography>
+        </Box>
+        
+        {/* Video-specific alerts */}
+        {videoError && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={clearVideoMessages}>
+            {videoError}
+          </Alert>
+        )}
+        
+        {videoSuccess && (
+          <Alert severity="success" sx={{ mb: 2 }} onClose={clearVideoMessages}>
+            {videoSuccess}
+          </Alert>
+        )}
+        
+        <Paper elevation={3} sx={{ p: 4 }}>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            Configure the 4 YouTube videos displayed on the homepage.
+          </Typography>
+          
+          <Stack spacing={3}>
+            {/* Video URL Fields in 2x2 Grid Layout */}
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+              <TextField
+                fullWidth
+                label="Position 1 (Top Left)"
+                placeholder="https://youtube.com/watch?v=..."
+                value={homepageVideos[0] || ''}
+                onChange={(e) => {
+                  const newVideos = [...homepageVideos];
+                  newVideos[0] = e.target.value;
+                  setHomepageVideos(newVideos);
+                }}
+              />
+              
+              <TextField
+                fullWidth
+                label="Position 2 (Top Right)"
+                placeholder="https://youtube.com/watch?v=..."
+                value={homepageVideos[1] || ''}
+                onChange={(e) => {
+                  const newVideos = [...homepageVideos];
+                  newVideos[1] = e.target.value;
+                  setHomepageVideos(newVideos);
+                }}
+              />
+            </Stack>
+            
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+              <TextField
+                fullWidth
+                label="Position 3 (Bottom Left)"
+                placeholder="https://youtube.com/watch?v=..."
+                value={homepageVideos[2] || ''}
+                onChange={(e) => {
+                  const newVideos = [...homepageVideos];
+                  newVideos[2] = e.target.value;
+                  setHomepageVideos(newVideos);
+                }}
+              />
+              
+              <TextField
+                fullWidth
+                label="Position 4 (Bottom Right)"
+                placeholder="https://youtube.com/watch?v=..."
+                value={homepageVideos[3] || ''}
+                onChange={(e) => {
+                  const newVideos = [...homepageVideos];
+                  newVideos[3] = e.target.value;
+                  setHomepageVideos(newVideos);
+                }}
+              />
+            </Stack>
+            
+            {/* Update Button */}
+            <Box>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={videosSaving ? <CircularProgress size={20} /> : <SaveIcon />}
+                onClick={handleUpdateVideos}
+                disabled={videosSaving}
+                sx={{ mr: 2 }}
+              >
+                {videosSaving ? 'Saving Videos...' : 'Save Homepage Videos'}
+              </Button>
+              
+              <Button
+                variant="outlined"
+                onClick={fetchHomepageVideos}
+                disabled={videosSaving}
+              >
+                Reset
+              </Button>
+            </Box>
+          </Stack>
+        </Paper>
+      </Box>
 
       {/* Other Dashboard Cards */}
       <Box>

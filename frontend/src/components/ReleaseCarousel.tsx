@@ -198,19 +198,6 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
         aria-label="Loading new releases"
         aria-live="polite"
       >
-        <Typography 
-          variant="h4" 
-          component="h2" 
-          gutterBottom 
-          sx={{ 
-            textAlign: 'center',
-            mb: 3,
-            fontWeight: 'bold'
-          }}
-        >
-          New Releases
-        </Typography>
-        
         <Box sx={{ 
           display: 'flex', 
           gap: 2, 
@@ -328,7 +315,10 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
       sx={{ 
         width: '100%', 
         mb: 4,
-        position: 'relative'
+        position: 'relative',
+        backgroundColor: 'black',
+        py: 4,
+        borderRadius: 2
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -340,49 +330,13 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
       aria-describedby="carousel-description"
     >
       {/* Section Header */}
-      <Box sx={{ 
+      <Box sx={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 2,
         mb: 3
       }}>
-        <Typography 
-          variant="h4" 
-          component="h2" 
-          sx={{ 
-            fontWeight: 'bold'
-          }}
-        >
-          new releases
-        </Typography>
-        
-        {/* Auto-play indicator */}
-        {autoPlay && totalSlides > slidesPerView && (
-          <Box sx={{
-            display: { xs: 'none', md: 'flex' },
-            alignItems: 'center',
-            gap: 1,
-            color: 'text.secondary',
-            fontSize: '0.875rem'
-          }}>
-            <Box sx={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              backgroundColor: isHovered ? 'warning.main' : 'success.main',
-              animation: isHovered ? 'none' : 'pulse 2s infinite',
-              '@keyframes pulse': {
-                '0%': { opacity: 1 },
-                '50%': { opacity: 0.5 },
-                '100%': { opacity: 1 }
-              }
-            }} />
-            <Typography variant="caption">
-              {isHovered ? 'Paused' : 'Auto-play'}
-            </Typography>
-          </Box>
-        )}
       </Box>
 
       {/* Carousel Container */}

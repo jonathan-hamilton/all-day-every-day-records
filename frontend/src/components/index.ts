@@ -5,5 +5,6 @@ export { ReleaseFilters } from './ReleaseFilters'
 export { default as ReleaseCarousel } from './ReleaseCarousel'
 export { ReleaseCarouselSlide } from './ReleaseCarouselSlide'
 export { ConnectivityStatus } from './ConnectivityStatus'
+export { default as VideoManageDialog } from './VideoManageDialog'
 // Example: export { default as Header } from './Header';
 // Example: export { default as Footer } from './Footer';
