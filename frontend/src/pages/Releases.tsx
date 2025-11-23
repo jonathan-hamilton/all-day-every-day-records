@@ -70,37 +70,7 @@ export default function Releases() {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography 
-          variant="h2" 
-          component="h1" 
-          sx={{ 
-            mb: 2,
-            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
-            fontWeight: 700,
-            background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          Music Releases
-        </Typography>
-        
-        <Typography 
-          variant="h6" 
-          color="text.secondary" 
-          sx={{ 
-            mb: 4,
-            fontSize: { xs: '1rem', sm: '1.1rem' },
-            maxWidth: '600px',
-            mx: 'auto'
-          }}
-        >
-          Explore our catalog of groundbreaking rap and hip-hop releases from emerging artists to established legends
-        </Typography>
-      </Box>
+
 
       {/* Filters */}
       <ReleaseFilters
@@ -195,15 +165,6 @@ export default function Releases() {
             </Box>
           )}
         </>
-      )}
-
-      {/* Footer Message */}
-      {!loading && !error && releases.length > 0 && (
-        <Box sx={{ mt: 6, textAlign: 'center' }}>
-          <Typography variant="body1" color="text.secondary">
-            Discover your next favorite track from our growing collection of authentic hip-hop music
-          </Typography>
-        </Box>
       )}
     </Container>
   );

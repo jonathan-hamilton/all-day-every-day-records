@@ -14,6 +14,12 @@ if ($isAdmin) {
     requireAuth();
 }
 
+// Get search parameter and sanitize it
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+// Debug: Log all incoming parameters
+error_log("[" . date('Y-m-d H:i:s') . "] DEBUG get-releases start - search: " . json_encode($search) . ", all_params: " . json_encode($_GET) . ", is_admin: " . ($isAdmin ? 'true' : 'false'));
+
 try {
     if ($isAdmin) {
         // Admin view: show all releases with all data including removed
@@ -32,9 +38,37 @@ try {
                     tag,
                     created_at,
                     updated_at
-                FROM releases
-                ORDER BY created_at DESC";
-        $releases = $db->query($sql);
+                FROM releases";
+        
+        $params = [];
+        
+        // Add search filter for admin if provided
+        if (!empty($search)) {
+            $sql .= " WHERE (title LIKE ? OR artist LIKE ?)";
+            $params[] = '%' . $search . '%';
+            $params[] = '%' . $search . '%';
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin search added - sql_fragment: 'WHERE (title LIKE ? OR artist LIKE ?)', search_value: " . json_encode('%' . $search . '%'));
+        }
+        
+        $sql .= " ORDER BY created_at DESC";
+        
+        // Debug: Log final SQL and parameters for admin
+        error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin SQL - sql: " . json_encode($sql) . ", params: " . json_encode($params));
+        
+        
+        try {
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin about to execute query");
+            
+            $releases = $db->query($sql, $params);
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin query executed successfully");
+            
+        } catch (Exception $e) {
+            error_log("[" . date('Y-m-d H:i:s') . "] FATAL ADMIN DB Error - message: " . $e->getMessage() . ", code: " . $e->getCode());
+            throw $e;
+        }
+        
+        // Debug: Log result count for admin
+        error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin results - count: " . count($releases));
         
         // Convert database format to expected frontend format for admin
         foreach ($releases as &$release) {
@@ -99,15 +133,42 @@ try {
                     youtube_url,
                     tag
                 FROM releases
-                WHERE tag != 'Removed'
-                ORDER BY 
+                WHERE tag != 'Removed'";
+        
+        $params = [];
+        
+        // Add search filter for public if provided
+        if (!empty($search)) {
+            $sql .= " AND (title LIKE ? OR artist LIKE ?)";
+            $params[] = '%' . $search . '%';
+            $params[] = '%' . $search . '%';
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public search added - sql_fragment: 'AND (title LIKE ? OR artist LIKE ?)', search_value: " . json_encode('%' . $search . '%'));
+        }
+        
+        $sql .= " ORDER BY 
                     CASE tag 
                         WHEN 'Featured' THEN 1 
                         WHEN 'New' THEN 2 
                         ELSE 3 
                     END, 
                     release_date DESC";
-        $releases = $db->query($sql);
+        
+        // Debug: Log final SQL and parameters for public
+        error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public SQL - sql: " . json_encode($sql) . ", params: " . json_encode($params));
+        
+        try {
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG about to execute public query");
+            
+            $releases = $db->query($sql, $params);
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public query executed successfully");
+            
+        } catch (Exception $e) {
+            error_log("[" . date('Y-m-d H:i:s') . "] FATAL PUBLIC DB Error - message: " . $e->getMessage() . ", code: " . $e->getCode());
+            throw $e;
+        }
+        
+        // Debug: Log result count for public
+        error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public results - count: " . count($releases));
         
         // Convert to frontend format with artists as string for public view
         foreach ($releases as &$release) {
@@ -130,13 +191,17 @@ try {
         }
     }
     
+    // Debug: Log before final response
+    error_log("[" . date('Y-m-d H:i:s') . "] DEBUG before response - releases_count: " . count($releases));
+    
     jsonResponse([
         "success" => true,
         "releases" => $releases
     ]);
     
 } catch (Exception $e) {
-    logError("Exception in get-releases", ['error' => $e->getMessage()]);
+    // Enhanced error logging with more context
+    error_log("[" . date('Y-m-d H:i:s') . "] EXCEPTION in get-releases - error_message: " . $e->getMessage() . ", error_file: " . $e->getFile() . ", error_line: " . $e->getLine() . ", search_param: " . json_encode($search) . ", is_admin: " . ($isAdmin ? 'true' : 'false') . ", request_uri: " . ($_SERVER['REQUEST_URI'] ?? 'unknown'));
     jsonResponse(["error" => "Failed to fetch releases"], 500);
 }
 ?>

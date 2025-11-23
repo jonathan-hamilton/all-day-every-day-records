@@ -468,7 +468,7 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
               sx={{
                 width: `calc(${100 / slidesPerView}% - ${(2 * (slidesPerView - 1)) / slidesPerView}rem)`,
                 flexShrink: 0,
-                height: 400
+                height: 540
               }}
               role="group"
               aria-label={`Release ${index + 1}: ${release.title}`}

@@ -39,27 +39,20 @@ try {
         jsonResponse(["error" => "Release not found"], 404);
     }
     
-    // Soft delete: mark as removed instead of actually deleting
-    // This preserves data integrity and allows for recovery
-    $sql = "UPDATE releases SET status = 'removed', updated_at = NOW() WHERE id = ?";
-    $db->execute($sql, [$releaseId]);
+    // Delete the release (streaming URLs are columns in the releases table, not separate tables)
+    $result = $db->execute("DELETE FROM releases WHERE id = ?", [$releaseId]);
     
-    // Optionally, you could do a hard delete by uncommenting below:
-    // and commenting out the soft delete above
-    /*
-    // Delete related records first (foreign key constraints)
-    $db->execute("DELETE FROM streaming_links WHERE release_id = ?", [$releaseId]);
-    $db->execute("DELETE FROM release_artists WHERE release_id = ?", [$releaseId]);
-    
-    // Delete the release itself
-    $db->execute("DELETE FROM releases WHERE id = ?", [$releaseId]);
-    */
+    if (!$result) {
+        $db->rollback();
+        logError("Failed to delete release", ['id' => $releaseId, 'title' => $existing['title']]);
+        jsonResponse(["error" => "Failed to remove release"], 500);
+    }
     
     $db->commit();
     
     jsonResponse([
         "success" => true,
-        "message" => "Release removed successfully",
+        "message" => "Release deleted successfully",
         "release_id" => $releaseId,
         "title" => $existing['title']
     ]);

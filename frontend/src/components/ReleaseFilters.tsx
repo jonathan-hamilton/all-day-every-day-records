@@ -48,7 +48,34 @@ export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
   const hasActiveFilters = filters.search;
 
   return (
-    <Paper elevation={1} sx={{ p: 3, mb: 4 }}>
+    <Paper 
+      elevation={1} 
+      sx={{ 
+        p: 3, 
+        mb: 4,
+        backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          borderRadius: 'inherit',
+          zIndex: 1,
+          pointerEvents: 'none'
+        },
+        '& > *': {
+          position: 'relative',
+          zIndex: 2
+        }
+      }}
+    >
       {/* Search and Result Count */}
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -58,12 +85,28 @@ export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
             value={filters.search}
             onChange={handleSearchChange}
             InputProps={{
-              startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+              startAdornment: <SearchIcon sx={{ mr: 1, color: 'white' }} />,
             }}
             sx={{ 
               maxWidth: { xs: '100%', sm: 400 },
               '& .MuiOutlinedInput-root': {
-                backgroundColor: 'background.paper'
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                '& input': {
+                  color: 'white',
+                  '&::placeholder': {
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    opacity: 1
+                  }
+                },
+                '& fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.3)'
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.5)'
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.7)'
+                }
               }
             }}
           />
@@ -71,16 +114,24 @@ export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
         
         {/* Result Count and Status */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{ color: 'white' }}>
             {isLoading ? 'Loading...' : `${resultCount} release${resultCount !== 1 ? 's' : ''} found`}
           </Typography>
           
           {hasActiveFilters && (
             <Button
               size="small"
-              startIcon={<ClearIcon />}
+              startIcon={<ClearIcon sx={{ color: 'white' }} />}
               onClick={handleClearFilters}
-              sx={{ fontSize: '0.8rem' }}
+              sx={{ 
+                fontSize: '0.8rem',
+                color: 'white',
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderColor: 'rgba(255, 255, 255, 0.5)'
+                }
+              }}
             >
               Clear all filters
             </Button>
@@ -91,7 +142,7 @@ export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
       {/* Active Filters Display */}
       {hasActiveFilters && (
         <Box sx={{ mt: 3 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          <Typography variant="body2" sx={{ color: 'white', mb: 1 }}>
             Active filters:
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>

@@ -21,8 +21,7 @@ import { useAuth } from '../hooks/useAuth'
 const baseNavigationItems = [
   { label: 'Home', path: '/' },
   { label: 'Releases', path: '/releases' },
-  { label: 'About', path: '/about' },
-  { label: 'Contact', path: '/contact' }
+  { label: 'About', path: '/about' }
 ]
 
 export default function Navigation() {
@@ -95,21 +94,6 @@ export default function Navigation() {
           >
             {item.label}
           </Button>
-          {isActivePath(item.path) && (
-            <Box
-              sx={{
-                position: 'absolute',
-                right: 0,
-                bottom: 4,
-                width: 0,
-                height: 0,
-                borderLeft: '6px solid red',
-                borderTop: '4px solid transparent',
-                borderBottom: '4px solid transparent',
-                transform: 'rotate(45deg)' // Triangle points down-right at 45 degrees
-              }}
-            />
-          )}
         </Box>
       ))}
       {isAuthenticated && user?.is_admin && (
@@ -237,7 +221,7 @@ export default function Navigation() {
           justifyContent: 'space-between',
           alignItems: 'center',
           px: { xs: 2, sm: 3 },
-          minHeight: { xs: 67, sm: 77 }, // Increased by 20%: 56*1.2=67, 64*1.2=77
+          minHeight: { xs: 56, sm: 64 },
           maxWidth: 1200,
           margin: '0 auto',
           width: '100%'

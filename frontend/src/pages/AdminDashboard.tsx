@@ -33,9 +33,12 @@ import {
   VideoLibrary as VideoIcon,
   Add as AddIcon,
   Edit as EditIcon,
+  Delete as DeleteIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
-  Upload as UploadIcon
+  Upload as UploadIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon
 } from '@mui/icons-material';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -71,6 +74,7 @@ const AdminDashboard: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   
   // Auto-clear success messages after 3 seconds
   useEffect(() => {
@@ -81,6 +85,23 @@ const AdminDashboard: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [success]);
+
+  // Filter releases based on search term
+  const filteredReleases = releases.filter(release => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      release.title.toLowerCase().includes(searchLower) ||
+      release.artist.toLowerCase().includes(searchLower) ||
+      release.format.toLowerCase().includes(searchLower) ||
+      release.tag.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Clear search
+  const handleClearSearch = () => {
+    setSearchTerm('');
+  };
   
   // Form state
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
@@ -404,7 +425,7 @@ const AdminDashboard: React.FC = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ mt: 4, mb: 4, width: '100%', overflow: 'hidden' }}>
         {/* Page Title */}
-        <Typography variant="h3" component="h1" gutterBottom fontWeight="bold" sx={{ mb: 4 }}>
+        <Typography variant="h3" component="h1" gutterBottom fontWeight="bold" sx={{ mb: 4, color: 'white' }}>
           Admin Dashboard
         </Typography>
 
@@ -424,19 +445,70 @@ const AdminDashboard: React.FC = () => {
       {/* Release Management Section */}
       <Box sx={{ mb: 4 }}>
         <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
-          <ReleasesIcon sx={{ mr: 2, color: 'primary.main' }} />
-          <Typography variant="h5" component="h2" fontWeight="medium">
+          <ReleasesIcon sx={{ mr: 2, color: 'white', fontSize: '2rem' }} />
+          <Typography variant="h5" component="h2" fontWeight="medium" sx={{ color: 'white' }}>
             Manage Releases
           </Typography>
         </Box>
         
         {/* Release Form - Always Visible */}
-        <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
+        <Paper elevation={3} sx={{ 
+          p: 4, 
+          mb: 4,
+          backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            zIndex: 1
+          },
+          '& > *': {
+            position: 'relative',
+            zIndex: 2
+          }
+        }}>
+          <Typography variant="h6" gutterBottom sx={{ color: 'white' }}>
             {isCreating ? 'Create New Release' : editingRelease ? `Edit: ${editingRelease?.title}` : 'Create New Release'}
           </Typography>
               
-              <Stack spacing={3} sx={{ mt: 2 }}>
+              <Stack spacing={3} sx={{ 
+                mt: 2,
+                '& .MuiTextField-root, & .MuiFormControl-root': {
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: 'transparent',
+                    color: 'white',
+                    '& fieldset': {
+                      borderColor: 'rgba(200, 200, 200, 0.8)'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgba(200, 200, 200, 1)'
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main'
+                    }
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    '&.Mui-focused': {
+                      color: 'primary.main'
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: 'white'
+                  },
+                  '& .MuiSelect-icon, & .MuiIconButton-root': {
+                    color: 'white'
+                  }
+                }
+              }}>
                 {/* Title, Artist, and Format Row - 3 fields */}
                 <Stack direction={{ xs: 'column', sm: 'column', md: 'row' }} spacing={2}>
                   <TextField
@@ -464,22 +536,18 @@ const AdminDashboard: React.FC = () => {
 
                 {/* Release Date and Tag Row */}
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                  <DatePicker
+                  <TextField
+                    fullWidth
+                    type="date"
                     label="Release Date"
-                    value={formData.release_date ? dayjs(formData.release_date) : null}
-                    onChange={(date: Dayjs | null) => {
-                      setFormData(prev => ({ 
-                        ...prev, 
-                        release_date: date ? date.format('YYYY-MM-DD') : '' 
-                      }));
+                    value={formData.release_date || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, release_date: e.target.value }))}
+                    InputLabelProps={{
+                      shrink: true,
                     }}
-                    minDate={dayjs('1980-01-01')}
-                    maxDate={dayjs('2040-12-31')}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        variant: 'outlined'
-                      }
+                    inputProps={{
+                      min: '1980-01-01',
+                      max: '2040-12-31'
                     }}
                   />
 
@@ -506,7 +574,7 @@ const AdminDashboard: React.FC = () => {
 
                 {/* Upload Cover Image Button - Primary way to set cover image */}
                 <Box sx={{ mb: 3 }}>
-                  <Typography variant="subtitle2" gutterBottom>
+                  <Typography variant="subtitle2" gutterBottom sx={{ color: 'white' }}>
                     Cover Image *
                   </Typography>
                   <Stack direction="row" spacing={2} alignItems="center">
@@ -537,7 +605,7 @@ const AdminDashboard: React.FC = () => {
                 />
 
                 {/* Streaming URLs */}
-                <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'white' }}>
                   Streaming Links
                 </Typography>
                 
@@ -589,6 +657,18 @@ const AdminDashboard: React.FC = () => {
                   startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
                   onClick={handleSubmit}
                   disabled={saving || !formData.title || !formData.artist || !formData.cover_image_url}
+                  sx={{
+                    backgroundColor: 'primary.main',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'primary.dark'
+                    },
+                    '&.Mui-disabled': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      color: 'rgba(255, 255, 255, 0.5)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)'
+                    }
+                  }}
                 >
                   {saving ? 'Saving...' : (isCreating ? 'Create Release' : 'Update Release')}
                 </Button>
@@ -597,6 +677,14 @@ const AdminDashboard: React.FC = () => {
                   startIcon={<CancelIcon />}
                   onClick={handleCancelEdit}
                   disabled={saving}
+                  sx={{
+                    borderColor: 'white',
+                    color: 'white',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                    }
+                  }}
                 >
                   Cancel
                 </Button>
@@ -605,7 +693,7 @@ const AdminDashboard: React.FC = () => {
 
           {/* Releases List Header and Button */}
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-            <Typography variant="h6">
+            <Typography variant="h6" sx={{ color: 'white' }}>
               All Releases
             </Typography>
             <Box>
@@ -633,8 +721,95 @@ const AdminDashboard: React.FC = () => {
             </Box>
           </Box>
 
+          {/* Search Bar */}
+          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <TextField
+              fullWidth
+              placeholder="Search by title, artist, format, or tag..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: <SearchIcon sx={{ mr: 1, color: 'rgba(255, 255, 255, 0.7)' }} />,
+              }}
+              sx={{ 
+                maxWidth: { xs: '100%', sm: 500 },
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  '& input': {
+                    color: 'white',
+                    '&::placeholder': {
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      opacity: 1
+                    }
+                  },
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.3)'
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.5)'
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.7)'
+                  }
+                }
+              }}
+            />
+            {searchTerm && (
+              <Button
+                size="small"
+                startIcon={<ClearIcon sx={{ color: 'white' }} />}
+                onClick={handleClearSearch}
+                sx={{ 
+                  color: 'white',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: 'rgba(255, 255, 255, 0.5)'
+                  }
+                }}
+              >
+                Clear
+              </Button>
+            )}
+            <Typography variant="body2" sx={{ color: 'white', whiteSpace: 'nowrap' }}>
+              {filteredReleases.length} of {releases.length} releases
+            </Typography>
+          </Box>
+
           {/* Releases Table */}
-          <Paper elevation={2}>
+          <Paper elevation={2} sx={{
+            backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            position: 'relative',
+            maxHeight: '500px',
+            overflow: 'auto',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.4)',
+              zIndex: 1,
+              pointerEvents: 'none'
+            },
+            '& .MuiTableContainer-root': {
+              position: 'relative',
+              zIndex: 2,
+              backgroundColor: 'transparent'
+            },
+            '& .MuiTableCell-root': {
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.2)'
+            },
+            '& .MuiTableHead .MuiTableCell-root': {
+              fontWeight: 'bold',
+              color: 'white'
+            }
+          }}>
             <TableContainer>
               <Table>
                 <TableHead>
@@ -655,16 +830,16 @@ const AdminDashboard: React.FC = () => {
                         <CircularProgress />
                       </TableCell>
                     </TableRow>
-                  ) : releases.length === 0 ? (
+                  ) : filteredReleases.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={7} align="center">
                         <Typography color="text.secondary">
-                          No releases found. Create your first release to get started.
+                          {searchTerm ? `No releases found matching "${searchTerm}".` : 'No releases found. Create your first release to get started.'}
                         </Typography>
                       </TableCell>
                     </TableRow>
                   ) : (
-                    releases.map((release) => {
+                    filteredReleases.map((release) => {
                       console.log(`DEBUG: Release ${release.title} has tag:`, release.tag);
                       return (
                       <TableRow key={release.id} hover sx={{ cursor: 'pointer' }}>
@@ -695,7 +870,7 @@ const AdminDashboard: React.FC = () => {
                           />
                         </TableCell>
                         <TableCell onClick={() => handleEditRelease(release)}>
-                          <Typography variant="subtitle2" fontWeight="medium">
+                          <Typography variant="subtitle2" fontWeight="medium" sx={{ color: 'white' }}>
                             {release.title}
                           </Typography>
                         </TableCell>
@@ -716,13 +891,62 @@ const AdminDashboard: React.FC = () => {
                           />
                         </TableCell>
                         <TableCell align="center">
-                          <IconButton
-                            onClick={() => handleEditRelease(release)}
-                            size="small"
-                            title="Edit Release"
-                          >
-                            <EditIcon />
-                          </IconButton>
+                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                            <IconButton
+                              onClick={() => handleEditRelease(release)}
+                              size="small"
+                              title="Edit Release"
+                              sx={{ 
+                                color: 'rgba(255, 255, 255, 0.8)',
+                                '&:hover': {
+                                  color: 'white',
+                                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                                }
+                              }}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              onClick={async () => {
+                                if (window.confirm(`Are you sure you want to delete "${release.title}"? This action cannot be undone.`)) {
+                                  try {
+                                    const response = await fetch(`${getCurrentApiConfig().baseURL}/delete-release.php`, {
+                                      method: 'POST',
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                      },
+                                      credentials: 'include',
+                                      body: JSON.stringify({ id: release.id })
+                                    });
+                                    
+                                    const result = await response.json();
+                                    
+                                    if (result.success) {
+                                      setSuccess(`Release "${result.title}" deleted successfully`);
+                                      // Refresh the releases list
+                                      fetchReleases();
+                                    } else {
+                                      setError(result.error || 'Failed to delete release');
+                                    }
+                                  } catch (error) {
+                                    console.error('Delete error:', error);
+                                    setError('Failed to delete release. Please try again.');
+                                  }
+                                }
+                              }}
+                              size="small"
+                              title="Delete Release"
+                              sx={{ 
+                                color: 'rgba(255, 100, 100, 0.8)',
+                                '&:hover': {
+                                  color: 'rgb(255, 100, 100)',
+                                  backgroundColor: 'rgba(255, 100, 100, 0.1)'
+                                }
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
                         </TableCell>
                       </TableRow>
                       );
@@ -738,7 +962,7 @@ const AdminDashboard: React.FC = () => {
       <Box sx={{ mb: 4 }}>
         <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
           <VideoIcon sx={{ mr: 2, color: 'success.main' }} />
-          <Typography variant="h5" component="h2" fontWeight="medium">
+          <Typography variant="h5" component="h2" fontWeight="medium" sx={{ color: 'white' }}>
             Homepage Videos
           </Typography>
         </Box>
@@ -756,12 +980,62 @@ const AdminDashboard: React.FC = () => {
           </Alert>
         )}
         
-        <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        <Paper elevation={3} sx={{ 
+          p: 4,
+          backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            zIndex: 1
+          },
+          '& > *': {
+            position: 'relative',
+            zIndex: 2
+          }
+        }}>
+          <Typography variant="body1" sx={{ mb: 3, color: 'white' }}>
             Configure the 4 YouTube videos displayed on the homepage.
           </Typography>
           
-          <Stack spacing={3}>
+          <Stack spacing={3} sx={{
+            '& .MuiTextField-root, & .MuiFormControl-root': {
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'transparent',
+                color: 'white',
+                '& fieldset': {
+                  borderColor: 'rgba(200, 200, 200, 0.8)'
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(200, 200, 200, 1)'
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'primary.main'
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: 'rgba(255, 255, 255, 0.7)',
+                '&.Mui-focused': {
+                  color: 'primary.main'
+                }
+              },
+              '& .MuiInputBase-input': {
+                color: 'rgba(200, 200, 200, 0.8)',
+                '&::placeholder': {
+                  color: 'rgba(200, 200, 200, 0.8)',
+                  opacity: 1
+                }
+              }
+            }
+          }}>
             {/* Video URL Fields in 2x2 Grid Layout */}
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
               <TextField
@@ -842,7 +1116,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* Other Dashboard Cards */}
       <Box>
-        <Typography variant="h5" component="h2" gutterBottom fontWeight="medium">
+        <Typography variant="h5" component="h2" gutterBottom fontWeight="medium" sx={{ color: 'white' }}>
           Other Administration Tools
         </Typography>
         <Box display="grid" gridTemplateColumns="repeat(auto-fit, minmax(300px, 1fr))" gap={3}>
@@ -854,6 +1128,25 @@ const AdminDashboard: React.FC = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'transform 0.2s, box-shadow 0.2s',
+                backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                position: 'relative',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                  zIndex: 1
+                },
+                '& > *': {
+                  position: 'relative',
+                  zIndex: 2
+                },
                 '&:hover': {
                   transform: 'translateY(-4px)',
                   boxShadow: 4
@@ -862,12 +1155,14 @@ const AdminDashboard: React.FC = () => {
             >
               <CardContent sx={{ flexGrow: 1 }}>
                 <Box display="flex" alignItems="center" mb={2}>
-                  {card.icon}
-                  <Typography variant="h6" component="h3" sx={{ ml: 2, fontWeight: 'medium' }}>
+                  {React.cloneElement(card.icon, { 
+                    sx: { fontSize: 40, color: 'secondary.main' }
+                  })}
+                  <Typography variant="h6" component="h3" sx={{ ml: 2, fontWeight: 'medium', color: 'white' }}>
                     {card.title}
                   </Typography>
                 </Box>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                   {card.description}
                 </Typography>
               </CardContent>
@@ -877,6 +1172,13 @@ const AdminDashboard: React.FC = () => {
                   variant="contained"
                   onClick={() => navigate(card.path)}
                   fullWidth
+                  sx={{
+                    backgroundColor: 'primary.main',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'primary.dark'
+                    }
+                  }}
                 >
                   {card.action}
                 </Button>
@@ -884,13 +1186,6 @@ const AdminDashboard: React.FC = () => {
             </Card>
           ))}
         </Box>
-      </Box>
-
-      {/* Footer Note */}
-      <Box mt={6} textAlign="center">
-        <Typography variant="body2" color="text.secondary">
-          All Day Every Day Records - Admin Panel v1.0
-        </Typography>
       </Box>
     </Box>
     </LocalizationProvider>

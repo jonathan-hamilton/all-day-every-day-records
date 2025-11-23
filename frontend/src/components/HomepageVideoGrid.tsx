@@ -149,7 +149,8 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
               alignItems: 'center', 
               justifyContent: 'center',
               gap: 1,
-              mb: 4
+              mb: 4,
+              color: 'white'
             }}
           >
             <PlayIcon fontSize="large" />
@@ -178,7 +179,8 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
               alignItems: 'center', 
               justifyContent: 'center',
               gap: 1,
-              mb: 4
+              mb: 4,
+              color: 'white'
             }}
           >
             <PlayIcon fontSize="large" />
@@ -206,7 +208,8 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
             justifyContent: 'center',
             gap: 1,
             mb: 4,
-            textAlign: 'center'
+            textAlign: 'center',
+            color: 'white'
           }}
         >
           <PlayIcon fontSize="large" />

@@ -69,20 +69,24 @@ export default function MainLayout() {
         }}
       >
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
-          {/* Footer Navigation Links */}
+          {/* Copyright and Contact */}
           <Box sx={{ 
+            textAlign: 'center',
+            typography: 'body2', 
+            color: 'text.secondary',
             display: 'flex',
             justifyContent: 'center',
-            flexWrap: 'wrap',
-            gap: { xs: 2, sm: 4 },
-            mb: 2
+            alignItems: 'center',
+            gap: 2,
+            flexWrap: 'wrap'
           }}>
+            <span>&copy; 2025 All Day Every Day Records. All rights reserved.</span>
             <Box 
               component="button" 
               onClick={() => navigate('/contact')}
               sx={{ 
                 typography: 'body2',
-                color: 'primary.main',
+                color: 'text.secondary',
                 textDecoration: 'none',
                 background: 'none',
                 border: 'none',
@@ -92,45 +96,6 @@ export default function MainLayout() {
             >
               Contact
             </Box>
-            <Box 
-              component="button" 
-              onClick={() => navigate('/releases')}
-              sx={{ 
-                typography: 'body2',
-                color: 'primary.main',
-                textDecoration: 'none',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                '&:hover': { textDecoration: 'underline' }
-              }}
-            >
-              Releases
-            </Box>
-            <Box 
-              component="button" 
-              onClick={() => navigate('/about')}
-              sx={{ 
-                typography: 'body2',
-                color: 'primary.main',
-                textDecoration: 'none',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                '&:hover': { textDecoration: 'underline' }
-              }}
-            >
-              About
-            </Box>
-          </Box>
-          
-          {/* Copyright */}
-          <Box sx={{ 
-            textAlign: 'center',
-            typography: 'body2', 
-            color: 'text.secondary'
-          }}>
-            &copy; 2025 All Day Every Day Records. All rights reserved.
           </Box>
         </Container>
       </Box>
