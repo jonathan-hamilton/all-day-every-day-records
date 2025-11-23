@@ -1,9 +1,5 @@
 import React from 'react';
-import { Box, Button, Stack, Typography } from '@mui/material';
-import { 
-  Launch as LaunchIcon,
-  MusicNote as MusicNoteIcon 
-} from '@mui/icons-material';
+import { Box, Stack } from '@mui/material';
 import type { StreamingLink } from '../types/StreamingLink';
 
 interface StreamingLinkButtonsProps {
@@ -15,29 +11,18 @@ const StreamingLinkButtons: React.FC<StreamingLinkButtonsProps> = ({ streamingLi
     return null;
   }
 
-  const getServiceIcon = () => {
-    // For now using Material-UI icons, can be enhanced with service-specific icons later
-    return <MusicNoteIcon />;
-  };
-
-  const getServiceColor = (platform: string) => {
+  const getServiceIconPath = (platform: string) => {
     switch (platform.toLowerCase()) {
       case 'spotify':
-        return '#1DB954';
-      case 'youtube':
-        return '#FF0000';
-      case 'apple_music':
-      case 'apple music':
-        return '#000000';
+        return '/images/icons8-spotify-logo-94.png';
       case 'amazon_music':
       case 'amazon music':
-        return '#00A8E1';
-      case 'soundcloud':
-        return '#FF5500';
-      case 'bandcamp':
-        return '#629AA0';
+        return '/images/icons8-amazon-music-96.png';
+      case 'apple_music':
+      case 'apple music':
+        return '/images/icons8-apple-logo-94.png';
       default:
-        return '#666666';
+        return '';
     }
   };
 
@@ -64,58 +49,42 @@ const StreamingLinkButtons: React.FC<StreamingLinkButtonsProps> = ({ streamingLi
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  // Sort streaming links by service preference order
-  const sortedLinks = [...streamingLinks].filter(link => link.is_active).sort((a, b) => {
-    const serviceOrder = ['spotify', 'youtube', 'apple_music', 'amazon_music', 'soundcloud', 'bandcamp'];
-    const aIndex = serviceOrder.indexOf(a.platform.toLowerCase());
-    const bIndex = serviceOrder.indexOf(b.platform.toLowerCase());
-    
-    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-  });
+  // Sort streaming links by service preference order and filter out YouTube
+  const sortedLinks = [...streamingLinks]
+    .filter(link => link.is_active && link.platform.toLowerCase() !== 'youtube')
+    .sort((a, b) => {
+      const serviceOrder = ['spotify', 'apple_music', 'amazon_music', 'soundcloud', 'bandcamp'];
+      const aIndex = serviceOrder.indexOf(a.platform.toLowerCase());
+      const bIndex = serviceOrder.indexOf(b.platform.toLowerCase());
+      
+      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+    });
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Typography 
-        variant="subtitle2" 
-        color="text.secondary" 
-        sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 2 }}
-      >
-        Listen Now
-      </Typography>
-      
       <Stack 
         direction={{ xs: 'column', sm: 'row' }} 
         spacing={2}
         sx={{ flexWrap: 'wrap' }}
       >
-        {sortedLinks.map((link) => (
-          <Button
-            key={link.id}
-            variant="contained"
-            size="large"
-            startIcon={getServiceIcon()}
-            endIcon={<LaunchIcon />}
+        {sortedLinks.map((link, index) => (
+          <Box
+            key={index}
+            component="img"
+            src={getServiceIconPath(link.platform)}
+            alt={getServiceDisplayName(link.platform)}
             onClick={() => handleLinkClick(link.url)}
             sx={{
-              backgroundColor: getServiceColor(link.platform),
-              borderColor: getServiceColor(link.platform),
-              color: '#ffffff',
-              fontWeight: 'bold',
-              textTransform: 'none',
-              px: 3,
-              py: 1.5,
-              minWidth: { xs: '100%', sm: '160px' },
+              width: 48,
+              height: 48,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
               '&:hover': {
-                backgroundColor: getServiceColor(link.platform),
-                borderColor: getServiceColor(link.platform),
-                boxShadow: `0 4px 12px ${getServiceColor(link.platform)}40`,
-                transform: 'translateY(-2px)',
-                transition: 'all 0.2s ease-in-out'
+                transform: 'scale(1.1)',
+                filter: 'brightness(1.2)'
               }
             }}
-          >
-            {getServiceDisplayName(link.platform)}
-          </Button>
+          />
         ))}
       </Stack>
     </Box>

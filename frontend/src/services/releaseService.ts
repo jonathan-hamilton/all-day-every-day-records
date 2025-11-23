@@ -221,7 +221,10 @@ export class ReleaseService {
    */
   async getReleaseById(id: number): Promise<ReleaseWithDetails | null> {
     try {
-      const release = await this.apiService.get<ReleaseWithDetails>(`/get-releases-by-id.php?id=${id}`);
+      const response = await this.apiService.get<{ success: boolean; release: ReleaseWithDetails }>(`/get-releases-by-id.php?id=${id}`);
+      
+      // Handle wrapped response from API
+      const release = response.success ? response.release : response as any;
       
       // Ensure the release has the expected structure
       if (!release || typeof release !== 'object') {

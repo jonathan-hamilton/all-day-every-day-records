@@ -23,10 +23,8 @@ import {
   Divider,
 
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs, { Dayjs } from 'dayjs';
 import {
   Inventory as ReleasesIcon,
   People as UsersIcon,
@@ -881,7 +879,12 @@ const AdminDashboard: React.FC = () => {
                           {release.format || 'Not specified'}
                         </TableCell>
                         <TableCell onClick={() => handleEditRelease(release)}>
-                          {release.release_date ? new Date(release.release_date).toLocaleDateString() : 'TBD'}
+                          {release.release_date ? 
+                            (release.release_date.length === 4 ? 
+                              release.release_date : // If it's just a year, display it directly
+                              new Date(release.release_date).toLocaleDateString()
+                            ) : 'TBD'
+                          }
                         </TableCell>
                         <TableCell onClick={() => handleEditRelease(release)}>
                           <Chip

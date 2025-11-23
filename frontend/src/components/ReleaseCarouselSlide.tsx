@@ -30,8 +30,8 @@ export const ReleaseCarouselSlide: React.FC<ReleaseCarouselSlideProps> = ({
     if (onClick) {
       onClick(release);
     } else {
-      // Navigate to release detail page using slug
-      navigate(`/releases/${release.slug}`);
+      // Navigate to release detail page using id
+      navigate(`/releases/${release.id}`);
     }
   };
 
@@ -49,7 +49,8 @@ export const ReleaseCarouselSlide: React.FC<ReleaseCarouselSlideProps> = ({
   return (
     <Box
       sx={{ 
-        height: '100%',
+        width: '100%',
+        height: 'fit-content',
         display: 'flex',
         flexDirection: 'column',
         cursor: 'pointer',
@@ -70,14 +71,18 @@ export const ReleaseCarouselSlide: React.FC<ReleaseCarouselSlideProps> = ({
       role="button"
       aria-label={`View details for ${release.title} by ${release.artists_with_roles || 'Unknown Artist'}`}
     >
-      {/* Cover Image - Full Container */}
+      {/* Cover Image - Contained */}
       <Box
         component="img"
         sx={{ 
-          height: '100%',
-          width: '100%',
-          objectFit: 'cover',
-          backgroundColor: theme.palette.grey[100]
+          maxHeight: '100%',
+          maxWidth: '100%',
+          width: 'auto',
+          height: 'auto',
+          objectFit: 'contain',
+          backgroundColor: theme.palette.grey[100],
+          display: 'block',
+          margin: '0 auto'
         }}
         src={coverImageUrl}
         alt={`${release.title} cover art`}

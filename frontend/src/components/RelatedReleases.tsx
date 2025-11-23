@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Typography, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import { createServices } from '../services';
 import { ReleaseCard } from './ReleaseCard';
 import type { ReleaseOverview } from '../types/Release';
@@ -50,17 +50,25 @@ const RelatedReleases: React.FC<RelatedReleasesProps> = ({ currentReleaseId, art
           return;
         }
 
-        const artistReleases = await services.releases.getReleasesByArtist(primaryArtist.id, 6);
+        // Use artist name instead of ID since our schema stores artist names directly
+        const allReleases = await services.releases.getReleases({ 
+          status: 'published',
+          sort: 'release_date', 
+          order: 'desc'
+        });
         
-        // Filter out the current release and limit to 4 related releases
-        const relatedReleases = artistReleases
-          .filter(release => release.id !== currentReleaseId)
+        // Filter by artist name and exclude current release
+        const artistReleases = allReleases
+          .filter(release => {
+            // Check if any of the release's artists match the primary artist name
+            return release.artists_with_roles?.includes(primaryArtist.name) && release.id !== currentReleaseId;
+          })
           .slice(0, 4);
 
         setState({
           loading: false,
           error: null,
-          releases: relatedReleases
+          releases: artistReleases
         });
       } catch (error) {
         console.error('Error fetching related releases:', error);
@@ -80,11 +88,25 @@ const RelatedReleases: React.FC<RelatedReleasesProps> = ({ currentReleaseId, art
     return null;
   }
 
+  // Don't render anything if no artists
+  if (!artists || artists.length === 0) {
+    return null;
+  }
+
+  // Don't render anything if no artists
+  if (!artists || artists.length === 0) {
+    return null;
+  }
+
   // Loading state
   if (state.loading) {
     return (
       <Box sx={{ py: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom>
+        <Typography variant="h5" component="h2" gutterBottom sx={{
+          color: 'white',
+          fontWeight: 600,
+          textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+        }}>
           More from {artists[0]?.name}
         </Typography>
         <Box display="flex" justifyContent="center" py={4}>
@@ -94,32 +116,14 @@ const RelatedReleases: React.FC<RelatedReleasesProps> = ({ currentReleaseId, art
     );
   }
 
-  // Error state
+  // Error state - don't render anything
   if (state.error) {
-    return (
-      <Box sx={{ py: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom>
-          More from {artists[0]?.name}
-        </Typography>
-        <Alert severity="info">
-          Unable to load related releases at this time.
-        </Alert>
-      </Box>
-    );
+    return null;
   }
 
-  // No related releases found
+  // No related releases found - don't render anything
   if (state.releases.length === 0) {
-    return (
-      <Box sx={{ py: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom>
-          More from {artists[0]?.name}
-        </Typography>
-        <Alert severity="info">
-          No other releases found from this artist.
-        </Alert>
-      </Box>
-    );
+    return null;
   }
 
   const primaryArtist = artists.find(artist => artist.role === 'primary') || artists[0];
@@ -127,7 +131,12 @@ const RelatedReleases: React.FC<RelatedReleasesProps> = ({ currentReleaseId, art
   // Success state with related releases
   return (
     <Box sx={{ py: 4 }}>
-      <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 3 }}>
+      <Typography variant="h5" component="h2" gutterBottom sx={{ 
+        mb: 3,
+        color: 'white',
+        fontWeight: 600,
+        textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+      }}>
         More from {primaryArtist.name}
       </Typography>
       

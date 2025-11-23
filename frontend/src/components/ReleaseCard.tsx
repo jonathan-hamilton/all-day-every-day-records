@@ -1,8 +1,7 @@
 import React from 'react';
 import { 
   Box, 
-  Typography,
-  CardActionArea
+  Typography
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import type { ReleaseOverview } from '../types';
@@ -15,7 +14,7 @@ export const ReleaseCard: React.FC<ReleaseCardProps> = ({ release }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/releases/${release.slug}`);
+    navigate(`/releases/${release.id}`);
   };
 
   return (

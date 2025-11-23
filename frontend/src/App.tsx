@@ -23,7 +23,7 @@ function App() {
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Home />} />
               <Route path="releases" element={<Releases />} />
-              <Route path="releases/:slug" element={<ReleaseDetailPage />} />
+              <Route path="releases/:id" element={<ReleaseDetailPage />} />
               <Route path="about" element={<About />} />
               <Route path="contact" element={<Contact />} />
               

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Alert } from '@mui/material';
-import { PlayCircleFilled as PlayIcon } from '@mui/icons-material';
+import { Box, Alert } from '@mui/material';
 
 interface YouTubeEmbedProps {
   videoUrl?: string;
@@ -43,13 +42,6 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ videoUrl, title }) => {
   if (hasError) {
     return (
       <Box sx={{ mb: 4 }}>
-        <Typography 
-          variant="subtitle2" 
-          color="text.secondary" 
-          sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 2 }}
-        >
-          Video
-        </Typography>
         <Alert severity="warning">
           Unable to load video. <a href={videoUrl} target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
         </Alert>
@@ -58,16 +50,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ videoUrl, title }) => {
   }
 
   return (
-    <Box sx={{ mb: 4 }}>
-      <Typography 
-        variant="subtitle2" 
-        color="text.secondary" 
-        sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}
-      >
-        <PlayIcon fontSize="small" />
-        Video
-      </Typography>
-      
+    <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
       <Box
         sx={{
           position: 'relative',
@@ -76,7 +59,9 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ videoUrl, title }) => {
           overflow: 'hidden',
           backgroundColor: 'grey.100',
           borderRadius: 2,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          width: '100%',
+          maxWidth: '800px' // Reasonable max width for video
         }}
       >
         <iframe

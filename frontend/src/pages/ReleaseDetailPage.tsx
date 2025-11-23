@@ -25,7 +25,7 @@ interface ReleaseDetailPageState {
 }
 
 const ReleaseDetailPage: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const services = useMemo(() => createServices(), []);
   
@@ -37,7 +37,7 @@ const ReleaseDetailPage: React.FC = () => {
 
   useEffect(() => {
     const fetchRelease = async () => {
-      if (!slug) {
+      if (!id) {
         setState({
           loading: false,
           error: 'No release specified',
@@ -48,7 +48,7 @@ const ReleaseDetailPage: React.FC = () => {
 
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
-        const releaseData = await services.releases.getReleaseBySlug(slug);
+        const releaseData = await services.releases.getReleaseById(parseInt(id, 10));
         
         if (!releaseData) {
           // Navigate to 404 page for missing releases
@@ -72,7 +72,7 @@ const ReleaseDetailPage: React.FC = () => {
     };
 
     fetchRelease();
-  }, [slug, services.releases, navigate]);
+  }, [id, services.releases, navigate]);
 
   // Update document title when release data is loaded
   useEffect(() => {
@@ -179,20 +179,20 @@ const ReleaseDetailPage: React.FC = () => {
           component="button"
           variant="body2"
           onClick={handleBackToHome}
-          sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+          sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'white' }}
         >
-          <HomeIcon fontSize="small" sx={{ mr: 0.5 }} />
+          <HomeIcon fontSize="small" sx={{ mr: 0.5, color: 'white' }} />
           Home
         </MuiLink>
         <MuiLink
           component="button"
           variant="body2"
           onClick={handleBackToReleases}
-          sx={{ textDecoration: 'none' }}
+          sx={{ textDecoration: 'none', color: 'white' }}
         >
           Releases
         </MuiLink>
-        <Typography color="text.primary">{release.title}</Typography>
+          <Typography color="white">{release.title}</Typography>
       </Breadcrumbs>
 
       {/* Main Release Content */}
@@ -212,19 +212,14 @@ const ReleaseDetailPage: React.FC = () => {
               width: '100%',
               aspectRatio: '1',
               objectFit: 'cover',
-              borderRadius: 2,
+              borderRadius: 0,
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-              backgroundColor: 'grey.200',
-              border: '1px solid',
-              borderColor: 'grey.300'
+              backgroundColor: 'grey.800',
+              border: '2px solid #333'
             }}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              // Prevent infinite loop by checking if we're already using fallback
-              if (target.src.includes('placeholder-cover.jpg')) {
-                // Use a data URL as final fallback to prevent network requests
-                target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjVmNWY1Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
-              } else {
+              if (!target.src.includes('placeholder-cover.jpg')) {
                 target.src = '/images/placeholder-cover.jpg';
               }
             }}
@@ -233,13 +228,46 @@ const ReleaseDetailPage: React.FC = () => {
 
         {/* Release Information Section */}
         <Box>
-          <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
-            {release.title}
-          </Typography>
+          <Box
+            sx={{
+              backgroundImage: 'url(/images/title-inverse.png)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              padding: 1.5,
+              textAlign: 'left',
+              display: 'inline-block',
+              width: 'fit-content',
+              marginBottom: '8px'
+            }}
+          >
+            <Typography variant="h3" component="h1" sx={{ 
+              fontWeight: 'bold',
+              color: 'black',
+              margin: 0
+            }}>
+              {release.title}
+            </Typography>
+          </Box>
           
-          <Typography variant="h5" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
-            {release.artists?.map((artist: ReleaseArtist) => artist.name).join(', ')}
-          </Typography>
+          <Box
+            sx={{
+              backgroundImage: 'url(/images/title-inverse.png)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              padding: 1,
+              textAlign: 'left',
+              display: 'block',
+              width: 'fit-content',
+              marginBottom: '24px'
+            }}
+          >
+            <Typography variant="h5" sx={{ 
+              color: 'black',
+              margin: 0
+            }}>
+              {release.artists?.map((artist: ReleaseArtist) => artist.name).join(', ')}
+            </Typography>
+          </Box>
 
           {/* Release Metadata Grid */}
           <Box sx={{ 
@@ -250,19 +278,61 @@ const ReleaseDetailPage: React.FC = () => {
           }}>
             {/* Release Type & Date */}
             <Box>
-              <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                Release Type
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 2, textTransform: 'capitalize' }}>
+              <Box
+                sx={{
+                  backgroundImage: 'url(/images/title-inverse.png)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  padding: 0.75,
+                  textAlign: 'left',
+                  display: 'inline-block',
+                  width: 'fit-content',
+                  marginBottom: '2px'
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ 
+                  textTransform: 'uppercase', 
+                  letterSpacing: 1,
+                  color: 'black',
+                  fontWeight: 600,
+                  fontSize: '0.75rem'
+                }}>
+                  Release Type
+                </Typography>
+              </Box>
+              <Typography variant="body1" sx={{ 
+                mb: 2, 
+                textTransform: 'capitalize',
+                color: 'white'
+              }}>
                 {release.release_type}
               </Typography>
               
               {release.release_date && (
                 <>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                    Release Date
-                  </Typography>
-                  <Typography variant="body1">
+                  <Box
+                    sx={{
+                      backgroundImage: 'url(/images/title-inverse.png)',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      padding: 0.75,
+                      textAlign: 'left',
+                      display: 'inline-block',
+                      width: 'fit-content',
+                      marginBottom: '2px'
+                    }}
+                  >
+                    <Typography variant="subtitle2" sx={{ 
+                      textTransform: 'uppercase', 
+                      letterSpacing: 1,
+                      color: 'black',
+                      fontWeight: 600,
+                      fontSize: '0.75rem'
+                    }}>
+                      Release Date
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ color: 'white' }}>
                     {new Date(release.release_date).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -277,10 +347,29 @@ const ReleaseDetailPage: React.FC = () => {
             <Box>
               {release.label && (
                 <>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                    Label
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
+                  <Box
+                    sx={{
+                      backgroundImage: 'url(/images/title-inverse.png)',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      padding: 0.75,
+                      textAlign: 'left',
+                      display: 'inline-block',
+                      width: 'fit-content',
+                      marginBottom: '2px'
+                    }}
+                  >
+                    <Typography variant="subtitle2" sx={{ 
+                      textTransform: 'uppercase', 
+                      letterSpacing: 1,
+                      color: 'black',
+                      fontWeight: 600,
+                      fontSize: '0.75rem'
+                    }}>
+                      Label
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ mb: 2, color: 'white' }}>
                     {release.label.name}
                   </Typography>
                 </>
@@ -288,31 +377,62 @@ const ReleaseDetailPage: React.FC = () => {
               
               {release.catalog_number && (
                 <>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                    Catalog Number
-                  </Typography>
-                  <Typography variant="body1">
+                  <Box
+                    sx={{
+                      backgroundImage: 'url(/images/title-inverse.png)',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      padding: 0.75,
+                      textAlign: 'left',
+                      display: 'inline-block',
+                      width: 'fit-content',
+                      marginBottom: '2px'
+                    }}
+                  >
+                    <Typography variant="subtitle2" sx={{ 
+                      textTransform: 'uppercase', 
+                      letterSpacing: 1,
+                      color: 'black',
+                      fontWeight: 600,
+                      fontSize: '0.75rem'
+                    }}>
+                      Catalog Number
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ color: 'white' }}>
                     {release.catalog_number}
                   </Typography>
                 </>
               )}
             </Box>
 
-            {/* Track Count & Duration */}
+            {/* Duration */}
             <Box>
-              <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                Track Count
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                {release.track_count} {release.track_count === 1 ? 'track' : 'tracks'}
-              </Typography>
-              
               {release.duration_seconds && (
                 <>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                    Duration
-                  </Typography>
-                  <Typography variant="body1">
+                  <Box
+                    sx={{
+                      backgroundImage: 'url(/images/title-inverse.png)',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      padding: 0.75,
+                      textAlign: 'left',
+                      display: 'inline-block',
+                      width: 'fit-content',
+                      marginBottom: '2px'
+                    }}
+                  >
+                    <Typography variant="subtitle2" sx={{ 
+                      textTransform: 'uppercase', 
+                      letterSpacing: 1,
+                      color: 'black',
+                      fontWeight: 600,
+                      fontSize: '0.75rem'
+                    }}>
+                      Duration
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ color: 'white' }}>
                     {Math.floor(release.duration_seconds / 60)}:{(release.duration_seconds % 60).toString().padStart(2, '0')}
                   </Typography>
                 </>
@@ -323,10 +443,32 @@ const ReleaseDetailPage: React.FC = () => {
           {/* Description */}
           {release.description && (
             <Box sx={{ mb: 4 }}>
-              <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 1 }}>
-                Description
-              </Typography>
-              <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+              <Box
+                sx={{
+                  backgroundImage: 'url(/images/title-inverse.png)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  padding: 0.75,
+                  textAlign: 'left',
+                  display: 'inline-block',
+                  width: 'fit-content',
+                  marginBottom: '8px'
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ 
+                  textTransform: 'uppercase', 
+                  letterSpacing: 1,
+                  color: 'black',
+                  fontWeight: 600,
+                  fontSize: '0.75rem'
+                }}>
+                  Description
+                </Typography>
+              </Box>
+              <Typography variant="body1" sx={{ 
+                lineHeight: 1.7,
+                color: 'white'
+              }}>
                 {release.description}
               </Typography>
             </Box>
@@ -334,14 +476,20 @@ const ReleaseDetailPage: React.FC = () => {
 
           {/* Streaming Links */}
           <StreamingLinkButtons streamingLinks={release.streaming_links} />
-
-          {/* YouTube Video Embed */}
-          <YouTubeEmbed 
-            videoUrl={getYouTubeUrl(release.streaming_links)} 
-            title={release.title}
-          />
         </Box>
       </Box>
+
+      {/* YouTube Video Embed - Full Width Centered */}
+      <YouTubeEmbed 
+        videoUrl={getYouTubeUrl(release.streaming_links)} 
+        title={release.title}
+      />
+
+      {/* Related Releases */}
+      <RelatedReleases 
+        currentReleaseId={release.id} 
+        artists={release.artists}
+      />
 
       {/* Navigation Actions */}
       <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
@@ -349,16 +497,28 @@ const ReleaseDetailPage: React.FC = () => {
           variant="outlined"
           startIcon={<ArrowBackIcon />}
           onClick={handleBackToReleases}
+          sx={{
+            borderColor: 'white',
+            color: 'white',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            textTransform: 'uppercase',
+            letterSpacing: 1,
+            px: 3,
+            py: 1,
+            '&:hover': {
+              borderColor: 'white',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white'
+            },
+            '& .MuiButton-startIcon': {
+              color: 'white'
+            }
+          }}
         >
           Back to Releases
         </Button>
       </Box>
-
-      {/* Related Releases */}
-      <RelatedReleases 
-        currentReleaseId={release.id} 
-        artists={release.artists}
-      />
     </Container>
   );
 };

@@ -314,7 +314,7 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
     <Box 
       sx={{ 
         width: '100%', 
-        mb: 4,
+        mb: 0,
         position: 'relative',
         backgroundColor: 'black',
         py: 4,
@@ -468,17 +468,13 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
               sx={{
                 width: `calc(${100 / slidesPerView}% - ${(2 * (slidesPerView - 1)) / slidesPerView}rem)`,
                 flexShrink: 0,
-                height: 540
+                height: 'auto'
               }}
               role="group"
               aria-label={`Release ${index + 1}: ${release.title}`}
             >
               <ReleaseCarouselSlide 
                 release={release} 
-                onClick={(clickedRelease) => {
-                  // Optional: Handle slide click behavior
-                  console.log('Clicked release:', clickedRelease.title);
-                }}
               />
             </Box>
           ))}
