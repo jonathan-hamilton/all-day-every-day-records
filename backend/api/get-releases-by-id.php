@@ -54,6 +54,9 @@ try {
     if (!empty($release['youtube_url'])) {
         $streamingLinks[] = ['platform' => 'youtube', 'url' => $release['youtube_url'], 'is_active' => 1];
     }
+    if (!empty($release['youtube2_url'])) {
+        $streamingLinks[] = ['platform' => 'youtube', 'url' => $release['youtube2_url'], 'is_active' => 1];
+    }
     
     $release['streaming_links'] = $streamingLinks;
     

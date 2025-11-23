@@ -35,6 +35,7 @@ try {
                     apple_music_url,
                     amazon_music_url,
                     youtube_url,
+                    youtube2_url,
                     tag,
                     created_at,
                     updated_at
@@ -131,6 +132,7 @@ try {
                     apple_music_url,
                     amazon_music_url,
                     youtube_url,
+                    youtube2_url,
                     tag
                 FROM releases
                 WHERE tag != 'Removed'";

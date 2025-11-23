@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -27,6 +27,7 @@ interface ReleaseDetailPageState {
 const ReleaseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const services = useMemo(() => createServices(), []);
   
   const [state, setState] = useState<ReleaseDetailPageState>({
@@ -34,6 +35,9 @@ const ReleaseDetailPage: React.FC = () => {
     error: null,
     release: null
   });
+
+  // Determine where the user came from
+  const cameFromHome = location.state?.from === '/' || location.state?.from === '/home';
 
   useEffect(() => {
     const fetchRelease = async () => {
@@ -95,12 +99,11 @@ const ReleaseDetailPage: React.FC = () => {
     navigate('/');
   };
 
-  // Find YouTube URL from streaming links
-  const getYouTubeUrl = (streamingLinks: typeof release.streaming_links) => {
-    const youTubeLink = streamingLinks?.find(link => 
+  // Find all YouTube URLs from streaming links
+  const getYouTubeUrls = (streamingLinks: typeof release.streaming_links) => {
+    return streamingLinks?.filter(link => 
       link.is_active && link.platform.toLowerCase() === 'youtube'
-    );
-    return youTubeLink?.url;
+    ).map(link => link.url) || [];
   };
 
   // Loading state
@@ -329,15 +332,20 @@ const ReleaseDetailPage: React.FC = () => {
                       fontWeight: 600,
                       fontSize: '0.75rem'
                     }}>
-                      Release Date
+                      Release Year
                     </Typography>
                   </Box>
                   <Typography variant="body1" sx={{ color: 'white' }}>
-                    {new Date(release.release_date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
+                    {(() => {
+                      // Extract year from date string (YYYY-MM-DD format)
+                      const dateStr = release.release_date;
+                      if (dateStr && typeof dateStr === 'string') {
+                        const year = dateStr.split('-')[0];
+                        return year || 'Unknown';
+                      }
+                      const year = new Date(dateStr).getFullYear();
+                      return isNaN(year) ? 'Unknown' : year;
+                    })()}
                   </Typography>
                 </>
               )}
@@ -479,11 +487,14 @@ const ReleaseDetailPage: React.FC = () => {
         </Box>
       </Box>
 
-      {/* YouTube Video Embed - Full Width Centered */}
-      <YouTubeEmbed 
-        videoUrl={getYouTubeUrl(release.streaming_links)} 
-        title={release.title}
-      />
+      {/* YouTube Video Embeds - Full Width Centered */}
+      {getYouTubeUrls(release.streaming_links).map((videoUrl, index) => (
+        <YouTubeEmbed 
+          key={index}
+          videoUrl={videoUrl} 
+          title={`${release.title}${index > 0 ? ` (Video ${index + 1})` : ''}`}
+        />
+      ))}
 
       {/* Related Releases */}
       <RelatedReleases 
@@ -495,8 +506,8 @@ const ReleaseDetailPage: React.FC = () => {
       <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
         <Button
           variant="outlined"
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBackToReleases}
+          startIcon={cameFromHome ? <HomeIcon /> : <ArrowBackIcon />}
+          onClick={cameFromHome ? handleBackToHome : handleBackToReleases}
           sx={{
             borderColor: 'white',
             color: 'white',
@@ -516,7 +527,7 @@ const ReleaseDetailPage: React.FC = () => {
             }
           }}
         >
-          Back to Releases
+          {cameFromHome ? 'Back to Home' : 'Back to Releases'}
         </Button>
       </Box>
     </Container>

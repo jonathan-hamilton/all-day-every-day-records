@@ -54,7 +54,8 @@ interface Release {
   apple_music_url: string;
   amazon_music_url: string;
   youtube_url: string;
-  tag: 'None' | 'Featured' | 'New' | 'Removed';
+  youtube2_url: string;
+  tag: 'None' | 'Featured' | 'New' | 'Recent' | 'Removed';
   created_at?: string;
   updated_at?: string;
 }
@@ -115,6 +116,7 @@ const AdminDashboard: React.FC = () => {
     apple_music_url: '',
     amazon_music_url: '',
     youtube_url: '',
+    youtube2_url: '',
     tag: 'None'
   });
 
@@ -218,6 +220,7 @@ const AdminDashboard: React.FC = () => {
       apple_music_url: '',
       amazon_music_url: '',
       youtube_url: '',
+      youtube2_url: '',
       tag: 'None'
     });
     clearMessages();
@@ -244,6 +247,7 @@ const AdminDashboard: React.FC = () => {
       apple_music_url: '',
       amazon_music_url: '',
       youtube_url: '',
+      youtube2_url: '',
       tag: 'None'
     });
     clearMessages();
@@ -404,6 +408,7 @@ const AdminDashboard: React.FC = () => {
     switch (tag) {
       case 'Featured': return 'success';
       case 'New': return 'info';
+      case 'Recent': return 'info';
       case 'Removed': return 'error';
       default: return 'default';
     }
@@ -532,21 +537,33 @@ const AdminDashboard: React.FC = () => {
                   />
                 </Stack>
 
-                {/* Release Date and Tag Row */}
+                {/* Release Year and Tag Row */}
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                   <TextField
                     fullWidth
-                    type="date"
-                    label="Release Date"
-                    value={formData.release_date || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, release_date: e.target.value }))}
-                    InputLabelProps={{
-                      shrink: true,
+                    type="text"
+                    label="Release Year"
+                    value={formData.release_date ? formData.release_date.split('-')[0] : ''}
+                    onChange={(e) => {
+                      const year = e.target.value.replace(/\D/g, '').slice(0, 4);
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        release_date: year && year.length === 4 ? `${year}-01-01` : (year || '') 
+                      }));
                     }}
+                    onBlur={(e) => {
+                      const year = e.target.value.replace(/\D/g, '');
+                      if (year && year.length < 4) {
+                        // Clear incomplete year on blur
+                        setFormData(prev => ({ ...prev, release_date: '' }));
+                      }
+                    }}
+                    placeholder="YYYY"
                     inputProps={{
-                      min: '1980-01-01',
-                      max: '2040-12-31'
+                      maxLength: 4,
+                      pattern: '[0-9]{4}'
                     }}
+                    helperText="Enter 4-digit year (e.g., 2024)"
                   />
 
                   <TextField
@@ -559,6 +576,7 @@ const AdminDashboard: React.FC = () => {
                     <MenuItem value="None">None</MenuItem>
                     <MenuItem value="Featured">Featured</MenuItem>
                     <MenuItem value="New">New</MenuItem>
+                    <MenuItem value="Recent">Recent</MenuItem>
                     <MenuItem value="Removed">Removed</MenuItem>
                   </TextField>
                 </Stack>
@@ -641,6 +659,14 @@ const AdminDashboard: React.FC = () => {
                     label="YouTube URL"
                     value={formData.youtube_url || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, youtube_url: e.target.value }))}
+                    placeholder="https://www.youtube.com/..."
+                  />
+                  
+                  <TextField
+                    fullWidth
+                    label="YouTube URL 2"
+                    value={formData.youtube2_url || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, youtube2_url: e.target.value }))}
                     placeholder="https://www.youtube.com/..."
                   />
                 </Stack>

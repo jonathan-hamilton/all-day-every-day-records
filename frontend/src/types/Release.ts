@@ -8,7 +8,7 @@ import type { StreamingLink } from './StreamingLink';
  */
 export type ReleaseType = 'single' | 'ep' | 'album' | 'compilation' | 'mixtape' | 'remix';
 export type ReleaseStatus = 'draft' | 'published' | 'archived';
-export type ReleaseTag = 'None' | 'Featured' | 'New' | 'Removed';
+export type ReleaseTag = 'None' | 'Featured' | 'New' | 'Recent' | 'Removed';
 
 /**
  * Basic release entity type definition

@@ -10,7 +10,7 @@ import {
   Box,
   useTheme 
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import type { ReleaseCarouselSlide as ReleaseCarouselSlideType } from '../types';
 
 interface ReleaseCarouselSlideProps {
@@ -24,14 +24,15 @@ export const ReleaseCarouselSlide: React.FC<ReleaseCarouselSlideProps> = ({
 }) => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Handle click navigation
   const handleClick = () => {
     if (onClick) {
       onClick(release);
     } else {
-      // Navigate to release detail page using id
-      navigate(`/releases/${release.id}`);
+      // Navigate to release detail page using id, passing current location
+      navigate(`/releases/${release.id}`, { state: { from: location.pathname } });
     }
   };
 

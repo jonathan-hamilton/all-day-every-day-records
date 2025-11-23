@@ -108,7 +108,7 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
     };
 
     retryFetch();
-  }, [maxSlides, services.releases]);
+  }, [maxSlides, services.releases, tag]);
 
   // Navigation functions
   const goToNext = useCallback(() => {
@@ -206,12 +206,12 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
         }}>
           {Array.from({ length: slidesPerView }).map((_, index) => (
             <Box key={index} sx={{ 
-              width: { xs: 280, md: 300 },
+              width: { xs: 210, md: 225 },
               flexShrink: 0
             }}>
               <Skeleton 
                 variant="rectangular" 
-                height={300} 
+                height={225} 
                 sx={{ 
                   borderRadius: 2,
                   mb: 1 
@@ -317,7 +317,8 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
         mb: 0,
         position: 'relative',
         backgroundColor: 'black',
-        py: 4,
+        pt: 0,
+        pb: 4,
         borderRadius: 2
       }}
       onMouseEnter={() => setIsHovered(true)}
@@ -457,7 +458,8 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
           display: 'flex',
           transition: 'transform 0.3s ease-in-out',
           transform: `translateX(-${currentSlide * (100 / slidesPerView)}%)`,
-          gap: 2
+          gap: 2,
+          justifyContent: 'center'
         }}
         role="tabpanel"
         aria-label={`Slide ${currentSlide + 1} of ${maxSlideIndex + 1}`}
@@ -466,7 +468,7 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
             <Box
               key={`${release.id}-${index}`}
               sx={{
-                width: `calc(${100 / slidesPerView}% - ${(2 * (slidesPerView - 1)) / slidesPerView}rem)`,
+                width: `calc(${75 / slidesPerView}% - ${(2 * (slidesPerView - 1)) / slidesPerView}rem)`,
                 flexShrink: 0,
                 height: 'auto'
               }}

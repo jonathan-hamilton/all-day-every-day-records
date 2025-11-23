@@ -43,7 +43,8 @@ interface Release {
   apple_music_url: string;
   amazon_music_url: string;
   youtube_url: string;
-  tag: 'None' | 'Featured' | 'New' | 'Removed';
+  youtube2_url: string;
+  tag: 'None' | 'Featured' | 'New' | 'Recent' | 'Removed';
   created_at?: string;
   updated_at?: string;
 }
@@ -73,7 +74,8 @@ const AdminReleases: React.FC = () => {
     apple_music_url: '',
     amazon_music_url: '',
     youtube_url: '',
-    tag: 'None'
+    youtube2_url: '',
+    tag: 'None',
   });
 
   // Load releases
@@ -126,6 +128,7 @@ const AdminReleases: React.FC = () => {
       apple_music_url: '',
       amazon_music_url: '',
       youtube_url: '',
+      youtube2_url: '',
       tag: 'None'
     });
     clearMessages();
@@ -152,6 +155,7 @@ const AdminReleases: React.FC = () => {
       apple_music_url: '',
       amazon_music_url: '',
       youtube_url: '',
+      youtube2_url: '',
       tag: 'None'
     });
     clearMessages();
@@ -210,6 +214,7 @@ const AdminReleases: React.FC = () => {
     switch (tag) {
       case 'Featured': return 'success';
       case 'New': return 'info';
+      case 'Recent': return 'info';
       case 'Removed': return 'error';
       default: return 'default';
     }
@@ -288,7 +293,7 @@ const AdminReleases: React.FC = () => {
               />
             </Stack>
 
-            {/* Format and Release Date Row */}
+            {/* Format, Release Year and Tag Row */}
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
               <TextField
                 fullWidth
@@ -300,11 +305,29 @@ const AdminReleases: React.FC = () => {
 
               <TextField
                 fullWidth
-                label="Release Date"
-                type="date"
-                value={formData.release_date || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, release_date: e.target.value }))}
-                InputLabelProps={{ shrink: true }}
+                type="text"
+                label="Release Year"
+                value={formData.release_date ? formData.release_date.split('-')[0] : ''}
+                onChange={(e) => {
+                  const year = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  setFormData(prev => ({ 
+                    ...prev, 
+                    release_date: year && year.length === 4 ? `${year}-01-01` : (year || '') 
+                  }));
+                }}
+                onBlur={(e) => {
+                  const year = e.target.value.replace(/\D/g, '');
+                  if (year && year.length < 4) {
+                    // Clear incomplete year on blur
+                    setFormData(prev => ({ ...prev, release_date: '' }));
+                  }
+                }}
+                placeholder="YYYY"
+                inputProps={{
+                  maxLength: 4,
+                  pattern: '[0-9]{4}'
+                }}
+                helperText="Enter 4-digit year"
               />
 
               <TextField
@@ -317,6 +340,7 @@ const AdminReleases: React.FC = () => {
                 <MenuItem value="None">None</MenuItem>
                 <MenuItem value="Featured">Featured</MenuItem>
                 <MenuItem value="New">New</MenuItem>
+                <MenuItem value="Recent">Recent</MenuItem>
                 <MenuItem value="Removed">Removed</MenuItem>
               </TextField>
             </Stack>
@@ -384,6 +408,14 @@ const AdminReleases: React.FC = () => {
                 label="YouTube URL"
                 value={formData.youtube_url || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, youtube_url: e.target.value }))}
+                placeholder="https://www.youtube.com/..."
+              />
+              
+              <TextField
+                fullWidth
+                label="YouTube URL 2"
+                value={formData.youtube2_url || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, youtube2_url: e.target.value }))}
                 placeholder="https://www.youtube.com/..."
               />
             </Stack>

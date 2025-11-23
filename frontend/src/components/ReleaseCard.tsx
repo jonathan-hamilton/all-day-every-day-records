@@ -3,7 +3,7 @@ import {
   Box, 
   Typography
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import type { ReleaseOverview } from '../types';
 
 interface ReleaseCardProps {
@@ -12,9 +12,10 @@ interface ReleaseCardProps {
 
 export const ReleaseCard: React.FC<ReleaseCardProps> = ({ release }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleClick = () => {
-    navigate(`/releases/${release.id}`);
+    navigate(`/releases/${release.id}`, { state: { from: location.pathname } });
   };
 
   return (
