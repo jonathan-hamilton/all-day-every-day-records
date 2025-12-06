@@ -52,6 +52,7 @@ try {
                     spotify_url = ?, 
                     apple_music_url = ?, 
                     amazon_music_url = ?,
+                    youtube_music_url = ?,
                     youtube_url = ?,
                     youtube2_url = ?,
                     tag = ?, 
@@ -68,6 +69,7 @@ try {
             $input['spotify_url'] ?? null,
             $input['apple_music_url'] ?? null,
             $input['amazon_music_url'] ?? null,
+            $input['youtube_music_url'] ?? null,
             $input['youtube_url'] ?? null,
             $input['youtube2_url'] ?? null,
             $input['tag'] ?? 'None',
@@ -83,9 +85,9 @@ try {
         // Create new release
         $sql = "INSERT INTO releases 
                 (title, artist, description, release_date, format, cover_image_url, 
-                spotify_url, apple_music_url, amazon_music_url, youtube_url, youtube2_url, tag,
+                spotify_url, apple_music_url, amazon_music_url, youtube_music_url, youtube_url, youtube2_url, tag,
                 created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         
         $params = [
             $input['title'],
@@ -97,6 +99,7 @@ try {
             $input['spotify_url'] ?? null,
             $input['apple_music_url'] ?? null,
             $input['amazon_music_url'] ?? null,
+            $input['youtube_music_url'] ?? null,
             $input['youtube_url'] ?? null,
             $input['youtube2_url'] ?? null,
             $input['tag'] ?? 'None'

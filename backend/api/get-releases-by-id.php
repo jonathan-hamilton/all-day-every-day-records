@@ -51,6 +51,9 @@ try {
     if (!empty($release['amazon_music_url'])) {
         $streamingLinks[] = ['platform' => 'amazon_music', 'url' => $release['amazon_music_url'], 'is_active' => 1];
     }
+    if (!empty($release['youtube_music_url'])) {
+        $streamingLinks[] = ['platform' => 'youtube_music', 'url' => $release['youtube_music_url'], 'is_active' => 1];
+    }
     if (!empty($release['youtube_url'])) {
         $streamingLinks[] = ['platform' => 'youtube', 'url' => $release['youtube_url'], 'is_active' => 1];
     }

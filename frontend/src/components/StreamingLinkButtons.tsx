@@ -21,6 +21,9 @@ const StreamingLinkButtons: React.FC<StreamingLinkButtonsProps> = ({ streamingLi
       case 'apple_music':
       case 'apple music':
         return '/images/icons8-apple-logo-94.png';
+      case 'youtube_music':
+      case 'youtube music':
+        return '/images/icons8-youtube-logo-96.png';
       default:
         return '';
     }
@@ -32,6 +35,8 @@ const StreamingLinkButtons: React.FC<StreamingLinkButtonsProps> = ({ streamingLi
         return 'Spotify';
       case 'youtube':
         return 'YouTube';
+      case 'youtube_music':
+        return 'YouTube Music';
       case 'apple_music':
         return 'Apple Music';
       case 'amazon_music':
@@ -53,7 +58,7 @@ const StreamingLinkButtons: React.FC<StreamingLinkButtonsProps> = ({ streamingLi
   const sortedLinks = [...streamingLinks]
     .filter(link => link.is_active && link.platform.toLowerCase() !== 'youtube')
     .sort((a, b) => {
-      const serviceOrder = ['spotify', 'apple_music', 'amazon_music', 'soundcloud', 'bandcamp'];
+      const serviceOrder = ['spotify', 'apple_music', 'youtube_music', 'amazon_music', 'soundcloud', 'bandcamp'];
       const aIndex = serviceOrder.indexOf(a.platform.toLowerCase());
       const bIndex = serviceOrder.indexOf(b.platform.toLowerCase());
       

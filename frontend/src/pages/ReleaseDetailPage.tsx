@@ -82,12 +82,12 @@ const ReleaseDetailPage: React.FC = () => {
   useEffect(() => {
     if (state.release) {
       const artistName = state.release.artists?.map((artist: ReleaseArtist) => artist.name).join(', ') || '';
-      document.title = `${state.release.title}${artistName ? ` - ${artistName}` : ''} | All Day Every Day Records`;
+      document.title = `${state.release.title}${artistName ? ` - ${artistName}` : ''} | All Day Everyday Records`;
     }
 
     // Cleanup: reset title when component unmounts
     return () => {
-      document.title = 'All Day Every Day Records';
+      document.title = 'All Day Everyday Records';
     };
   }, [state.release]);
 

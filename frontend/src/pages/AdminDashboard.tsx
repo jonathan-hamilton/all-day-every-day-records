@@ -53,6 +53,7 @@ interface Release {
   spotify_url: string;
   apple_music_url: string;
   amazon_music_url: string;
+  youtube_music_url: string;
   youtube_url: string;
   youtube2_url: string;
   tag: 'None' | 'Featured' | 'New' | 'Recent' | 'Removed';
@@ -115,6 +116,7 @@ const AdminDashboard: React.FC = () => {
     spotify_url: '',
     apple_music_url: '',
     amazon_music_url: '',
+    youtube_music_url: '',
     youtube_url: '',
     youtube2_url: '',
     tag: 'None'
@@ -219,6 +221,7 @@ const AdminDashboard: React.FC = () => {
       spotify_url: '',
       apple_music_url: '',
       amazon_music_url: '',
+      youtube_music_url: '',
       youtube_url: '',
       youtube2_url: '',
       tag: 'None'
@@ -246,6 +249,7 @@ const AdminDashboard: React.FC = () => {
       spotify_url: '',
       apple_music_url: '',
       amazon_music_url: '',
+      youtube_music_url: '',
       youtube_url: '',
       youtube2_url: '',
       tag: 'None'
@@ -622,7 +626,7 @@ const AdminDashboard: React.FC = () => {
 
                 {/* Streaming URLs */}
                 <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'white' }}>
-                  Streaming Links
+                  Audio Streaming Links
                 </Typography>
                 
                 {/* First row of streaming links */}
@@ -654,6 +658,21 @@ const AdminDashboard: React.FC = () => {
                     placeholder="https://music.amazon.com/..."
                   />
                   
+                  <TextField
+                    fullWidth
+                    label="YouTube Music URL"
+                    value={formData.youtube_music_url || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, youtube_music_url: e.target.value }))}
+                    placeholder="https://music.youtube.com/..."
+                  />
+                </Stack>
+
+                {/* Video Streaming Links */}
+                <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'white' }}>
+                  Video Streaming Links
+                </Typography>
+                
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                   <TextField
                     fullWidth
                     label="YouTube URL"

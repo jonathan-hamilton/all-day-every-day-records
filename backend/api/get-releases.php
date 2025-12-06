@@ -34,6 +34,7 @@ try {
                     spotify_url,
                     apple_music_url,
                     amazon_music_url,
+                    youtube_music_url,
                     youtube_url,
                     youtube2_url,
                     tag,
@@ -131,6 +132,7 @@ try {
                     spotify_url,
                     apple_music_url,
                     amazon_music_url,
+                    youtube_music_url,
                     youtube_url,
                     youtube2_url,
                     tag
