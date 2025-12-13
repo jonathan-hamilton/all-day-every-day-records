@@ -46,7 +46,7 @@ all-day-every-day-records/
 
 ## Project Status
 
-**Overall Progress: 72% Complete** (31/43 stories)
+**Overall Progress: 74% Complete** (32/43 stories)
 
 ### ✅ Completed Phases
 - **Project Scaffolding**: Complete React 19 + TypeScript + Material-UI frontend (3/3 stories)
@@ -89,21 +89,28 @@ all-day-every-day-records/
 
 ### 📝 Current Sprint: Sprint 6 - Discography System Implementation (0% Complete - 0/3 stories)
 
-### 📝 Current Sprint: Sprint 6 - Discography System Implementation (0% Complete - 0/3 stories)
+### 📝 Current Sprint: Sprint 6 - Discography System Implementation (33% Complete - 1/3 stories)
 
-**Current Focus**: Preparing for Sprint 6 - Discography categorization system
+**Current Focus**: Implementing dual categorization system for Releases and Discography sections
+
+**Completed Stories**:
+- **S6.1**: ✅ Discography Database & Categorization System - Database migration and API filtering complete
+  - Created migration with show_in_releases and show_in_discography boolean flags
+  - Extended get-releases.php API with category parameter support
+  - Updated TypeScript ReleaseOverview interface with categorization fields
+  - Composite index created for query performance
+  - Backward compatible - existing releases appear in Releases section only
 
 **Upcoming Stories**:
-- S6.1: Discography Database & API Implementation
 - S6.2: Discography Page & Navigation
-- S6.3: Admin Discography Management Interface
+- S6.3: Admin Discography Management Controls
 
 ### 🎉 Recent Achievements
+- **S6.1 Complete**: ✅ Discography Database & Categorization System - Foundation for dual categorization
+  - Database schema extended with categorization flags and indexes
+  - API category filtering enables separate Releases and Discography views
+  - TypeScript types updated for type safety
 - **Sprint 5 Complete**: ✅ Videos System Implementation - Full CRUD video management
-  - S5.3: Admin Videos Management Interface with tabbed interface, search, and CRUD operations
-  - S5.2: Videos Database & API with 4 endpoints and VideoDetail page
-  - S5.1: Videos Page & Navigation integrated into main navigation
-- **S4.6**: ✅ Contact Page PO Box Information - Material-UI redesign with comprehensive contact details
 - **S4.1**: ✅ Homepage Search Functionality Complete - Autocomplete search with real-time filtering and navigation
 - **S3.11**: ✅ Content Display & Navigation Enhancements Complete - Enhanced content discovery and admin features
   - Carousel optimized to 75% size for better visual hierarchy and Featured/Recent content sections added

@@ -17,8 +17,11 @@ if ($isAdmin) {
 // Get search parameter and sanitize it
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
+// Get category parameter for Releases/Discography filtering
+$category = isset($_GET['category']) ? trim($_GET['category']) : null;
+
 // Debug: Log all incoming parameters
-error_log("[" . date('Y-m-d H:i:s') . "] DEBUG get-releases start - search: " . json_encode($search) . ", all_params: " . json_encode($_GET) . ", is_admin: " . ($isAdmin ? 'true' : 'false'));
+error_log("[" . date('Y-m-d H:i:s') . "] DEBUG get-releases start - search: " . json_encode($search) . ", category: " . json_encode($category) . ", all_params: " . json_encode($_GET) . ", is_admin: " . ($isAdmin ? 'true' : 'false'));
 
 try {
     if ($isAdmin) {
@@ -38,18 +41,36 @@ try {
                     youtube_url,
                     youtube2_url,
                     tag,
+                    show_in_releases,
+                    show_in_discography,
                     created_at,
                     updated_at
                 FROM releases";
         
         $params = [];
+        $whereConditions = [];
         
         // Add search filter for admin if provided
         if (!empty($search)) {
-            $sql .= " WHERE (title LIKE ? OR artist LIKE ?)";
+            $whereConditions[] = "(title LIKE ? OR artist LIKE ?)";
             $params[] = '%' . $search . '%';
             $params[] = '%' . $search . '%';
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin search added - sql_fragment: 'WHERE (title LIKE ? OR artist LIKE ?)', search_value: " . json_encode('%' . $search . '%'));
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin search added - search_value: " . json_encode('%' . $search . '%'));
+        }
+        
+        // Add category filter for admin if provided
+        if ($category === 'releases') {
+            $whereConditions[] = "show_in_releases = 1";
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin category filter added - category: releases");
+        } elseif ($category === 'discography') {
+            $whereConditions[] = "show_in_discography = 1";
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin category filter added - category: discography");
+        }
+        // If $category is null or 'all', no category filtering (backward compatible)
+        
+        // Build WHERE clause if any conditions exist
+        if (!empty($whereConditions)) {
+            $sql .= " WHERE " . implode(" AND ", $whereConditions);
         }
         
         $sql .= " ORDER BY created_at DESC";
@@ -118,6 +139,10 @@ try {
             $release['is_featured'] = ($release['tag'] === 'Featured');
             $release['is_new'] = ($release['tag'] === 'New');
             $release['status'] = ($release['tag'] === 'Removed') ? 'archived' : 'published';
+            
+            // Map categorization fields to camelCase
+            $release['showInReleases'] = (bool)$release['show_in_releases'];
+            $release['showInDiscography'] = (bool)$release['show_in_discography'];
         }
     } else {
         // Public view: exclude removed releases
@@ -135,7 +160,9 @@ try {
                     youtube_music_url,
                     youtube_url,
                     youtube2_url,
-                    tag
+                    tag,
+                    show_in_releases,
+                    show_in_discography
                 FROM releases
                 WHERE tag != 'Removed'";
         
@@ -146,8 +173,18 @@ try {
             $sql .= " AND (title LIKE ? OR artist LIKE ?)";
             $params[] = '%' . $search . '%';
             $params[] = '%' . $search . '%';
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public search added - sql_fragment: 'AND (title LIKE ? OR artist LIKE ?)', search_value: " . json_encode('%' . $search . '%'));
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public search added - search_value: " . json_encode('%' . $search . '%'));
         }
+        
+        // Add category filter for public if provided
+        if ($category === 'releases') {
+            $sql .= " AND show_in_releases = 1";
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public category filter added - category: releases");
+        } elseif ($category === 'discography') {
+            $sql .= " AND show_in_discography = 1";
+            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public category filter added - category: discography");
+        }
+        // If $category is null or 'all', no category filtering (backward compatible)
         
         $sql .= " ORDER BY 
                     CASE tag 
@@ -177,6 +214,10 @@ try {
         // Convert to frontend format with artists as string for public view
         foreach ($releases as &$release) {
             $release['artists'] = $release['artist']; // Simple string for public API
+            
+            // Map categorization fields to camelCase
+            $release['showInReleases'] = (bool)$release['show_in_releases'];
+            $release['showInDiscography'] = (bool)$release['show_in_discography'];
         }
     }
     

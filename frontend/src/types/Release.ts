@@ -70,6 +70,8 @@ export interface ReleaseOverview {
   label_slug?: string;
   artists_with_roles?: string; // Concatenated string from database view
   available_platforms?: string; // Comma-separated string from database view
+  showInReleases: boolean; // Display on Releases page
+  showInDiscography: boolean; // Display on Discography page
 }
 
 /**
