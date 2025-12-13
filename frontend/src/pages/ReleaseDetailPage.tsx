@@ -382,36 +382,6 @@ const ReleaseDetailPage: React.FC = () => {
                   </Typography>
                 </>
               )}
-              
-              {release.catalog_number && (
-                <>
-                  <Box
-                    sx={{
-                      backgroundImage: 'url(/images/title-inverse.png)',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      padding: 0.75,
-                      textAlign: 'left',
-                      display: 'inline-block',
-                      width: 'fit-content',
-                      marginBottom: '2px'
-                    }}
-                  >
-                    <Typography variant="subtitle2" sx={{ 
-                      textTransform: 'uppercase', 
-                      letterSpacing: 1,
-                      color: 'black',
-                      fontWeight: 600,
-                      fontSize: '0.75rem'
-                    }}>
-                      Catalog Number
-                    </Typography>
-                  </Box>
-                  <Typography variant="body1" sx={{ color: 'white' }}>
-                    {release.catalog_number}
-                  </Typography>
-                </>
-              )}
             </Box>
 
             {/* Duration */}

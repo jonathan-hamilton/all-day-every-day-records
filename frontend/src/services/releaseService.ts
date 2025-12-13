@@ -100,7 +100,6 @@ export class ReleaseService {
           status: (release.tag === 'Removed' ? 'archived' : 'published') as ReleaseStatus,
           tag: (release.tag || 'None') as ReleaseTag,
           // Ensure required fields have defaults
-          slug: release.slug || `release-${release.id}`,
           track_count: release.track_count || 1,
           display_order: release.display_order || 0,
           created_at: release.created_at || new Date().toISOString(),
@@ -178,7 +177,6 @@ export class ReleaseService {
       return releases.map((release) => ({
         id: release.id,
         title: release.title,
-        slug: release.slug || '',
         cover_image_url: release.cover_image_url,
         release_date: release.release_date,
         release_type: release.release_type || 'album',
@@ -244,29 +242,7 @@ export class ReleaseService {
     }
   }
 
-  /**
-   * Get release by slug for SEO-friendly URLs
-   * Maps to: GET /get-releases-by-id.php?slug={slug}
-   */
-  async getReleaseBySlug(slug: string): Promise<ReleaseWithDetails | null> {
-    try {
-      const release = await this.apiService.get<ReleaseWithDetails>(`/get-releases-by-id.php?slug=${encodeURIComponent(slug)}`);
-      
-      if (!release || typeof release !== 'object') {
-        return null;
-      }
 
-      return {
-        ...release,
-        artists: release.artists || [],
-        streaming_links: release.streaming_links || []
-      };
-      
-    } catch (error) {
-      console.error(`Error fetching release by slug ${slug}:`, error);
-      return null;
-    }
-  }
 
   /**
    * Search releases by title or artist name

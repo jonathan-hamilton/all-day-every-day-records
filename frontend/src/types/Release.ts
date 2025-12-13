@@ -17,7 +17,6 @@ export type ReleaseTag = 'None' | 'Featured' | 'New' | 'Recent' | 'Removed';
 export interface Release {
   id: number;
   title: string;
-  slug: string;
   description?: string;
   release_date?: string;
   release_type: ReleaseType;
@@ -54,11 +53,9 @@ export interface ReleaseWithDetails extends Release {
 export interface ReleaseOverview {
   id: number;
   title: string;
-  slug: string;
   description?: string;
   release_date?: string;
   release_type: ReleaseType;
-  catalog_number?: string;
   cover_image_url?: string;
   bandcamp_url?: string;
   duration_seconds?: number;
@@ -84,7 +81,6 @@ export interface ReleaseFormData {
   description?: string;
   release_date?: string;
   release_type: ReleaseType;
-  catalog_number?: string;
   label_id?: number;
   cover_image_url?: string;
   bandcamp_url?: string;
@@ -103,7 +99,6 @@ export interface ReleaseFormData {
 export interface ReleaseCarouselSlide {
   id: number;
   title: string;
-  slug: string;
   cover_image_url?: string;
   release_date?: string;
   release_type: ReleaseType;

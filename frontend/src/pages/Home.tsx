@@ -1,9 +1,11 @@
-import { Box, Typography, CircularProgress } from '@mui/material'
+import { Box, Typography, CircularProgress, Container } from '@mui/material'
 import { Album as AlbumIcon, Star as StarIcon } from '@mui/icons-material'
 import { useState, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import ReleaseCarousel from '../components/ReleaseCarousel'
 import ReleaseCard from '../components/ReleaseCard'
 import HomepageVideoGrid from '../components/HomepageVideoGrid'
+import ReleaseAutocomplete from '../components/ReleaseAutocomplete'
 import { createServices } from '../services'
 import type { ReleaseOverview } from '../types'
 
@@ -11,6 +13,7 @@ export default function Home() {
   const [featuredReleases, setFeaturedReleases] = useState<ReleaseOverview[]>([])
   const [loading, setLoading] = useState(true)
   const services = useMemo(() => createServices(), [])
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchFeaturedReleases = async () => {
@@ -32,6 +35,14 @@ export default function Home() {
 
   return (
     <Box sx={{ textAlign: 'center' }}>
+      {/* S4.1 Search Autocomplete */}
+      <Container maxWidth="sm" sx={{ pt: 4, pb: 4 }}>
+        <ReleaseAutocomplete
+          onSelectRelease={(release) => navigate(`/releases/${release.id}`)}
+          placeholder="Search releases..."
+        />
+      </Container>
+
       {/* Featured Releases Section */}
       <Box sx={{ pt: 6, pb: 0 }}>
         <Typography 

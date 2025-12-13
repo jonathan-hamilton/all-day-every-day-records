@@ -296,7 +296,7 @@ export const ApiTest: React.FC = () => {
                 
                 <Box mb={2}>
                   <Typography variant="body2" color="text.secondary">
-                    ID: {selectedRelease.id} | Slug: {selectedRelease.slug}
+                    ID: {selectedRelease.id}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Type: {selectedRelease.release_type} | Status: {selectedRelease.status}
