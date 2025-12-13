@@ -18,7 +18,7 @@
 - REQ-UI-12: System shall use record icon for all three homepage section headings (New Releases, Featured Releases, Recent Releases)
 - REQ-UI-13: System shall implement drag-enabled carousel or auto-rotating carousel without navigation arrows
 - REQ-UI-14: System shall display artist name before release title across all pages and components
-- REQ-UI-15: System shall provide alphabetical navigation (A-Z) on releases page for quick artist access
+- REQ-UI-15: System shall provide alphabetical navigation (A-Z) on releases page and videos page for quick artist access
 
 ### Release Management
 

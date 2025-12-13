@@ -1,5 +1,5 @@
 # Sprint 5 User Stories
-**Status**: 33% COMPLETE 🏗️  
+**Status**: 66% COMPLETE 🏗️  
 **Duration**: 2 weeks  
 **Focus**: Videos System Implementation
 
@@ -10,9 +10,9 @@ Sprint 5 expands the existing homepage video functionality into a comprehensive 
 
 ## Sprint Goals
 1. Create standalone Videos page with navigation integration ✅
-2. Implement videos database table and API endpoints separate from homepage videos
+2. Implement videos database table and API endpoints separate from homepage videos ✅
 3. Build admin interface for full CRUD operations on video content
-4. Enable video metadata management (title, URL, description, thumbnail)
+4. Enable video metadata management (title, URL, description, artist)
 5. Maintain consistent design patterns with existing release management system
 
 ---
@@ -22,7 +22,7 @@ Sprint 5 expands the existing homepage video functionality into a comprehensive 
 | Story ID | Title | Status | Priority |
 |----------|-------|--------|----------|
 | S5.1 | Videos Page & Navigation | ✅ COMPLETE | HIGH |
-| S5.2 | Videos Database & API Implementation | PENDING 🔄 | HIGH |
+| S5.2 | Videos Database & API Implementation | ✅ COMPLETE | HIGH |
 | S5.3 | Admin Videos Management Interface | PENDING 🔄 | HIGH |
 
 ---
@@ -79,33 +79,65 @@ As a visitor, I want to access a dedicated Videos page from the navigation bar s
 
 ### S5.2: Videos Database & API Implementation
 **Priority**: HIGH  
-**Status**: PENDING 🔄  
-**Estimate**: 6-8 hours
+**Status**: ✅ COMPLETE  
+**Estimate**: 6-8 hours  
+**Completed**: December 13, 2025
 
 **User Story**:  
 As a system administrator, I want a separate videos database table and API endpoints so that video content can be managed independently from homepage videos.
 
 **Acceptance Criteria**:
-- Videos table created in database with schema: id, title, youtube_url, description, thumbnail_url, display_order, is_published, created_at, updated_at
-- GET endpoint `/get-videos.php` returns all published videos
-- GET endpoint `/get-videos-by-id.php?id=X` returns single video details
-- POST endpoint `/upsert-video.php` creates or updates video records
-- DELETE endpoint `/delete-video.php` removes video records
-- All endpoints require admin authentication (except GET published videos)
-- API returns proper JSON responses with success/error status
-- TypeScript interface `Video` created in `frontend/src/types/`
-- Videos page updated to fetch from new `/get-videos.php` endpoint
+- [x] Videos table created in database with schema: id, title, youtube_url, description, artist, created_at, updated_at
+- [x] GET endpoint `/get-videos.php` returns all videos sorted by artist, then title
+- [x] GET endpoint `/get-video-by-id.php?id=X` returns single video details + related videos by artist
+- [x] POST endpoint `/upsert-video.php` creates or updates video records
+- [x] DELETE endpoint `/delete-video.php` removes video records
+- [x] All endpoints require admin authentication (except GET videos)
+- [x] API returns proper JSON responses with success/error status
+- [x] TypeScript interface `Video` created in `frontend/src/types/Video.ts`
+- [x] VideoDetail page created with YouTube embed and related videos section
+- [x] Videos page updated to fetch from new `/get-videos.php` endpoint
+- [x] Clicking video navigates to VideoDetail page
 
-**Dependencies**: S5.1 (Videos page structure)
+**Implementation Summary**:
+- ✅ Created migration `005_create_videos_table.sql` with proper schema and indexes
+- ✅ Implemented 4 backend API endpoints following existing release patterns
+- ✅ Created TypeScript Video types and VideoService with factory pattern
+- ✅ Built VideoDetailPage component following ReleaseDetailPage structure
+- ✅ Updated Videos page to use new dedicated endpoint with proper sorting
+- ✅ Enhanced VideoGridItem to navigate to detail page with hover effects
+- ✅ "More from [Artist]..." section displays related videos (excludes current)
 
-**Developer Notes**:
-- Create database migration script in `backend/database/migrations/`
-- Follow existing API patterns from release endpoints
-- Schema similar to releases table but simplified for video content
-- Use existing `security.php` for authentication checks
-- TypeScript interface should include: `id`, `title`, `youtube_url`, `description`, `thumbnail_url`, `display_order`, `is_published`
-- Consider adding `display_order` for manual sorting capability
-- Update Videos page to use new endpoint instead of homepage videos
+**Files Created**:
+- `backend/database/migrations/005_create_videos_table.sql` - Videos table migration
+- `backend/api/get-videos.php` - Public endpoint for all videos
+- `backend/api/get-video-by-id.php` - Public endpoint for video details + related
+- `backend/api/upsert-video.php` - Admin endpoint for create/update
+- `backend/api/delete-video.php` - Admin endpoint for deletion
+- `frontend/src/types/Video.ts` - TypeScript Video interfaces
+- `frontend/src/services/videoService.ts` - VideoService class with factory
+- `frontend/src/pages/VideoDetailPage.tsx` - Video detail page component
+- `docs/sprints/implementations/s5.2-implementation-plan.md` - Implementation plan
+
+**Files Modified**:
+- `frontend/src/types/index.ts` - Exported Video types
+- `frontend/src/services/index.ts` - Added VideoService to factory
+- `frontend/src/pages/Videos.tsx` - Updated to use new API endpoint
+- `frontend/src/components/VideoGridItem.tsx` - Added navigation to detail page
+- `frontend/src/pages/index.ts` - Exported VideoDetailPage
+- `frontend/src/App.tsx` - Added `/videos/:id` route
+- `docs/requirements/core-requirements.md` - Updated REQ-UI-15 for Videos page
+- `docs/requirements/requirements-roadmap.md` - Updated REQ-UI-15 for Videos page
+
+**Dependencies**: S5.1 (Videos page structure) - COMPLETE ✅
+
+**Technical Notes**:
+- Database schema uses artist field (not thumbnail_url) for "More from..." functionality
+- VideoDetail page simpler than ReleaseDetail (fewer metadata fields)
+- Backend sorting by artist ASC, title ASC ensures consistent alphabetical display
+- Related videos query excludes current video and returns only same artist
+- "More from [Artist]..." section hidden when no related videos exist
+- Admin interface for video management deferred to S5.3
 
 ---
 

@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider, CssBaseline } from '@mui/material'
 import { rapTheme, rapGlobalStyles } from './styles'
 import { MainLayout } from './layouts'
-import { Home, Releases, Videos, About, Contact, ReleaseDetailPage, NotFound, Login, ApiTest } from './pages'
+import { Home, Releases, Videos, VideoDetailPage, About, Contact, ReleaseDetailPage, NotFound, Login, ApiTest } from './pages'
 import AdminDashboard from './pages/AdminDashboard'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { AuthProvider } from './context/AuthContext'
@@ -25,6 +25,7 @@ function App() {
               <Route path="releases" element={<Releases />} />
               <Route path="releases/:id" element={<ReleaseDetailPage />} />
               <Route path="videos" element={<Videos />} />
+              <Route path="videos/:id" element={<VideoDetailPage />} />
               <Route path="about" element={<About />} />
               <Route path="contact" element={<Contact />} />
               

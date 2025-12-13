@@ -46,7 +46,7 @@ all-day-every-day-records/
 
 ## Project Status
 
-**Overall Progress: 67% Complete** (29/43 stories)
+**Overall Progress: 70% Complete** (30/43 stories)
 
 ### ✅ Completed Phases
 - **Project Scaffolding**: Complete React 19 + TypeScript + Material-UI frontend (3/3 stories)
@@ -83,7 +83,7 @@ all-day-every-day-records/
   - ✅ Footer copyright text size reduction (smaller, less prominent)
   - ✅ Contact page PO Box information with Material-UI redesign
 
-### 🚧 Current Sprint: Sprint 5 - Videos System Implementation (33% Complete - 1/3 stories)
+### 🚧 Current Sprint: Sprint 5 - Videos System Implementation (66% Complete - 2/3 stories)
 
 **Current Focus**: Building standalone Videos system with full CRUD capabilities
 
@@ -95,8 +95,17 @@ all-day-every-day-records/
   - Reused VideoGridItem component for consistency with homepage
   - Implemented responsive Material-UI Grid (2 columns on tablet/desktop, 1 on mobile)
 
+- **S5.2**: ✅ Videos Database & API Implementation Complete - Backend infrastructure and VideoDetail page
+  - Created videos table with migration (id, title, youtube_url, description, artist, timestamps)
+  - Implemented 4 API endpoints: get-videos.php, get-video-by-id.php, upsert-video.php, delete-video.php
+  - Built TypeScript Video types and VideoService with factory pattern
+  - Created VideoDetailPage component with YouTube embed at top
+  - "More from [Artist]..." section displays related videos (excludes current video)
+  - Updated Videos page to fetch from dedicated endpoint (sorted by artist, then title)
+  - Enhanced VideoGridItem with click navigation to /videos/:id
+  - Added proper indexes on artist column for query performance
+
 **Upcoming in Sprint 5**:
-- S5.2: Videos Database & API Implementation
 - S5.3: Admin Videos Management Interface
 
 ### 📝 Future Sprints

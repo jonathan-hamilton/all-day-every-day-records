@@ -26,6 +26,14 @@ export type {
   ReleaseTag
 } from './Release';
 
+// Video types
+export type {
+  Video,
+  VideoWithRelated,
+  ApiVideosResponse,
+  ApiVideoByIdResponse
+} from './Video';
+
 // Authentication types
 export type {
   User,

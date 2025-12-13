@@ -9,11 +9,11 @@
 | **Sprint 2** | **COMPLETE ✅** | **5/5 stories** | **100%** |
 | **Sprint 3** | **COMPLETE ✅** | **11/11 stories** | **100%** |
 | **Sprint 4** | **COMPLETE ✅** | **6/6 stories** | **100%** |
-| Sprint 5 | 33% COMPLETE 🏗️ | 1/3 stories | 33% |
+| Sprint 5 | 66% COMPLETE 🏗️ | 2/3 stories | 66% |
 | Sprint 6 | PENDING ⏸️ | 0/3 stories | 0% |
 | Sprint 7 | PENDING ⏸️ | 0/4 stories | 0% |
 | Sprint 8 | PENDING ⏸️ | 0/5 stories | 0% |
-| **TOTALS** | **29/43 STORIES** | **29/43 stories** | **67%** |
+| **TOTALS** | **30/43 STORIES** | **30/43 stories** | **70%** |
 
 *Last Updated: December 13, 2025*
 
@@ -341,13 +341,13 @@ This roadmap follows a **documentation-driven development** approach where each 
 **Story Count**: 4 stories
 
 ### Requirements Included:
-- **REQ-UI-15**: Provide alphabetical navigation (A-Z) on releases page
+- **REQ-UI-15**: Provide alphabetical navigation (A-Z) on releases page and videos page
 - **REQ-RM-10**: Sort releases alphabetically by artist name, then by title
 - **REQ-RM-11**: Match artwork and text size to nickel-and-dime site design
 - **REQ-RM-12**: Display streaming videos in 2-column layout on detail pages
 
 ### Acceptance Criteria:
-- A-Z alphabetical navigation widget on releases page
+- A-Z alphabetical navigation widget on releases page and videos page
 - Clicking letter jumps to first artist starting with that letter
 - Releases sorted alphabetically by artist name as primary sort
 - Secondary sort by title for artists with multiple releases

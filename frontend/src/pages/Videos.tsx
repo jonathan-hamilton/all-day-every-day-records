@@ -2,7 +2,7 @@
  * Videos Page Component
  * 
  * Displays a comprehensive grid of all available videos.
- * Reuses VideoGridItem component for consistency with homepage.
+ * Fetches from dedicated videos endpoint and navigates to detail pages on click.
  */
 
 import { useState, useEffect, useMemo } from 'react'
@@ -15,13 +15,8 @@ import {
 } from '@mui/material'
 import { PlayCircleFilled as PlayIcon } from '@mui/icons-material'
 import { createServices } from '../services'
+import type { Video } from '../types'
 import VideoGridItem from '../components/VideoGridItem'
-
-interface Video {
-  id: number
-  title: string
-  youtube_url: string
-}
 
 interface VideoState {
   loading: boolean
@@ -42,26 +37,13 @@ export default function Videos() {
       try {
         setState(prev => ({ ...prev, loading: true, error: null }))
         
-        // Temporarily fetch from homepage videos endpoint (S5.2 will create dedicated endpoint)
-        const response = await services.api.get('/get-homepage-videos.php')
-        
-        // Handle API response format: {success: true, videos: [...]}
-        const apiResponse = response as { success?: boolean; videos?: string[] }
-        const videoUrls = apiResponse.videos || []
-        
-        // Convert URL array to video objects
-        const videos: Video[] = Array.isArray(videoUrls) 
-          ? videoUrls.map((url, index) => ({
-              id: index + 1,
-              title: `Video ${index + 1}`,
-              youtube_url: url
-            }))
-          : []
+        // Fetch from dedicated videos endpoint (sorted by artist, then title)
+        const videos = await services.videos.getVideos()
 
         setState({
           loading: false,
           error: null,
-          videos: videos.filter(v => v.youtube_url && v.youtube_url.trim() !== '')
+          videos: videos
         })
       } catch (error) {
         console.error('Failed to fetch videos:', error)
@@ -74,7 +56,7 @@ export default function Videos() {
     }
 
     fetchVideos()
-  }, [services.api])
+  }, [services.videos])
 
   // Loading state
   if (state.loading) {
@@ -182,10 +164,7 @@ export default function Videos() {
       <Grid container spacing={3}>
         {state.videos.map((video) => (
           <Grid item xs={12} sm={6} md={6} key={video.id}>
-            <VideoGridItem 
-              videoUrl={video.youtube_url}
-              title={video.title}
-            />
+            <VideoGridItem video={video} />
           </Grid>
         ))}
       </Grid>

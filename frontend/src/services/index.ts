@@ -12,16 +12,19 @@ export { getCurrentApiConfig, getApiConfig, isDevelopment, isProduction } from '
 // Domain-specific services
 export { ReleaseService, createReleaseService } from './releaseService';
 export { AuthService, createAuthService } from './authService';
+export { VideoService, createVideoService } from './videoService';
 export type { GetReleasesParams } from './releaseService';
+export type { VideoFormData } from './videoService';
 
 // Export types for convenience
-export type { ReleaseCarouselSlide } from '../types';
+export type { ReleaseCarouselSlide, Video, VideoWithRelated } from '../types';
 
 // Service factory to create configured service instances
 import { getCurrentApiConfig } from '../config/api';
 import { createApiService } from './apiService';
 import { createReleaseService } from './releaseService';
 import { createAuthService } from './authService';
+import { createVideoService } from './videoService';
 
 // Global dev token getter for API service
 let globalDevTokenGetter: (() => string | null) | null = null;
@@ -57,7 +60,6 @@ export function createConfiguredApiService() {
   
   return globalApiServiceInstance;
 }
-
 /**
  * Create a complete set of configured services
  */
@@ -67,6 +69,8 @@ export function createServices() {
   return {
     api: apiService,
     releases: createReleaseService(apiService),
-    auth: createAuthService(apiService)
+    auth: createAuthService(apiService),
+    videos: createVideoService(apiService)
   };
+} };
 }
