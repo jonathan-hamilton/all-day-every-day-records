@@ -20,7 +20,24 @@ export default function MainLayout() {
         flex: 1,
         overflow: 'auto', // Handle scrolling at content level
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        position: 'relative',
+        backgroundColor: 'black',
+        '&::before': {
+          content: '""',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: 'url(/images/ALL_DAY_EVERY_DAY_Logo.png)',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.15,
+          zIndex: 0,
+          pointerEvents: 'none'
+        }
       }}>
         <Box
           component="main" 
@@ -30,7 +47,9 @@ export default function MainLayout() {
             px: { xs: 2, sm: 3 },
             maxWidth: 1200,
             margin: '0 auto',
-            width: '100%'
+            width: '100%',
+            position: 'relative',
+            zIndex: 1
           }}
         >
           <Outlet />

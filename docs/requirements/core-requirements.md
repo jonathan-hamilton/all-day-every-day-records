@@ -10,6 +10,15 @@
 - REQ-UI-4: System shall include an about page (stub implementation initially)
 - REQ-UI-5: System shall provide detailed release pages with embedded video content support
 - REQ-UI-6: System shall include a contact page accessible via footer link
+- REQ-UI-7: System shall provide a Videos page in navigation bar positioned after Releases
+- REQ-UI-8: System shall provide a Discography page in navigation bar positioned after Videos
+- REQ-UI-9: System shall display navigation items in order: Home, Releases, Videos, Discography, About, Contact
+- REQ-UI-10: System shall include homepage search functionality above carousel for finding releases
+- REQ-UI-11: System shall display search component at 35% reduced size compared to standard input fields
+- REQ-UI-12: System shall use record icon for all three homepage section headings (New Releases, Featured Releases, Recent Releases)
+- REQ-UI-13: System shall implement drag-enabled carousel or auto-rotating carousel without navigation arrows
+- REQ-UI-14: System shall display artist name before release title across all pages and components
+- REQ-UI-15: System shall provide alphabetical navigation (A-Z) on releases page for quick artist access
 
 ### Release Management
 
@@ -26,6 +35,13 @@
 - REQ-RM-5: System shall display release count and filtering status to users
 - REQ-RM-6: System shall support embedded YouTube video content on detail pages
 - REQ-RM-7: System shall display related releases by the same artist on detail pages
+- REQ-RM-8: System shall categorize releases as current releases or discography (historical releases no longer under contract)
+- REQ-RM-9: System shall allow releases to appear in both Releases and Discography sections via checkbox selection
+- REQ-RM-10: System shall sort releases alphabetically by artist name, then by title for artists with multiple releases
+- REQ-RM-11: System shall match artwork and text size to nickel-and-dime site design patterns
+- REQ-RM-12: System shall display streaming videos in 2-column layout on detail pages (stacked on narrow viewports)
+- REQ-RM-13: System shall support audio player widget on release detail pages, configurable via admin
+- REQ-RM-14: System shall support social media links (Instagram, Facebook, TikTok, X) on release detail pages, configurable via admin
 
 ### Content Display
 
@@ -33,6 +49,12 @@
 - REQ-CD-2: System shall maintain consistent release item layout matching nickel-and-dime design patterns
 - REQ-CD-3: System shall support cover image display for all releases
 - REQ-CD-4: System shall provide clear visual hierarchy and rap-themed styling similar to shadyrecords.com
+- REQ-CD-5: System shall display homepage section labeled "New Releases" (formerly Featured Releases) with album graphic icon
+- REQ-CD-6: System shall display homepage section labeled "Featured Releases" (formerly Recent Releases) with record icon
+- REQ-CD-7: System shall display homepage search results as clickable list navigating to ReleaseDetail pages
+- REQ-CD-8: System shall set background logo opacity to 25% more transparent than current implementation
+- REQ-CD-9: System shall reduce copyright text size by 25% on homepage footer
+- REQ-CD-10: System shall include PO Box address on contact page: "PO Box 412385, Los Angeles, CA 90041"
 
 ### Administrative Features
 
@@ -41,6 +63,11 @@
 - REQ-AD-3: System shall allow image upload functionality for release covers
 - REQ-AD-4: System shall provide admin-only view of removed releases
 - REQ-AD-5: System shall support password change functionality for admin users
+- REQ-AD-6: System shall provide CRUD operations for videos with separate database table and API endpoints
+- REQ-AD-7: System shall provide admin UI for managing video content independently from releases
+- REQ-AD-8: System shall provide dropdown/checkbox controls for categorizing releases as Releases, Discography, or both
+- REQ-AD-9: System shall provide admin configuration for audio player widget on release detail pages
+- REQ-AD-10: System shall provide admin configuration for social media links on release detail pages
 
 ## Non-Functional Requirements
 

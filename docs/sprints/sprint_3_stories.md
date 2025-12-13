@@ -572,6 +572,23 @@ S3.2 - Release Tagging System, S3.6 - Enhanced Release Detail Features
 - Fixed dynamic browser tab titles in `ReleaseDetailPage.tsx` (both active and cleanup states)
 - Ensured consistent branding across all page navigation states
 
+**UI/UX Polish - Release Grid Layout** (December 12, 2025)
+- Fixed release grid column width inconsistencies causing images to display at different sizes
+- Added `minWidth: 0` to ReleaseCard container to prevent content from expanding grid columns beyond assigned width
+- Implemented proper CSS Grid constraints ensuring uniform 1fr column widths across all breakpoints
+- Enhanced text label styling with `maxWidth: '100%'`, `overflow: 'hidden'`, and `textOverflow: 'ellipsis'` for proper truncation
+- Added `gridAutoRows: '1fr'` to Releases page grid container for consistent row heights
+- Changed image `objectFit` from 'cover' to 'fill' with 1:1 aspect ratio container (paddingBottom: '100%')
+- Result: All release cards now display with uniform image sizes across 4-column grid layout
+
+**Logo Background Watermark** (December 12, 2025)
+- Implemented fixed-position background logo watermark using `ALL_DAY_EVERY_DAY_Logo.png`
+- Set logo opacity to 0.15 (15%) for subtle branding without interfering with content readability
+- Applied `position: fixed` with full viewport coverage and `backgroundSize: 'contain'`
+- Added `pointerEvents: 'none'` to prevent logo from interfering with page interactions
+- Ensured proper z-index layering with content positioned above background (z-index: 1)
+- Background remains fixed during scrolling for consistent branding experience
+
 ---
 
 ### Story S3.10: Release Pagination and Advanced Filtering System

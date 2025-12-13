@@ -8,10 +8,14 @@
 | **Sprint 1** | **COMPLETE ✅** | **3/3 stories** | **100%** |
 | **Sprint 2** | **COMPLETE ✅** | **5/5 stories** | **100%** |
 | **Sprint 3** | **COMPLETE ✅** | **11/11 stories** | **100%** |
-| Sprint 4 | PENDING ⏸️ | 0/7 stories | 0% |
-| **TOTALS** | **22/29 STORIES** | **22/29 stories** | **79%** |
+| Sprint 4 | PENDING ⏸️ | 0/6 stories | 0% |
+| Sprint 5 | PENDING ⏸️ | 0/3 stories | 0% |
+| Sprint 6 | PENDING ⏸️ | 0/3 stories | 0% |
+| Sprint 7 | PENDING ⏸️ | 0/4 stories | 0% |
+| Sprint 8 | PENDING ⏸️ | 0/5 stories | 0% |
+| **TOTALS** | **22/43 STORIES** | **22/43 stories** | **51%** |
 
-*Last Updated: November 23, 2025*
+*Last Updated: December 12, 2025*
 
 ---
 
@@ -23,8 +27,12 @@ This roadmap follows a **documentation-driven development** approach where each 
 ### Sprint Sizing Strategy
 - **Sprint 1**: Foundation and infrastructure (3 stories)
 - **Sprint 2**: Core user features and content display (5 stories)
-- **Sprint 3**: Advanced features and admin functionality (8 stories)
-- **Sprint 4**: Performance, security, and deployment (7 stories)
+- **Sprint 3**: Advanced features and admin functionality (11 stories)
+- **Sprint 4**: UI/UX polish and homepage enhancements (6 stories)
+- **Sprint 5**: Videos system implementation (3 stories)
+- **Sprint 6**: Discography system implementation (3 stories)
+- **Sprint 7**: Release page enhancements (4 stories)
+- **Sprint 8**: Advanced features and production deployment (5 stories)
 - **Target**: 2-week sprint cycles with continuous delivery
 
 ### Success Metrics
@@ -234,13 +242,140 @@ This roadmap follows a **documentation-driven development** approach where each 
 
 ---
 
-## Sprint 4: Performance, Security & Production Deployment
+## Sprint 4: UI/UX Polish & Homepage Enhancements
 
-**Objective**: System optimization, security hardening, and production readiness
+**Objective**: Improve user experience with homepage search, visual polish, and display refinements
 **Target Duration**: 2 weeks
-**Story Count**: 7 stories
+**Story Count**: 6 stories
 
 ### Requirements Included:
+- **REQ-UI-10**: Include homepage search functionality above carousel for finding releases
+- **REQ-UI-11**: Display search component at 35% reduced size
+- **REQ-UI-14**: Display artist name before release title across all pages
+- **REQ-CD-5**: Display homepage section labeled "New Releases" with album graphic icon
+- **REQ-CD-6**: Display homepage section labeled "Featured Releases" with record icon
+- **REQ-CD-7**: Display homepage search results as clickable list
+- **REQ-CD-8**: Set background logo opacity to 25% more transparent
+- **REQ-CD-9**: Reduce copyright text size by 25% on homepage footer
+- **REQ-CD-10**: Include PO Box address on contact page
+
+### Acceptance Criteria:
+- Homepage search field positioned above carousel at 35% reduced size
+- Search queries filter releases by artist or title
+- Search results display as clickable list navigating to release details
+- Homepage section labels updated: "New Releases" (with album icon), "Featured Releases" (with record icon)
+- Artist names display before release titles across all pages and components
+- Background logo opacity reduced for better readability
+- Footer copyright text 25% smaller
+- Contact page includes PO Box address
+
+### Technical Dependencies:
+- Sprint 3 complete functionality
+- Search component reuse from Releases page
+- Icon assets for homepage sections
+- CSS opacity adjustments for background logo
+
+---
+
+## Sprint 5: Videos System Implementation
+
+**Objective**: Add standalone Videos section with full CRUD functionality
+**Target Duration**: 2 weeks
+**Story Count**: 3 stories
+
+### Requirements Included:
+- **REQ-UI-7**: Provide Videos page in navigation bar positioned after Releases
+- **REQ-UI-9**: Display navigation items in order: Home, Releases, Videos, Discography, About, Contact
+- **REQ-AD-6**: Provide CRUD operations for videos with separate database table and API endpoints
+- **REQ-AD-7**: Provide admin UI for managing video content
+
+### Acceptance Criteria:
+- Videos page accessible via navigation bar after Releases
+- Videos database table created with appropriate schema
+- PHP API endpoints for video CRUD operations
+- Admin interface for creating, editing, and deleting videos
+- Videos page displays grid of video content
+- Video embedding and playback functional
+- Admin can manage video metadata (title, URL, description, thumbnail)
+
+### Technical Dependencies:
+- Sprint 4 navigation updates
+- Database migration for videos table
+- YouTube/video embed components
+- Admin authentication from Sprint 3
+
+---
+
+## Sprint 6: Discography System Implementation
+
+**Objective**: Add Discography section for historical releases with dual categorization
+**Target Duration**: 2 weeks
+**Story Count**: 3 stories
+
+### Requirements Included:
+- **REQ-UI-8**: Provide Discography page in navigation bar positioned after Videos
+- **REQ-RM-8**: Categorize releases as current releases or discography
+- **REQ-RM-9**: Allow releases to appear in both Releases and Discography sections
+- **REQ-AD-8**: Provide dropdown/checkbox controls for categorizing releases as Releases, Discography, or both
+
+### Acceptance Criteria:
+- Discography page accessible via navigation bar after Videos
+- Database schema updated to support dual categorization flags
+- Admin interface includes checkboxes for Releases/Discography placement
+- Releases can appear in Releases page only, Discography only, or both
+- Discography page displays historical releases in same layout as Releases page
+- Filtering and sorting work correctly on Discography page
+
+### Technical Dependencies:
+- Sprint 5 navigation structure
+- Database migration for categorization flags
+- Releases page component reuse for Discography
+- Admin forms updated with categorization controls
+
+---
+
+## Sprint 7: Release Page Enhancements
+
+**Objective**: Improve release browsing with alphabetical navigation and layout refinements
+**Target Duration**: 2 weeks
+**Story Count**: 4 stories
+
+### Requirements Included:
+- **REQ-UI-15**: Provide alphabetical navigation (A-Z) on releases page
+- **REQ-RM-10**: Sort releases alphabetically by artist name, then by title
+- **REQ-RM-11**: Match artwork and text size to nickel-and-dime site design
+- **REQ-RM-12**: Display streaming videos in 2-column layout on detail pages
+
+### Acceptance Criteria:
+- A-Z alphabetical navigation widget on releases page
+- Clicking letter jumps to first artist starting with that letter
+- Releases sorted alphabetically by artist name as primary sort
+- Secondary sort by title for artists with multiple releases
+- Release card artwork and text sizes match nickel-and-dime reference site
+- Release detail pages display videos in 2-column layout (responsive to viewport width)
+- Video layout stacks vertically on mobile/narrow viewports
+
+### Technical Dependencies:
+- Sprint 6 complete
+- Alphabetical navigation component development
+- CSS adjustments for nickel-and-dime design matching
+- Release detail page layout modifications
+
+---
+
+## Sprint 8: Advanced Features & Production Deployment
+
+**Objective**: Implement advanced carousel, audio player, social media integration, and deploy to production
+**Target Duration**: 2 weeks
+**Story Count**: 5 stories
+
+### Requirements Included:
+- **REQ-UI-12**: Use record icon for all three homepage section headings
+- **REQ-UI-13**: Implement drag-enabled carousel or auto-rotating carousel without navigation arrows
+- **REQ-RM-13**: Support audio player widget on release detail pages
+- **REQ-RM-14**: Support social media links on release detail pages
+- **REQ-AD-9**: Provide admin configuration for audio player widget
+- **REQ-AD-10**: Provide admin configuration for social media links
 - **REQ-NFR-1**: Load initial page content within 3 seconds on standard broadband
 - **REQ-NFR-2**: Support concurrent access by up to 1000 users without performance degradation
 - **REQ-NFR-3**: Optimize image loading with appropriate compression and lazy loading
@@ -248,8 +383,33 @@ This roadmap follows a **documentation-driven development** approach where each 
 - **REQ-NFR-10**: Use CORS protection for API endpoints
 - **REQ-NFR-11**: Validate and sanitize all user inputs
 - **REQ-NFR-12**: Protect against common web vulnerabilities (XSS, SQL injection)
-- **REQ-NFR-13**: Use responsive design principles for mobile-first development
-- **REQ-NFR-16**: Implement proper error handling and logging mechanisms
+- **REQ-NFR-16**: Support SSL/HTTPS encryption for all traffic
+- **REQ-NFR-17**: Implement SEO-friendly URLs and meta tags
+
+### Acceptance Criteria:
+- Carousel replaced with drag-enabled or auto-rotating version (no navigation arrows)
+- Audio player widget embedded on release detail pages
+- Admin can configure audio player widget settings per release
+- Social media links (Instagram, Facebook, TikTok, X) configurable on release detail pages
+- Admin interface for managing social media URLs per release
+- Record icon displayed on all homepage section headings
+- Page load times under 3 seconds on standard broadband
+- Performance testing validates 1000+ concurrent users
+- Image optimization with lazy loading implemented
+- Security audit completed with vulnerabilities addressed
+- SSL/HTTPS enabled for production deployment
+- SEO optimization with proper meta tags and URLs
+
+### Technical Dependencies:
+- Sprint 7 complete
+- New carousel library integration (research drag/auto-rotate options)
+- Audio player widget integration (Spotify embed, custom player, etc.)
+- Social media icon assets
+- Performance monitoring and optimization tools
+- Production hosting with SSL configuration
+- SEO meta tag implementation
+
+---
 - **REQ-NFR-17**: Be accessible via www.alldayeverydayrecords.com domain
 - **REQ-NFR-18**: Support SSL/HTTPS encryption for all traffic
 - **REQ-NFR-19**: Implement SEO-friendly URLs and meta tags
