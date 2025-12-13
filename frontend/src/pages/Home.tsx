@@ -1,5 +1,5 @@
 import { Box, Typography, CircularProgress, Container } from '@mui/material'
-import { Album as AlbumIcon, Star as StarIcon } from '@mui/icons-material'
+import { Album as AlbumIcon } from '@mui/icons-material'
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ReleaseCarousel from '../components/ReleaseCarousel'
@@ -59,7 +59,7 @@ export default function Home() {
             color: 'white'
           }}
         >
-          <StarIcon fontSize="large" />
+          <AlbumIcon fontSize="large" />
           Featured Releases
         </Typography>
         

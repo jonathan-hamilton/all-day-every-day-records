@@ -72,7 +72,7 @@ export const ReleaseCard: React.FC<ReleaseCardProps> = ({ release }) => {
         />
       </Box>
       
-      {/* Release Title - Auto-sized grey box */}
+      {/* Release Artist - Auto-sized grey box */}
       <Box
         sx={{
           backgroundImage: 'url(/images/title-inverse.png)',
@@ -97,11 +97,11 @@ export const ReleaseCard: React.FC<ReleaseCardProps> = ({ release }) => {
             textOverflow: 'ellipsis'
           }}
         >
-          {release.title}
+          {release.artists_with_roles || 'Unknown Artist'}
         </Typography>
       </Box>
 
-      {/* Release Artist - Auto-sized grey box */}
+      {/* Release Title - Auto-sized grey box */}
       <Box
         sx={{
           backgroundImage: 'url(/images/title-inverse.png)',
@@ -125,7 +125,7 @@ export const ReleaseCard: React.FC<ReleaseCardProps> = ({ release }) => {
             textOverflow: 'ellipsis'
           }}
         >
-          {release.artists_with_roles || 'Unknown Artist'}
+          {release.title}
         </Typography>
       </Box>
     </Box>

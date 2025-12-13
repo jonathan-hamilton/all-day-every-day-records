@@ -34,7 +34,7 @@ export default function MainLayout() {
           backgroundSize: 'contain',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          opacity: 0.15,
+          opacity: 0.25,
           zIndex: 0,
           pointerEvents: 'none'
         }
@@ -91,6 +91,7 @@ export default function MainLayout() {
           <Box sx={{ 
             textAlign: 'center',
             typography: 'body2', 
+            fontSize: '0.75rem',
             color: 'text.secondary'
           }}>
             <span>&copy; 2025 All Day Every Day Records. All rights reserved.</span>
