@@ -21,7 +21,8 @@ import {
   CircularProgress,
   Stack,
   Divider,
-
+  Tabs,
+  Tab,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -41,6 +42,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentApiConfig } from '../config/api';
+import type { Video } from '../types';
 
 interface Release {
   id?: number;
@@ -68,6 +70,9 @@ const AdminDashboard: React.FC = () => {
   // Get API configuration
   const apiConfig = getCurrentApiConfig();
 
+  // Tab state (0 = Releases, 1 = Videos)
+  const [activeTab, setActiveTab] = useState(0);
+
   // Release management state
   const [releases, setReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(false);
@@ -75,6 +80,7 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [videoSearchTerm, setVideoSearchTerm] = useState<string>('');
   
   // Auto-clear success messages after 3 seconds
   useEffect(() => {
@@ -127,6 +133,33 @@ const AdminDashboard: React.FC = () => {
   const [videosSaving, setVideosSaving] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
   const [videoSuccess, setVideoSuccess] = useState<string | null>(null);
+  
+  // Video management state (for Manage Videos tab)
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [editingVideo, setEditingVideo] = useState<Video | null>(null);
+  const [isCreatingVideo, setIsCreatingVideo] = useState(true);
+  const [videoFormData, setVideoFormData] = useState<Partial<Video>>({
+    title: '',
+    artist: '',
+    youtube_url: '',
+    description: ''
+  });
+
+  // Filter videos based on search term
+  const filteredVideos = videos.filter(video => {
+    if (!videoSearchTerm) return true;
+    const searchLower = videoSearchTerm.toLowerCase();
+    return (
+      video.title.toLowerCase().includes(searchLower) ||
+      video.artist.toLowerCase().includes(searchLower) ||
+      video.youtube_url.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Clear video search
+  const handleClearVideoSearch = () => {
+    setVideoSearchTerm('');
+  };
   
   // Auto-clear video success messages after 3 seconds
   useEffect(() => {
@@ -201,12 +234,42 @@ const AdminDashboard: React.FC = () => {
     }
   }, [isAuthenticated, apiConfig.baseURL]);
 
+  // Load videos for management
+  const fetchVideos = useCallback(async () => {
+    if (!isAuthenticated) return;
+    
+    try {
+      const timestamp = new Date().getTime();
+      const response = await fetch(`${apiConfig.baseURL}/get-videos.php?_t=${timestamp}`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setVideos(data.videos || []);
+      } else {
+        setError(data.error || 'Failed to fetch videos');
+      }
+    } catch (err) {
+      setError('Network error fetching videos');
+      console.error('Fetch videos error:', err);
+    }
+  }, [isAuthenticated, apiConfig.baseURL]);
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchReleases();
       fetchHomepageVideos();
+      fetchVideos();
     }
-  }, [isAuthenticated, fetchReleases, fetchHomepageVideos]);
+  }, [isAuthenticated, fetchReleases, fetchHomepageVideos, fetchVideos]);
 
   const handleCreateNew = () => {
     setIsCreating(true);
@@ -418,6 +481,126 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Video form handlers
+  const handleVideoInputChange = (field: keyof Video, value: string) => {
+    setVideoFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const resetVideoForm = () => {
+    setVideoFormData({
+      title: '',
+      artist: '',
+      youtube_url: '',
+      description: ''
+    });
+    setEditingVideo(null);
+    setIsCreatingVideo(true);
+  };
+
+  const handleCreateNewVideo = () => {
+    resetVideoForm();
+    setIsCreatingVideo(true);
+  };
+
+  const handleCancelVideoEdit = () => {
+    resetVideoForm();
+  };
+
+  const handleEditVideo = (video: Video) => {
+    setEditingVideo(video);
+    setIsCreatingVideo(false);
+    setVideoFormData({
+      title: video.title,
+      artist: video.artist,
+      youtube_url: video.youtube_url,
+      description: video.description || ''
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleVideoSubmit = async () => {
+    if (!videoFormData.title || !videoFormData.artist || !videoFormData.youtube_url) {
+      setError('Please fill in all required fields (Title, Artist, YouTube URL)');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const submitData: Partial<Video> = {
+        title: videoFormData.title,
+        artist: videoFormData.artist,
+        youtube_url: videoFormData.youtube_url,
+        description: videoFormData.description || ''
+      };
+
+      if (editingVideo?.id) {
+        submitData.id = editingVideo.id;
+      }
+
+      const response = await fetch(`${apiConfig.baseURL}/upsert-video.php`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(submitData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSuccess(editingVideo ? `Video "${data.video.title}" updated successfully` : `Video "${data.video.title}" created successfully`);
+        resetVideoForm();
+        fetchVideos();
+      } else {
+        setError(data.error || 'Failed to save video');
+      }
+    } catch (err) {
+      setError('Network error saving video');
+      console.error('Save video error:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteVideo = async (video: Video) => {
+    if (!window.confirm(`Are you sure you want to delete "${video.title}" by ${video.artist}?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiConfig.baseURL}/delete-video.php`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: video.id })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSuccess(`Video "${video.title}" deleted successfully`);
+        
+        // If we were editing this video, reset the form
+        if (editingVideo?.id === video.id) {
+          resetVideoForm();
+        }
+        
+        fetchVideos();
+      } else {
+        setError(data.error || 'Failed to delete video');
+      }
+    } catch (err) {
+      setError('Network error deleting video');
+      console.error('Delete video error:', err);
+    }
+  };
+
   const otherDashboardCards = [
     {
       title: 'User Management',
@@ -449,8 +632,32 @@ const AdminDashboard: React.FC = () => {
         </Alert>
       )}
 
+      {/* Tabs for Release vs Video Management */}
+      <Box sx={{ borderBottom: 1, borderColor: 'rgba(255, 255, 255, 0.2)', mb: 3 }}>
+        <Tabs 
+          value={activeTab} 
+          onChange={(_, newValue) => setActiveTab(newValue)}
+          sx={{
+            '& .MuiTab-root': {
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontSize: '1rem',
+              fontWeight: 'medium',
+              '&.Mui-selected': {
+                color: 'white'
+              }
+            },
+            '& .MuiTabs-indicator': {
+              backgroundColor: 'primary.main'
+            }
+          }}
+        >
+          <Tab label="Manage Releases" />
+          <Tab label="Manage Videos" />
+        </Tabs>
+      </Box>
+
       {/* Release Management Section */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 4, display: activeTab === 0 ? 'block' : 'none' }}>
         <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
           <ReleasesIcon sx={{ mr: 2, color: 'white', fontSize: '2rem' }} />
           <Typography variant="h5" component="h2" fontWeight="medium" sx={{ color: 'white' }}>
@@ -1005,6 +1212,348 @@ const AdminDashboard: React.FC = () => {
             </TableContainer>
           </Paper>
         </Box>
+
+      {/* Video Management Section */}
+      <Box sx={{ mb: 4, display: activeTab === 1 ? 'block' : 'none' }}>
+        <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
+          <VideoIcon sx={{ mr: 2, color: 'white', fontSize: '2rem' }} />
+          <Typography variant="h5" component="h2" fontWeight="medium" sx={{ color: 'white' }}>
+            Manage Videos
+          </Typography>
+        </Box>
+        
+        {/* Video Form */}
+        <Paper elevation={3} sx={{ 
+          p: 4, 
+          mb: 4,
+          backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            zIndex: 1
+          },
+          '& > *': {
+            position: 'relative',
+            zIndex: 2
+          }
+        }}>
+          <Typography variant="h6" gutterBottom sx={{ color: 'white' }}>
+            {isCreatingVideo ? 'Create New Video' : editingVideo ? `Edit: ${editingVideo?.title}` : 'Create New Video'}
+          </Typography>
+          
+          <Stack spacing={3} sx={{ 
+            mt: 2,
+            '& .MuiTextField-root, & .MuiFormControl-root': {
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'transparent',
+                color: 'white',
+                '& fieldset': {
+                  borderColor: 'rgba(200, 200, 200, 0.8)'
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(200, 200, 200, 1)'
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'primary.main'
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: 'rgba(255, 255, 255, 0.7)',
+                '&.Mui-focused': {
+                  color: 'primary.main'
+                }
+              },
+              '& .MuiInputBase-input': {
+                color: 'white'
+              }
+            }
+          }}>
+            {/* Title and Artist Row */}
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+              <TextField
+                fullWidth
+                label="Title *"
+                value={videoFormData.title || ''}
+                onChange={(e) => handleVideoInputChange('title', e.target.value)}
+                required
+              />
+              
+              <TextField
+                fullWidth
+                label="Artist *"
+                value={videoFormData.artist || ''}
+                onChange={(e) => handleVideoInputChange('artist', e.target.value)}
+                required
+              />
+            </Stack>
+
+            {/* YouTube URL */}
+            <TextField
+              fullWidth
+              label="YouTube URL *"
+              value={videoFormData.youtube_url || ''}
+              onChange={(e) => handleVideoInputChange('youtube_url', e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              required
+            />
+
+            {/* Description */}
+            <TextField
+              fullWidth
+              label="Description"
+              value={videoFormData.description || ''}
+              onChange={(e) => handleVideoInputChange('description', e.target.value)}
+              multiline
+              rows={4}
+              placeholder="Optional description for this video..."
+            />
+          </Stack>
+
+          <Divider sx={{ my: 3 }} />
+
+          {/* Form Actions */}
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="contained"
+              startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
+              onClick={handleVideoSubmit}
+              disabled={saving || !videoFormData.title || !videoFormData.artist || !videoFormData.youtube_url}
+              sx={{
+                backgroundColor: 'primary.main',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'primary.dark'
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)'
+                }
+              }}
+            >
+              {saving ? 'Saving...' : (isCreatingVideo ? 'Create Video' : 'Update Video')}
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<CancelIcon />}
+              onClick={handleCancelVideoEdit}
+              disabled={saving}
+              sx={{
+                borderColor: 'white',
+                color: 'white',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                }
+              }}
+            >
+              Cancel
+            </Button>
+          </Stack>
+        </Paper>
+
+        {/* All Videos List */}
+        <Box sx={{ mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" sx={{ color: 'white' }}>
+              All Videos
+            </Typography>
+            {!isCreatingVideo && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleCreateNewVideo}
+                size="large"
+              >
+                Create New Video
+              </Button>
+            )}
+          </Box>
+
+          {/* Video Search Bar */}
+          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <TextField
+              fullWidth
+              placeholder="Search by artist, title, or YouTube URL..."
+              value={videoSearchTerm}
+              onChange={(e) => setVideoSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: <SearchIcon sx={{ mr: 1, color: 'rgba(255, 255, 255, 0.7)' }} />,
+              }}
+              sx={{ 
+                maxWidth: { xs: '100%', sm: 500 },
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  '& input': {
+                    color: 'white',
+                    '&::placeholder': {
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      opacity: 1
+                    }
+                  },
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.3)'
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.5)'
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.7)'
+                  }
+                }
+              }}
+            />
+            {videoSearchTerm && (
+              <Button
+                size="small"
+                startIcon={<ClearIcon sx={{ color: 'white' }} />}
+                onClick={handleClearVideoSearch}
+                sx={{ 
+                  color: 'white',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: 'rgba(255, 255, 255, 0.5)'
+                  }
+                }}
+              >
+                Clear
+              </Button>
+            )}
+            <Typography variant="body2" sx={{ color: 'white', whiteSpace: 'nowrap' }}>
+              {filteredVideos.length} of {videos.length} videos
+            </Typography>
+          </Box>
+
+          <Paper elevation={2} sx={{
+            backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            position: 'relative',
+            maxHeight: '500px',
+            overflow: 'auto',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.4)',
+              zIndex: 1,
+              pointerEvents: 'none'
+            },
+            '& .MuiTableContainer-root': {
+              position: 'relative',
+              zIndex: 2,
+              backgroundColor: 'transparent'
+            },
+            '& .MuiTableCell-root': {
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.2)'
+            },
+            '& .MuiTableCell-head': {
+              fontWeight: 'bold',
+              backgroundColor: 'rgba(0, 0, 0, 0.3)'
+            }
+          }}>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Artist</TableCell>
+                    <TableCell>Title</TableCell>
+                    <TableCell>YouTube URL</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        <CircularProgress sx={{ color: 'white' }} />
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredVideos.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                          {videos.length === 0 
+                            ? 'No videos found. Create your first video above.'
+                            : 'No videos match your search criteria.'}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredVideos.map((video) => (
+                      <TableRow 
+                        key={video.id}
+                        sx={{
+                          '&:hover': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                          },
+                          backgroundColor: editingVideo?.id === video.id ? 'rgba(255, 215, 0, 0.1)' : 'transparent'
+                        }}
+                      >
+                        <TableCell>{video.artist}</TableCell>
+                        <TableCell>{video.title}</TableCell>
+                        <TableCell>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              maxWidth: 300, 
+                              overflow: 'hidden', 
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              color: 'rgba(135, 206, 250, 0.9)'
+                            }}
+                          >
+                            {video.youtube_url}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEditVideo(video)}
+                              sx={{ 
+                                color: 'primary.light',
+                                '&:hover': { color: 'primary.main' }
+                              }}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteVideo(video)}
+                              sx={{ 
+                                color: 'error.light',
+                                '&:hover': { color: 'error.main' }
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Box>
+      </Box>
 
       {/* Homepage Videos Management Section */}
       <Box sx={{ mb: 4 }}>

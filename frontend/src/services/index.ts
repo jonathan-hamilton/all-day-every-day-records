@@ -72,5 +72,4 @@ export function createServices() {
     auth: createAuthService(apiService),
     videos: createVideoService(apiService)
   };
-} };
 }

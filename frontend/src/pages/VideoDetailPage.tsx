@@ -274,26 +274,16 @@ const VideoDetailPage: React.FC = () => {
       {/* Related Videos by Same Artist */}
       {relatedVideos.length > 0 && (
         <Box sx={{ mb: 4 }}>
-          <Box
-            sx={{
-              backgroundImage: 'url(/images/title-inverse.png)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              padding: 1,
-              textAlign: 'left',
-              display: 'inline-block',
-              width: 'fit-content',
-              marginBottom: '16px'
-            }}
-          >
-            <Typography variant="h5" sx={{ 
-              color: 'black',
-              margin: 0,
-              fontWeight: 600
-            }}>
-              More from {video.artist}...
-            </Typography>
-          </Box>
+          <Typography variant="h5" component="h2" gutterBottom sx={{ 
+            mb: 3,
+            color: 'white',
+            fontWeight: 600,
+            textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word'
+          }}>
+            More from {video.artist}
+          </Typography>
 
           <Box sx={{ 
             display: 'grid', 

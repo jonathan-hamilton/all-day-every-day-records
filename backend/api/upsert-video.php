@@ -64,10 +64,14 @@ try {
         
         $db->commit();
         
+        // Fetch the updated video
+        $sql = "SELECT * FROM videos WHERE id = ?";
+        $video = $db->queryOne($sql, [$videoId]);
+        
         jsonResponse([
             "success" => true,
             "message" => "Video updated successfully",
-            "video_id" => $videoId
+            "video" => $video
         ]);
         
     } else {
@@ -90,13 +94,17 @@ try {
             jsonResponse(["error" => "Failed to create video"], 500);
         }
         
-        $newId = $db->getLastInsertId();
+        $newId = $db->lastInsertId();
         $db->commit();
+        
+        // Fetch the newly created video
+        $sql = "SELECT * FROM videos WHERE id = ?";
+        $video = $db->queryOne($sql, [$newId]);
         
         jsonResponse([
             "success" => true,
             "message" => "Video created successfully",
-            "video_id" => $newId
+            "video" => $video
         ]);
     }
     

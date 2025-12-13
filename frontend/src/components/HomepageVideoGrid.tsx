@@ -18,22 +18,17 @@ import { createServices } from '../services';
 import { useAuth } from '../hooks/useAuth';
 import VideoGridItem from './VideoGridItem';
 import VideoManageDialog from './VideoManageDialog';
+import type { Video } from '../types';
 
 interface HomepageVideoGridProps {
   maxVideos?: number;
   showTitle?: boolean;
 }
 
-interface HomepageVideo {
-  id: number;
-  title: string;
-  youtube_url: string;
-}
-
 interface VideoGridState {
   loading: boolean;
   error: string | null;
-  videos: HomepageVideo[];
+  videos: Video[];
 }
 
 export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
@@ -235,8 +230,7 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
             {state.videos.map((video) => (
               <Box key={video.id}>
                 <VideoGridItem 
-                  videoUrl={video.youtube_url}
-                  title={video.title}
+                  video={video}
                 />
               </Box>
             ))}

@@ -10,8 +10,7 @@ import {
   Box, 
   Typography, 
   CircularProgress,
-  Alert,
-  Grid
+  Alert
 } from '@mui/material'
 import { PlayCircleFilled as PlayIcon } from '@mui/icons-material'
 import { createServices } from '../services'
@@ -161,13 +160,22 @@ export default function Videos() {
         Videos
       </Typography>
 
-      <Grid container spacing={3}>
+      <Box 
+        sx={{ 
+          display: 'grid', 
+          gridTemplateColumns: { 
+            xs: 'repeat(1, 1fr)', 
+            sm: 'repeat(2, 1fr)', 
+            md: 'repeat(3, 1fr)', 
+            lg: 'repeat(4, 1fr)' 
+          },
+          gap: 3
+        }}
+      >
         {state.videos.map((video) => (
-          <Grid item xs={12} sm={6} md={6} key={video.id}>
-            <VideoGridItem video={video} />
-          </Grid>
+          <VideoGridItem key={video.id} video={video} />
         ))}
-      </Grid>
+      </Box>
     </Box>
   )
 }

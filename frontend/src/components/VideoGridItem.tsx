@@ -64,11 +64,16 @@ export const VideoGridItem: React.FC<VideoGridItemProps> = ({ video }) => {
     <Box 
       onClick={handleClick}
       sx={{ 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column',
         cursor: 'pointer',
-        transition: 'transform 0.2s, box-shadow 0.2s',
+        borderRadius: 0,
+        minWidth: 0,
+        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
         '&:hover': {
-          transform: 'scale(1.02)',
-          boxShadow: '0 8px 30px rgba(0,0,0,0.3)'
+          transform: 'translateY(-4px)',
+          boxShadow: (theme) => theme.shadows[8],
         }
       }}
     >
@@ -102,23 +107,57 @@ export const VideoGridItem: React.FC<VideoGridItemProps> = ({ video }) => {
         />
       </Box>
       
-      {/* Video info overlay */}
-      <Box sx={{ mt: 1 }}>
-        <Typography 
-          variant="body2" 
-          sx={{ 
-            color: 'white',
-            fontWeight: 600,
-            fontSize: '0.875rem'
+      {/* Video Artist - Auto-sized grey box */}
+      <Box
+        sx={{
+          backgroundImage: 'url(/images/title-inverse.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          padding: 0.75,
+          textAlign: 'left',
+          display: 'inline-block',
+          width: 'fit-content',
+          maxWidth: '100%',
+          marginBottom: '2px'
+        }}
+      >
+        <Typography
+          variant="body1"
+          sx={{
+            color: 'black',
+            fontWeight: 'medium',
+            lineHeight: 1.3,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}
         >
-          {video.artist}
+          {video.artist || 'Unknown Artist'}
         </Typography>
-        <Typography 
-          variant="body1" 
-          sx={{ 
-            color: 'white',
-            fontSize: '1rem'
+      </Box>
+
+      {/* Video Title - Auto-sized grey box */}
+      <Box
+        sx={{
+          backgroundImage: 'url(/images/title-inverse.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          padding: 0.75,
+          textAlign: 'left',
+          display: 'inline-block',
+          width: 'fit-content',
+          maxWidth: '100%'
+        }}
+      >
+        <Typography
+          variant="body1"
+          sx={{
+            color: 'black',
+            fontWeight: 'medium',
+            lineHeight: 1.3,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}
         >
           {video.title}

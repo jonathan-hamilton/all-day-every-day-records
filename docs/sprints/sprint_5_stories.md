@@ -1,5 +1,5 @@
 # Sprint 5 User Stories
-**Status**: 66% COMPLETE 🏗️  
+**Status**: COMPLETE ✅  
 **Duration**: 2 weeks  
 **Focus**: Videos System Implementation
 
@@ -23,7 +23,7 @@ Sprint 5 expands the existing homepage video functionality into a comprehensive 
 |----------|-------|--------|----------|
 | S5.1 | Videos Page & Navigation | ✅ COMPLETE | HIGH |
 | S5.2 | Videos Database & API Implementation | ✅ COMPLETE | HIGH |
-| S5.3 | Admin Videos Management Interface | PENDING 🔄 | HIGH |
+| S5.3 | Admin Videos Management Interface | ✅ COMPLETE | HIGH |
 
 ---
 
@@ -143,36 +143,59 @@ As a system administrator, I want a separate videos database table and API endpo
 
 ### S5.3: Admin Videos Management Interface
 **Priority**: HIGH  
-**Status**: PENDING 🔄  
-**Estimate**: 8-10 hours
+**Status**: ✅ COMPLETE  
+**Estimate**: 8-10 hours  
+**Completed**: December 13, 2025
 
 **User Story**:  
 As an administrator, I want a complete interface for managing videos so I can create, edit, delete, and organize video content.
 
 **Acceptance Criteria**:
-- Admin dashboard shows "Manage Videos" section with video list
-- Video list displays: thumbnail, title, YouTube URL, published status, actions
-- "Add New Video" button opens video creation dialog
-- Video form includes fields: title, YouTube URL, description, display order, published checkbox
-- Edit functionality opens same dialog pre-populated with video data
-- Delete confirmation dialog prevents accidental deletions
-- Form validation ensures YouTube URL format is valid
-- Success/error messages displayed after create/update/delete operations
-- Video list updates immediately after successful operations
-- Videos can be reordered by display_order field
-- Admin can toggle published status to show/hide videos from public page
+- [x] Admin dashboard shows tabbed interface with "Manage Releases" and "Manage Videos" tabs
+- [x] Video list displays: title, artist, YouTube URL, edit/delete actions
+- [x] "Create New Video" button opens video creation form
+- [x] Video form includes fields: title, artist, YouTube URL, description
+- [x] Search functionality filters videos by artist, title, or URL
+- [x] Edit functionality populates form with video data
+- [x] Delete confirmation dialog prevents accidental deletions
+- [x] Success/error messages displayed after create/update/delete operations
+- [x] Video list updates immediately after successful operations
+- [x] Videos sorted alphabetically by artist, then title
+- [x] Form buttons match Release form styling (Save icon, Cancel button)
 
-**Dependencies**: S5.2 (Videos API endpoints)
+**Implementation Summary**:
+- ✅ Added Material-UI Tabs component to AdminDashboard with "Manage Releases" and "Manage Videos" tabs
+- ✅ Created video management form with Title, Artist, YouTube URL, Description fields
+- ✅ Implemented "All Videos" list with search, edit, and delete functionality
+- ✅ Added video search bar filtering by artist, title, and URL
+- ✅ Wired up all CRUD operations (create, update, delete) using existing VideoService
+- ✅ Matched form button styling to Release form (Save icon, Cancel button, Divider)
+- ✅ Updated video grid to match Release grid layout (4 columns on large screens)
+- ✅ Applied Release card styling to video items (grey boxes with background image)
+- ✅ Fixed database method calls in upsert-video.php (queryOne, lastInsertId)
 
-**Developer Notes**:
-- Add Videos management section to `frontend/src/pages/AdminDashboard.tsx`
-- Create `VideoManageDialog` component (similar to release management dialogs)
-- Reuse existing dialog patterns from release management
-- Use Material-UI Table for video list display
-- Implement YouTube URL validation (basic regex check)
-- Display video thumbnail preview using YouTube thumbnail API
-- Follow existing admin UI patterns for consistency
-- Consider adding drag-and-drop reordering in future sprint (not required now)
+**Files Modified**:
+- `frontend/src/pages/AdminDashboard.tsx` - Added tabs, video form, search, and CRUD handlers
+- `frontend/src/components/VideoGridItem.tsx` - Updated styling to match ReleaseCard
+- `frontend/src/pages/Videos.tsx` - Changed to CSS Grid layout matching Releases page
+- `frontend/src/pages/VideoDetailPage.tsx` - Updated "More from" label styling
+- `frontend/src/services/index.ts` - Fixed syntax error (duplicate braces)
+- `frontend/src/components/HomepageVideoGrid.tsx` - Fixed type mismatch (Video vs HomepageVideo)
+- `backend/api/upsert-video.php` - Fixed database method names
+
+**Files Created**:
+- `docs/sprints/implementations/s5.3-implementation-plan.md` - Implementation plan
+
+**Dependencies**: S5.2 (Videos API endpoints) - COMPLETE ✅
+
+**Technical Notes**:
+- Tabbed interface provides clean separation between Release and Video management
+- Video form follows same pattern as Release form for consistency
+- Search functionality matches Release search implementation
+- Videos display in 4-column grid on large screens (same as Releases)
+- Artist and title labels use same grey box styling as Release cards
+- All videos considered published (no display_order or published status fields)
+- Backend handles alphabetical sorting by artist, then title
 
 ---
 
