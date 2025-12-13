@@ -1,0 +1,208 @@
+# Sprint 5 User Stories
+**Status**: 33% COMPLETE 🏗️  
+**Duration**: 2 weeks  
+**Focus**: Videos System Implementation
+
+---
+
+## Sprint Overview
+Sprint 5 expands the existing homepage video functionality into a comprehensive standalone Videos system with full CRUD capabilities. Building on the YouTube video grid component and admin infrastructure from previous sprints, this sprint creates a dedicated Videos page, implements a separate videos database table, and provides complete admin management for video content.
+
+## Sprint Goals
+1. Create standalone Videos page with navigation integration ✅
+2. Implement videos database table and API endpoints separate from homepage videos
+3. Build admin interface for full CRUD operations on video content
+4. Enable video metadata management (title, URL, description, thumbnail)
+5. Maintain consistent design patterns with existing release management system
+
+---
+
+## Progress Tracker
+
+| Story ID | Title | Status | Priority |
+|----------|-------|--------|----------|
+| S5.1 | Videos Page & Navigation | ✅ COMPLETE | HIGH |
+| S5.2 | Videos Database & API Implementation | PENDING 🔄 | HIGH |
+| S5.3 | Admin Videos Management Interface | PENDING 🔄 | HIGH |
+
+---
+
+## User Stories
+
+### S5.1: Videos Page & Navigation
+**Priority**: HIGH  
+**Status**: ✅ COMPLETE  
+**Estimate**: 4-6 hours  
+**Completed**: December 13, 2025
+
+**User Story**:  
+As a visitor, I want to access a dedicated Videos page from the navigation bar so I can view all available video content in one place.
+
+**Acceptance Criteria**:
+- [x] Videos link appears in main navigation after Releases
+- [x] Navigation order: Home, Releases, Videos, About, Contact
+- [x] Videos page displays grid of all available videos
+- [x] Videos page reuses existing VideoGridItem component for consistency
+- [x] Page responsive on mobile, tablet, and desktop breakpoints
+- [x] Videos page shows loading state while fetching content
+- [x] Empty state message displayed when no videos available
+- [x] Videos page accessible at `/videos` route
+
+**Implementation Summary**:
+- ✅ Created Videos.tsx page with grid layout and all states (loading, error, empty, success)
+- ✅ Added Videos route in App.tsx accessible at /videos
+- ✅ Updated Navigation component with Videos link positioned after Releases
+- ✅ Reused VideoGridItem component for consistency with homepage
+- ✅ Implemented responsive Material-UI Grid layout (2 columns on tablet/desktop, 1 on mobile)
+- ✅ Temporarily fetches from homepage videos endpoint (will migrate to dedicated endpoint in S5.2)
+
+**Files Created**:
+- `frontend/src/pages/Videos.tsx` - New Videos page component
+
+**Files Modified**:
+- `frontend/src/pages/index.ts` - Added Videos export
+- `frontend/src/App.tsx` - Added Videos import and route
+- `frontend/src/components/Navigation.tsx` - Added Videos navigation link
+
+**Dependencies**: None (uses existing components from Sprint 2)
+
+**Developer Notes**:
+- Create `frontend/src/pages/Videos.tsx` following existing page patterns
+- Update `frontend/src/App.tsx` router configuration to add Videos route
+- Update `frontend/src/layouts/MainLayout.tsx` navigation links
+- Reuse `VideoGridItem` component from homepage implementation
+- Use Material-UI Grid for responsive layout (similar to Releases page)
+- Follow existing loading/error state patterns from other pages
+- Initially fetch from existing homepage videos endpoint (temporary)
+
+---
+
+### S5.2: Videos Database & API Implementation
+**Priority**: HIGH  
+**Status**: PENDING 🔄  
+**Estimate**: 6-8 hours
+
+**User Story**:  
+As a system administrator, I want a separate videos database table and API endpoints so that video content can be managed independently from homepage videos.
+
+**Acceptance Criteria**:
+- Videos table created in database with schema: id, title, youtube_url, description, thumbnail_url, display_order, is_published, created_at, updated_at
+- GET endpoint `/get-videos.php` returns all published videos
+- GET endpoint `/get-videos-by-id.php?id=X` returns single video details
+- POST endpoint `/upsert-video.php` creates or updates video records
+- DELETE endpoint `/delete-video.php` removes video records
+- All endpoints require admin authentication (except GET published videos)
+- API returns proper JSON responses with success/error status
+- TypeScript interface `Video` created in `frontend/src/types/`
+- Videos page updated to fetch from new `/get-videos.php` endpoint
+
+**Dependencies**: S5.1 (Videos page structure)
+
+**Developer Notes**:
+- Create database migration script in `backend/database/migrations/`
+- Follow existing API patterns from release endpoints
+- Schema similar to releases table but simplified for video content
+- Use existing `security.php` for authentication checks
+- TypeScript interface should include: `id`, `title`, `youtube_url`, `description`, `thumbnail_url`, `display_order`, `is_published`
+- Consider adding `display_order` for manual sorting capability
+- Update Videos page to use new endpoint instead of homepage videos
+
+---
+
+### S5.3: Admin Videos Management Interface
+**Priority**: HIGH  
+**Status**: PENDING 🔄  
+**Estimate**: 8-10 hours
+
+**User Story**:  
+As an administrator, I want a complete interface for managing videos so I can create, edit, delete, and organize video content.
+
+**Acceptance Criteria**:
+- Admin dashboard shows "Manage Videos" section with video list
+- Video list displays: thumbnail, title, YouTube URL, published status, actions
+- "Add New Video" button opens video creation dialog
+- Video form includes fields: title, YouTube URL, description, display order, published checkbox
+- Edit functionality opens same dialog pre-populated with video data
+- Delete confirmation dialog prevents accidental deletions
+- Form validation ensures YouTube URL format is valid
+- Success/error messages displayed after create/update/delete operations
+- Video list updates immediately after successful operations
+- Videos can be reordered by display_order field
+- Admin can toggle published status to show/hide videos from public page
+
+**Dependencies**: S5.2 (Videos API endpoints)
+
+**Developer Notes**:
+- Add Videos management section to `frontend/src/pages/AdminDashboard.tsx`
+- Create `VideoManageDialog` component (similar to release management dialogs)
+- Reuse existing dialog patterns from release management
+- Use Material-UI Table for video list display
+- Implement YouTube URL validation (basic regex check)
+- Display video thumbnail preview using YouTube thumbnail API
+- Follow existing admin UI patterns for consistency
+- Consider adding drag-and-drop reordering in future sprint (not required now)
+
+---
+
+## Integration Notes
+
+### Cross-Story Dependencies
+1. **Navigation Integration** (S5.1): Videos link must be added to navigation in correct position
+2. **API Migration** (S5.1 → S5.2): Videos page initially uses homepage endpoint, then migrates to new videos endpoint
+3. **Admin Integration** (S5.3): Videos management follows same patterns as releases management for UI consistency
+
+### Reusable Components
+- `VideoGridItem`: Existing component reused for Videos page display
+- Admin dialog patterns: Existing release management patterns adapted for videos
+- API service factory: Videos endpoints follow existing service patterns
+
+### Technical Considerations
+- Videos table separate from homepage_videos to allow independent management
+- Homepage videos remain configurable (existing functionality unchanged)
+- Videos page videos can be different from homepage featured videos
+- Display order field enables manual curation of video sequence
+
+---
+
+## Success Metrics
+
+### Functional Completeness
+- Videos page accessible and functional for all users
+- Admin can perform all CRUD operations on videos
+- Videos display correctly with embedded YouTube players
+- Navigation updated with correct link ordering
+
+### Technical Quality
+- API endpoints follow existing security patterns
+- Database schema properly normalized and indexed
+- TypeScript types ensure type safety
+- Error handling consistent with existing pages
+
+### User Experience
+- Videos page loads performantly
+- Admin interface intuitive and follows existing patterns
+- Video management workflow efficient and error-free
+- Mobile responsive design maintained
+
+---
+
+## Foundation for Next Sprint
+
+Sprint 5 completion enables:
+- **Sprint 6**: Discography system can reuse video management patterns for dual categorization
+- **Future enhancements**: Video categorization, playlists, or featured videos
+- **Content expansion**: Platform ready for extensive video library growth
+- **Admin efficiency**: Established patterns for managing additional content types
+
+---
+
+## Technical Rationale
+
+These stories were chosen to:
+1. **Build on existing infrastructure**: Leverages homepage video components and admin patterns
+2. **Minimize dependencies**: Each story builds logically on the previous with clear integration points
+3. **Maintain consistency**: Follows established patterns from releases management system
+4. **Enable scalability**: Separate videos table allows independent growth from homepage videos
+5. **Preserve functionality**: Homepage videos remain unchanged while new system is built
+
+The three-story structure provides a clean progression: create the page, build the backend, connect the admin interface. This matches the proven pattern from Sprint 2 (releases) and Sprint 3 (admin functionality).

@@ -1,5 +1,6 @@
 export { default as Home } from './Home'
 export { default as Releases } from './Releases'
+export { default as Videos } from './Videos'
 export { default as About } from './About'
 export { default as Contact } from './Contact'
 export { default as ReleaseDetailPage } from './ReleaseDetailPage'

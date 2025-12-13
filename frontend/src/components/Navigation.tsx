@@ -21,6 +21,7 @@ import { useAuth } from '../hooks/useAuth'
 const baseNavigationItems = [
   { label: 'Home', path: '/' },
   { label: 'Releases', path: '/releases' },
+  { label: 'Videos', path: '/videos' },
   { label: 'About', path: '/about' },
   { label: 'Contact', path: '/contact' }
 ]
