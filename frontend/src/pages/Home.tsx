@@ -19,9 +19,9 @@ export default function Home() {
     const fetchFeaturedReleases = async () => {
       try {
         setLoading(true)
-        // Fetch all releases and filter by 'Featured' tag
+        // Fetch all releases and filter by 'New' tag
         const allReleases = await services.releases.getReleases({ status: 'published' })
-        const featured = allReleases.filter(release => release.tag === 'Featured').slice(0, 2)
+        const featured = allReleases.filter(release => release.tag === 'New').slice(0, 2)
         setFeaturedReleases(featured)
       } catch (error) {
         console.error('Failed to fetch featured releases:', error)
@@ -43,7 +43,7 @@ export default function Home() {
         />
       </Container>
 
-      {/* Featured Releases Section */}
+      {/* New Releases Section */}
       <Box sx={{ pt: 6, pb: 0 }}>
         <Typography 
           variant="h4" 
@@ -60,7 +60,7 @@ export default function Home() {
           }}
         >
           <AlbumIcon fontSize="large" />
-          Featured Releases
+          New Releases
         </Typography>
         
         {loading ? (
@@ -85,7 +85,7 @@ export default function Home() {
         )}
       </Box>
 
-      {/* S2.1 Homepage New Releases Carousel */}
+      {/* S2.1 Homepage Featured Releases Carousel */}
       <Box sx={{ pt: 6, pb: 0 }}>
         <Typography 
           variant="h4" 
@@ -102,7 +102,7 @@ export default function Home() {
           }}
         >
           <AlbumIcon fontSize="large" />
-          Recent Releases
+          Featured Releases
         </Typography>
       </Box>
       <ReleaseCarousel 
@@ -111,7 +111,7 @@ export default function Home() {
         autoPlayInterval={5000}
         showNavigation={true}
         showIndicators={true}
-        tag="Recent"
+        tag="Featured"
       />
 
       {/* S2.4 Homepage YouTube Video Grid */}
