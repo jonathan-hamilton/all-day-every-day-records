@@ -1,7 +1,8 @@
 # Sprint 6 User Stories
-**Status**: 33% COMPLETE 🏗️  
+**Status**: 100% COMPLETE ✅  
 **Duration**: 2 weeks  
-**Focus**: Discography System Implementation
+**Focus**: Discography System Implementation  
+**Completed**: December 13, 2025
 
 ---
 
@@ -145,24 +146,54 @@ As a visitor, I want to access a dedicated Discography page from the navigation 
 
 ### S6.3: Admin Discography Management Controls
 **Priority**: HIGH  
-**Status**: PENDING ⏸️  
-**Estimate**: 3-5 hours
+**Status**: COMPLETE ✅  
+**Estimate**: 3-5 hours  
+**Actual**: 3 hours
 
 **User Story**:  
 As an administrator, I want checkbox controls for categorizing releases so I can easily control whether releases appear in Releases, Discography, or both sections.
 
 **Acceptance Criteria**:
-- Admin release form includes "Show in Releases" checkbox (checked by default)
-- Admin release form includes "Show in Discography" checkbox (unchecked by default)
-- Both checkboxes can be checked simultaneously for dual placement
-- Unchecking both checkboxes hides release from both sections (warning message displayed)
-- Checkboxes positioned below existing form fields, above submit button
-- POST endpoint `/upsert-release.php` accepts and saves categorization flags
-- Existing releases maintain their current categorization when edited
-- Admin can change categorization and see immediate effect on public pages
-- Success message confirms categorization changes
+- ✅ Admin release form includes "Show in Releases" checkbox (checked by default)
+- ✅ Admin release form includes "Show in Discography" checkbox (unchecked by default)
+- ✅ Both checkboxes can be checked simultaneously for dual placement
+- ✅ Unchecking both checkboxes hides release from both sections (warning message displayed)
+- ✅ Checkboxes positioned below existing form fields, above submit button
+- ✅ POST endpoint `/upsert-release.php` accepts and saves categorization flags
+- ✅ Existing releases maintain their current categorization when edited
+- ✅ Admin can change categorization and see immediate effect on public pages
+- ✅ Success message confirms categorization changes
 
-**Dependencies**: S6.1 - Discography Database & Categorization System
+**Dependencies**: S6.1 - Discography Database & Categorization System - COMPLETE ✅
+
+**Implementation Summary**:
+- ✅ Added show_in_releases and show_in_discography to AdminDashboard Release interface
+- ✅ Updated formData initialization with default values (releases: true, discography: false)
+- ✅ Added Checkbox, FormControlLabel, FormGroup imports from Material-UI
+- ✅ Created Display Settings section with two checkboxes below Description field
+- ✅ Added warning Alert when both checkboxes unchecked
+- ✅ Updated handleSubmit to include categorization flags in API request
+- ✅ Updated handleCreateNew and handleCancelEdit to reset categorization defaults
+- ✅ Extended upsert-release.php to accept show_in_releases and show_in_discography parameters
+- ✅ Added categorization validation with defaults (true/false) for backward compatibility
+- ✅ Updated SQL INSERT and UPDATE statements to include categorization columns
+- ✅ Updated Release and ReleaseOverview TypeScript interfaces with categorization fields
+
+**Files Created**:
+- `docs/sprints/implementations/s6.3-implementation-plan.md` - Implementation plan (5 increments)
+
+**Files Modified**:
+- `frontend/src/pages/AdminDashboard.tsx` - Added categorization checkboxes and handlers
+- `frontend/src/types/Release.ts` - Added show_in_releases and show_in_discography fields
+- `backend/api/upsert-release.php` - Extended to handle categorization flags
+
+**Technical Notes**:
+- Checkboxes styled with white color for grunge theme visibility
+- Warning Alert uses Material-UI severity="warning" styling
+- Backend uses filter_var() with FILTER_VALIDATE_BOOLEAN for safe type conversion
+- Defaults ensure backward compatibility: releases=true, discography=false
+- Form handlers use ?? nullish coalescing for safe default values
+- handleEditRelease automatically populates checkboxes from database values
 
 **Developer Notes**:
 - Update `frontend/src/pages/AdminDashboard.tsx` release form section

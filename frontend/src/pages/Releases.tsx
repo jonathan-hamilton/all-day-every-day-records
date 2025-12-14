@@ -39,6 +39,7 @@ export default function Releases() {
 
       const params = {
         status: 'published' as const,
+        category: 'releases' as const,
         sort: 'release_date' as const,
         order: 'desc' as const,
         ...(debouncedSearch && { search: debouncedSearch })

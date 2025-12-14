@@ -46,7 +46,7 @@ all-day-every-day-records/
 
 ## Project Status
 
-**Overall Progress: 77% Complete** (33/43 stories)
+**Overall Progress: 81% Complete** (35/43 stories)
 
 ### ✅ Completed Phases
 - **Project Scaffolding**: Complete React 19 + TypeScript + Material-UI frontend (3/3 stories)
@@ -87,22 +87,12 @@ all-day-every-day-records/
   - ✅ Videos Database & API Implementation - Backend infrastructure and VideoDetail page
   - ✅ Admin Videos Management Interface - Complete CRUD operations with tabbed admin interface
 
-### 📝 Current Sprint: Sprint 6 - Discography System Implementation (66% Complete - 2/3 stories)
+- **Sprint 6 Discography System**: COMPLETE ✅ (3/3 stories)
+  - ✅ S6.1: Discography Database & Categorization System - Database migration and API filtering
+  - ✅ S6.2: Discography Page & Navigation - Dedicated discography page with unified layouts
+  - ✅ S6.3: Admin Discography Management Controls - Checkbox controls for release categorization
 
-**Current Focus**: Admin discography management controls (S6.3 next)
-
-**Completed Stories**:
-- **S6.1**: ✅ Discography Database & Categorization System - Database migration and API filtering complete
-  - Created migration with show_in_releases and show_in_discography boolean flags
-  - Extended get-releases.php API with category parameter support
-  - Updated TypeScript ReleaseOverview interface with categorization fields
-- **S6.2**: ✅ Discography Page & Navigation - Dedicated discography page with unified layouts
-  - Created Discography.tsx page component with category filtering
-  - Added /discography route and navigation integration
-  - Enhanced Videos page with search functionality
-  - Unified page layouts with Album icon headers and consistent Container spacing
-  - Standardized search placeholders across Home, Releases, Discography, and Videos pages
-  - Composite index created for query performance
+### 📝 Next Sprint: Sprint 7 - Release Page Enhancements (0% Complete - 0/4 stories)
   - Backward compatible - existing releases appear in Releases section only
 
 **Upcoming Stories**:

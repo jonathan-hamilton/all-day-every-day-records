@@ -56,6 +56,7 @@ export interface GetReleasesParams {
   search?: string;
   sort?: 'release_date' | 'title' | 'created_at' | 'display_order';
   order?: 'asc' | 'desc';
+  category?: 'releases' | 'discography' | 'all';
 }
 
 /**

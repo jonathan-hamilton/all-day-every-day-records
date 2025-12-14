@@ -23,6 +23,9 @@ import {
   Divider,
   Tabs,
   Tab,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -59,6 +62,8 @@ interface Release {
   youtube_url: string;
   youtube2_url: string;
   tag: 'None' | 'Featured' | 'New' | 'Recent' | 'Removed';
+  show_in_releases: boolean;
+  show_in_discography: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -125,7 +130,9 @@ const AdminDashboard: React.FC = () => {
     youtube_music_url: '',
     youtube_url: '',
     youtube2_url: '',
-    tag: 'None'
+    tag: 'None',
+    show_in_releases: true,
+    show_in_discography: false
   });
 
   // Homepage videos state
@@ -287,7 +294,9 @@ const AdminDashboard: React.FC = () => {
       youtube_music_url: '',
       youtube_url: '',
       youtube2_url: '',
-      tag: 'None'
+      tag: 'None',
+      show_in_releases: true,
+      show_in_discography: false
     });
     clearMessages();
   };
@@ -315,7 +324,9 @@ const AdminDashboard: React.FC = () => {
       youtube_music_url: '',
       youtube_url: '',
       youtube2_url: '',
-      tag: 'None'
+      tag: 'None',
+      show_in_releases: true,
+      show_in_discography: false
     });
     clearMessages();
   };
@@ -422,7 +433,9 @@ const AdminDashboard: React.FC = () => {
     try {
       const submitData = {
         ...formData,
-        id: editingRelease?.id
+        id: editingRelease?.id,
+        show_in_releases: formData.show_in_releases ?? true,
+        show_in_discography: formData.show_in_discography ?? false
       };
 
       const response = await fetch(`${apiConfig.baseURL}/upsert-release.php`, {
@@ -830,6 +843,52 @@ const AdminDashboard: React.FC = () => {
                   value={formData.description || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 />
+
+                {/* Display Settings / Categorization */}
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle1" sx={{ mb: 1, color: 'white' }}>
+                    Display Settings
+                  </Typography>
+                  <Stack direction="row" spacing={3}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.show_in_releases ?? true}
+                          onChange={(e) => setFormData(prev => ({ ...prev, show_in_releases: e.target.checked }))}
+                          sx={{
+                            color: 'rgba(255, 255, 255, 0.5)',
+                            '&.Mui-checked': {
+                              color: '#ff6b35'
+                            }
+                          }}
+                        />
+                      }
+                      label="Show in Releases"
+                      sx={{ color: 'white' }}
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.show_in_discography ?? false}
+                          onChange={(e) => setFormData(prev => ({ ...prev, show_in_discography: e.target.checked }))}
+                          sx={{
+                            color: 'rgba(255, 255, 255, 0.5)',
+                            '&.Mui-checked': {
+                              color: '#ff6b35'
+                            }
+                          }}
+                        />
+                      }
+                      label="Show in Discography"
+                      sx={{ color: 'white' }}
+                    />
+                  </Stack>
+                  {!formData.show_in_releases && !formData.show_in_discography && (
+                    <Alert severity="warning" sx={{ mt: 1 }}>
+                      This release will not appear on any public page.
+                    </Alert>
+                  )}
+                </Box>
 
                 {/* Streaming URLs */}
                 <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'white' }}>

@@ -31,6 +31,8 @@ export interface Release {
   display_order: number;
   status: ReleaseStatus;
   tag: ReleaseTag;
+  show_in_releases: boolean;
+  show_in_discography: boolean;
   metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;

@@ -37,6 +37,12 @@ try {
     $releaseId = $input['id'] ?? null;
     $isUpdate = !empty($releaseId);
     
+    // Handle categorization flags with defaults
+    $showInReleases = isset($input['show_in_releases']) ? 
+        filter_var($input['show_in_releases'], FILTER_VALIDATE_BOOLEAN) : true;
+    $showInDiscography = isset($input['show_in_discography']) ? 
+        filter_var($input['show_in_discography'], FILTER_VALIDATE_BOOLEAN) : false;
+    
     if ($isUpdate) {
         // Update existing release
         error_log("DEBUG: Updating release ID: " . $releaseId);
@@ -55,7 +61,9 @@ try {
                     youtube_music_url = ?,
                     youtube_url = ?,
                     youtube2_url = ?,
-                    tag = ?, 
+                    tag = ?,
+                    show_in_releases = ?,
+                    show_in_discography = ?,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?";
         
@@ -73,6 +81,8 @@ try {
             $input['youtube_url'] ?? null,
             $input['youtube2_url'] ?? null,
             $input['tag'] ?? 'None',
+            $showInReleases ? 1 : 0,
+            $showInDiscography ? 1 : 0,
             $releaseId
         ];
         
@@ -86,8 +96,8 @@ try {
         $sql = "INSERT INTO releases 
                 (title, artist, description, release_date, format, cover_image_url, 
                 spotify_url, apple_music_url, amazon_music_url, youtube_music_url, youtube_url, youtube2_url, tag,
-                created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                show_in_releases, show_in_discography, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         
         $params = [
             $input['title'],
@@ -102,7 +112,9 @@ try {
             $input['youtube_music_url'] ?? null,
             $input['youtube_url'] ?? null,
             $input['youtube2_url'] ?? null,
-            $input['tag'] ?? 'None'
+            $input['tag'] ?? 'None',
+            $showInReleases ? 1 : 0,
+            $showInDiscography ? 1 : 0
         ];
         
         $db->execute($sql, $params);
