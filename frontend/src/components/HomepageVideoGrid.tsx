@@ -20,6 +20,21 @@ import VideoGridItem from './VideoGridItem';
 import VideoManageDialog from './VideoManageDialog';
 import type { Video } from '../types';
 
+interface HomepageVideo {
+  id: number;
+  title: string;
+  youtube_url: string;
+}
+
+// Helper function to convert HomepageVideo to Video
+const toVideo = (hv: HomepageVideo): Video => ({
+  ...hv,
+  description: null,
+  artist: '',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString()
+});
+
 interface HomepageVideoGridProps {
   maxVideos?: number;
   showTitle?: boolean;
@@ -28,7 +43,7 @@ interface HomepageVideoGridProps {
 interface VideoGridState {
   loading: boolean;
   error: string | null;
-  videos: Video[];
+  videos: HomepageVideo[];
 }
 
 export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
@@ -230,7 +245,7 @@ export const HomepageVideoGrid: React.FC<HomepageVideoGridProps> = ({
             {state.videos.map((video) => (
               <Box key={video.id}>
                 <VideoGridItem 
-                  video={video}
+                  video={toVideo(video)}
                 />
               </Box>
             ))}

@@ -25,7 +25,6 @@ import {
   Tab,
   Checkbox,
   FormControlLabel,
-  FormGroup,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -294,33 +293,6 @@ const AdminDashboard: React.FC = () => {
       fetchVideos();
     }
   }, [isAuthenticated, fetchReleases, fetchHomepageVideos, fetchVideos]);
-
-  const handleCreateNew = () => {
-    setIsCreating(true);
-    setEditingRelease(null);
-    setFormData({
-      title: '',
-      artist: '',
-      format: '',
-      release_date: '',
-      description: '',
-      cover_image_url: '',
-      spotify_url: '',
-      apple_music_url: '',
-      amazon_music_url: '',
-      youtube_music_url: '',
-      youtube_url: '',
-      youtube2_url: '',
-      instagram_url: '',
-      facebook_url: '',
-      tiktok_url: '',
-      twitter_url: '',
-      tag: 'None',
-      show_in_releases: true,
-      show_in_discography: false
-    });
-    clearMessages();
-  };
 
   const handleEditRelease = (release: Release) => {
     setIsCreating(false);

@@ -207,4 +207,225 @@ function logError($message, $context = []) {
     
     error_log($logMessage);
 }
+
+// CSRF Protection Functions
+
+/**
+ * Generate a CSRF token and store it in the session
+ * @return string The generated CSRF token
+ */
+function generateCSRFToken() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // Generate a cryptographically secure random token
+    $token = bin2hex(random_bytes(32));
+    $_SESSION['csrf_token'] = $token;
+    
+    return $token;
+}
+
+/**
+ * Validate CSRF token from request headers
+ * @return bool True if token is valid, false otherwise
+ */
+function validateCSRFToken() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // Get token from session
+    $sessionToken = $_SESSION['csrf_token'] ?? null;
+    
+    if (!$sessionToken) {
+        error_log("CSRF validation failed: No token in session");
+        return false;
+    }
+    
+    // Get token from request header
+    $requestToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+    
+    if (!$requestToken) {
+        error_log("CSRF validation failed: No token in request header");
+        return false;
+    }
+    
+    // Use timing-attack safe comparison
+    if (!hash_equals($sessionToken, $requestToken)) {
+        error_log("CSRF validation failed: Token mismatch");
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Require valid CSRF token for state-changing operations
+ * Call this function at the start of POST/PUT/DELETE endpoints
+ */
+function requireCSRFToken() {
+    if (!validateCSRFToken()) {
+        handleCORS(); // Ensure CORS headers are sent
+        http_response_code(403);
+        header("Content-Type: application/json");
+        echo json_encode([
+            "error" => "Invalid or missing CSRF token",
+            "code" => "CSRF_VALIDATION_FAILED"
+        ]);
+        exit;
+    }
+}
+
+// ============================================================================
+// RATE LIMITING FUNCTIONS
+// ============================================================================
+
+/**
+ * Check if IP address is currently rate limited
+ * 
+ * @param string $ipAddress The IP address to check
+ * @return array ['limited' => bool, 'message' => string, 'retry_after' => int|null]
+ */
+function checkRateLimit($ipAddress) {
+    $db = getDBConnection();
+    
+    try {
+        // Check if IP is currently locked out
+        $stmt = $db->prepare("
+            SELECT attempt_count, lockout_until 
+            FROM login_attempts 
+            WHERE ip_address = ? 
+            AND lockout_until > NOW()
+            LIMIT 1
+        ");
+        $stmt->execute([$ipAddress]);
+        $record = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($record) {
+            $lockoutUntil = strtotime($record['lockout_until']);
+            $now = time();
+            $retryAfter = max(0, $lockoutUntil - $now);
+            
+            return [
+                'limited' => true,
+                'message' => 'Too many failed login attempts. Please try again later.',
+                'retry_after' => $retryAfter
+            ];
+        }
+        
+        return [
+            'limited' => false,
+            'message' => '',
+            'retry_after' => null
+        ];
+        
+    } catch (PDOException $e) {
+        error_log("Rate limit check error: " . $e->getMessage());
+        // On error, allow the request (fail open)
+        return [
+            'limited' => false,
+            'message' => '',
+            'retry_after' => null
+        ];
+    }
+}
+
+/**
+ * Record a failed login attempt and apply rate limiting
+ * 
+ * @param string $ipAddress The IP address that failed login
+ * @return void
+ */
+function recordFailedLogin($ipAddress) {
+    $db = getDBConnection();
+    
+    try {
+        // Check if record exists for this IP
+        $stmt = $db->prepare("
+            SELECT id, attempt_count, lockout_until 
+            FROM login_attempts 
+            WHERE ip_address = ? 
+            LIMIT 1
+        ");
+        $stmt->execute([$ipAddress]);
+        $record = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($record) {
+            // Increment attempt count
+            $newCount = $record['attempt_count'] + 1;
+            
+            // Apply lockout after 5 failed attempts (15 minutes)
+            if ($newCount >= 5) {
+                $lockoutUntil = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+                $stmt = $db->prepare("
+                    UPDATE login_attempts 
+                    SET attempt_count = ?, 
+                        last_attempt_at = NOW(),
+                        lockout_until = ?
+                    WHERE ip_address = ?
+                ");
+                $stmt->execute([$newCount, $lockoutUntil, $ipAddress]);
+                error_log("Rate limit applied for IP $ipAddress: locked out until $lockoutUntil");
+            } else {
+                // Just increment counter
+                $stmt = $db->prepare("
+                    UPDATE login_attempts 
+                    SET attempt_count = ?, 
+                        last_attempt_at = NOW()
+                    WHERE ip_address = ?
+                ");
+                $stmt->execute([$newCount, $ipAddress]);
+            }
+        } else {
+            // Create new record
+            $stmt = $db->prepare("
+                INSERT INTO login_attempts (ip_address, attempt_count, first_attempt_at, last_attempt_at)
+                VALUES (?, 1, NOW(), NOW())
+            ");
+            $stmt->execute([$ipAddress]);
+        }
+        
+    } catch (PDOException $e) {
+        error_log("Failed login recording error: " . $e->getMessage());
+    }
+}
+
+/**
+ * Clear failed login attempts for an IP address (called on successful login)
+ * 
+ * @param string $ipAddress The IP address that successfully logged in
+ * @return void
+ */
+function clearFailedLogins($ipAddress) {
+    $db = getDBConnection();
+    
+    try {
+        $stmt = $db->prepare("DELETE FROM login_attempts WHERE ip_address = ?");
+        $stmt->execute([$ipAddress]);
+    } catch (PDOException $e) {
+        error_log("Failed login clearing error: " . $e->getMessage());
+    }
+}
+
+/**
+ * Require rate limit check before processing login
+ * Returns 429 Too Many Requests if rate limited
+ */
+function requireRateLimit($ipAddress) {
+    $rateLimitCheck = checkRateLimit($ipAddress);
+    
+    if ($rateLimitCheck['limited']) {
+        handleCORS(); // Ensure CORS headers are sent
+        http_response_code(429);
+        header("Content-Type: application/json");
+        header("Retry-After: " . $rateLimitCheck['retry_after']);
+        echo json_encode([
+            "error" => $rateLimitCheck['message'],
+            "code" => "RATE_LIMITED",
+            "retry_after" => $rateLimitCheck['retry_after']
+        ]);
+        exit;
+    }
+}
 ?>

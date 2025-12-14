@@ -13,9 +13,7 @@ import {
   ListItemText,
   useMediaQuery,
   useTheme,
-  Box,
-  Menu,
-  MenuItem
+  Box
 } from '@mui/material'
 import { Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material'
 import { useAuth } from '../hooks/useAuth'

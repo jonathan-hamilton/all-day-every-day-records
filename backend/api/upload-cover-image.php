@@ -7,6 +7,9 @@ handleCORS();
 // Require authentication for this endpoint
 $user = requireAuth();
 
+// Require CSRF token for state-changing operation
+requireCSRFToken();
+
 // Validate request method
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(["error" => "Method not allowed"], 405);

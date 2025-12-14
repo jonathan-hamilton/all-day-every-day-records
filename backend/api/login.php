@@ -52,6 +52,12 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     jsonResponse(["error" => "Invalid email format"], 400);
 }
 
+// Get client IP address for rate limiting
+$ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+// Check rate limit before attempting authentication
+requireRateLimit($ipAddress);
+
 try {
     // Connect to database
     $db = getDBConnection();
@@ -63,16 +69,19 @@ try {
     
     if (!$user) {
         error_log("Login attempt failed - user not found: " . $email);
+        recordFailedLogin($ipAddress);
         jsonResponse(["error" => "Invalid credentials"], 401);
     }
     
     // Verify password
     if (!password_verify($password, $user['password_hash'])) {
         error_log("Login attempt failed - invalid password for user: " . $email);
+        recordFailedLogin($ipAddress);
         jsonResponse(["error" => "Invalid credentials"], 401);
     }
     
-    // Password verified - create session
+    // Password verified - clear any failed login attempts and create session
+    clearFailedLogins($ipAddress);
     session_start();
     
     unset($user["password_hash"]);
@@ -91,10 +100,14 @@ try {
         header("Set-Cookie: " . session_name() . "=$sessionId; path=/; secure=false; httponly=true; samesite=None", false);
     }
     
-    // Return success response
+    // Generate CSRF token for this session
+    $csrfToken = generateCSRFToken();
+    
+    // Return success response with CSRF token
     jsonResponse([
         "success" => true,
         "message" => "Login successful",
+        "csrfToken" => $csrfToken,
         "user" => [
             'username' => $user['username'],
             'email' => $user['email'],

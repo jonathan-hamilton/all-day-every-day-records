@@ -17,6 +17,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  csrfToken: string | null;
 }
 
 export interface AuthContextType extends AuthState {
@@ -33,6 +34,7 @@ export interface LoginCredentials {
 export interface LoginResponse {
   success: boolean;
   message: string;
+  csrfToken?: string;
   user?: {
     username: string;
     is_admin: boolean;

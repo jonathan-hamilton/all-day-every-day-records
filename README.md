@@ -46,7 +46,7 @@ all-day-every-day-records/
 
 ## Project Status
 
-**Overall Progress: 95% Complete** (42/44 stories)
+**Overall Progress: 98% Complete** (43/44 stories)
 
 ### ✅ Completed Phases
 - **Project Scaffolding**: Complete React 19 + TypeScript + Material-UI frontend (3/3 stories)
@@ -99,9 +99,10 @@ all-day-every-day-records/
   - ✅ S7.4: 2-Column Video Layout on Detail Pages - Responsive grid layout with mobile stacking
   - ✅ **BONUS**: Fixed navbar positioning for persistent navigation while scrolling
 
-- **Sprint 8 Advanced Features & Production**: 33% COMPLETE 🏗️ (2/6 stories)
+- **Sprint 8 Advanced Features & Production**: 50% COMPLETE 🏗️ (3/6 stories)
   - ✅ S8.1: Auto-Rotating Homepage Carousel - Auto-rotation with drag/swipe, pause on hover, keyboard navigation
   - ✅ S8.3: Social Media Links on Release Details - Custom PNG icons with conditional rendering and admin management
+  - ✅ S8.4: Homepage Section Label Corrections - Swapped section labels to match content (New/Featured)
   - ✅ **BONUS**: Unlimited artist releases display (removed 4-item limit)
 
 ### 📝 Sprint 8: Advanced Features & Production Deployment (1/6 stories - 17% complete) 🏗️

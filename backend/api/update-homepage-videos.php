@@ -21,6 +21,9 @@ if (!$isAdmin) {
 // Require authentication for admin requests
 requireAuth();
 
+// Require CSRF token for state-changing operation
+requireCSRFToken();
+
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(['error' => 'Method not allowed'], 405);

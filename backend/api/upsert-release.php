@@ -7,6 +7,9 @@ handleCORS();
 // Require authentication for this endpoint
 $user = requireAuth();
 
+// Require CSRF token for state-changing operation
+requireCSRFToken();
+
 $db = getDBConnection();
 
 // Only handle POST requests

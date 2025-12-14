@@ -28,6 +28,7 @@ import { createVideoService } from './videoService';
 
 // Global dev token getter for API service
 let globalDevTokenGetter: (() => string | null) | null = null;
+let globalCsrfTokenGetter: (() => string | null) | null = null;
 
 /**
  * Set the global dev token getter (called from AuthContext)
@@ -38,6 +39,18 @@ export function setGlobalDevTokenGetter(getter: () => string | null) {
   // Update existing API service instance if available
   if (globalApiServiceInstance) {
     globalApiServiceInstance.setDevTokenGetter(getter);
+  }
+}
+
+/**
+ * Set the global CSRF token getter (called from AuthContext)
+ */
+export function setGlobalCsrfTokenGetter(getter: () => string | null) {
+  globalCsrfTokenGetter = getter;
+  
+  // Update existing API service instance if available
+  if (globalApiServiceInstance) {
+    globalApiServiceInstance.setCsrfTokenGetter(getter);
   }
 }
 
@@ -55,6 +68,11 @@ export function createConfiguredApiService() {
     // Set dev token getter if available
     if (globalDevTokenGetter) {
       globalApiServiceInstance.setDevTokenGetter(globalDevTokenGetter);
+    }
+    
+    // Set CSRF token getter if available
+    if (globalCsrfTokenGetter) {
+      globalApiServiceInstance.setCsrfTokenGetter(globalCsrfTokenGetter);
     }
   }
   
