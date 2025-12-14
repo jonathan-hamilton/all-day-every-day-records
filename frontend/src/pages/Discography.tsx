@@ -14,7 +14,7 @@ import { ReleaseFilters, type FilterState } from '../components/ReleaseFilters';
 import { useDebounce } from '../hooks/useDebounce';
 import type { ReleaseOverview } from '../types';
 
-export default function Releases() {
+export default function Discography() {
   const [releases, setReleases] = useState<ReleaseOverview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export default function Releases() {
   // Create services using factory pattern - memoize to prevent re-creation
   const services = useMemo(() => createServices(), []);
 
-  // Fetch releases with current filters
+  // Fetch discography releases with current filters
   const fetchReleases = useCallback(async () => {
     try {
       setLoading(true);
@@ -41,14 +41,15 @@ export default function Releases() {
         status: 'published' as const,
         sort: 'release_date' as const,
         order: 'desc' as const,
+        category: 'discography', // Filter for discography releases only
         ...(debouncedSearch && { search: debouncedSearch })
       };
 
       const data = await services.releases.getReleases(params);
       setReleases(data);
     } catch (err) {
-      console.error('Error fetching releases:', err);
-      setError('Failed to load releases. Please try again.');
+      console.error('Error fetching discography:', err);
+      setError('Failed to load discography. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -87,7 +88,7 @@ export default function Releases() {
         }}
       >
         <AlbumIcon fontSize="large" />
-        Releases
+        Discography
       </Typography>
 
       {/* Filters */}
@@ -141,7 +142,7 @@ export default function Releases() {
         </Box>
       )}
 
-      {/* Releases Grid */}
+      {/* Discography Grid */}
       {!loading && !error && (
         <>
           {releases.length > 0 ? (
@@ -165,7 +166,7 @@ export default function Releases() {
           ) : (
             <Box sx={{ textAlign: 'center', py: 8 }}>
               <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
-                No releases found
+                No discography releases found
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
                 Try adjusting your search or filter criteria

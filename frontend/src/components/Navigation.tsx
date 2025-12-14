@@ -13,7 +13,9 @@ import {
   ListItemText,
   useMediaQuery,
   useTheme,
-  Box
+  Box,
+  Menu,
+  MenuItem
 } from '@mui/material'
 import { Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material'
 import { useAuth } from '../hooks/useAuth'
@@ -21,6 +23,7 @@ import { useAuth } from '../hooks/useAuth'
 const baseNavigationItems = [
   { label: 'Home', path: '/' },
   { label: 'Releases', path: '/releases' },
+  { label: 'Discography', path: '/discography' },
   { label: 'Videos', path: '/videos' },
   { label: 'About', path: '/about' },
   { label: 'Contact', path: '/contact' }
@@ -83,14 +86,14 @@ export default function Navigation() {
             onClick={() => handleNavigation(item.path)}
             sx={{
               fontWeight: isActivePath(item.path) ? 'bold' : 'normal',
-              color: isActivePath(item.path) ? 'red' : 'inherit', // Red text for active page
-              textDecoration: 'none', // Remove underline completely
-              minWidth: '80px', // Fixed minimum width for buttons
-              borderRadius: 0, // Remove rounded corners - make square
-              px: 1, // Reduced horizontal padding (50% less than default)
-              py: 0.5, // Reduced vertical padding (50% less than default)
+              color: isActivePath(item.path) ? 'red' : 'inherit',
+              textDecoration: 'none',
+              minWidth: '80px',
+              borderRadius: 0,
+              px: 1,
+              py: 0.5,
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: slight background highlight
+                backgroundColor: 'rgba(255, 255, 255, 0.1)'
               }
             }}
           >
@@ -107,10 +110,10 @@ export default function Navigation() {
             ml: 1,
             backgroundColor: 'transparent',
             borderColor: 'rgba(255, 255, 255, 0.5)',
-            minWidth: '80px', // Fixed minimum width for consistency
-            borderRadius: 0, // Remove rounded corners - make square
-            px: 1, // Reduced horizontal padding
-            py: 0.5, // Reduced vertical padding
+            minWidth: '80px',
+            borderRadius: 0,
+            px: 1,
+            py: 0.5,
             '&:hover': {
               backgroundColor: 'rgba(255, 255, 255, 0.1)',
               borderColor: 'rgba(255, 255, 255, 0.7)',

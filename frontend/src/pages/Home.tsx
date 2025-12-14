@@ -39,7 +39,7 @@ export default function Home() {
       <Container maxWidth="sm" sx={{ pt: 4, pb: 4 }}>
         <ReleaseAutocomplete
           onSelectRelease={(release) => navigate(`/releases/${release.id}`)}
-          placeholder="Search releases..."
+          placeholder="Search by title or artist..."
         />
       </Container>
 
