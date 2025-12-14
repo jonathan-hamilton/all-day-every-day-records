@@ -20,9 +20,6 @@ $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 // Get category parameter for Releases/Discography filtering
 $category = isset($_GET['category']) ? trim($_GET['category']) : null;
 
-// Debug: Log all incoming parameters
-error_log("[" . date('Y-m-d H:i:s') . "] DEBUG get-releases start - search: " . json_encode($search) . ", category: " . json_encode($category) . ", all_params: " . json_encode($_GET) . ", is_admin: " . ($isAdmin ? 'true' : 'false'));
-
 try {
     if ($isAdmin) {
         // Admin view: show all releases with all data including removed
@@ -55,16 +52,13 @@ try {
             $whereConditions[] = "(title LIKE ? OR artist LIKE ?)";
             $params[] = '%' . $search . '%';
             $params[] = '%' . $search . '%';
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin search added - search_value: " . json_encode('%' . $search . '%'));
         }
         
         // Add category filter for admin if provided
         if ($category === 'releases') {
             $whereConditions[] = "show_in_releases = 1";
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin category filter added - category: releases");
         } elseif ($category === 'discography') {
             $whereConditions[] = "show_in_discography = 1";
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin category filter added - category: discography");
         }
         // If $category is null or 'all', no category filtering (backward compatible)
         
@@ -75,23 +69,13 @@ try {
         
         $sql .= " ORDER BY created_at DESC";
         
-        // Debug: Log final SQL and parameters for admin
-        error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin SQL - sql: " . json_encode($sql) . ", params: " . json_encode($params));
-        
-        
         try {
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin about to execute query");
-            
             $releases = $db->query($sql, $params);
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin query executed successfully");
             
         } catch (Exception $e) {
             error_log("[" . date('Y-m-d H:i:s') . "] FATAL ADMIN DB Error - message: " . $e->getMessage() . ", code: " . $e->getCode());
             throw $e;
         }
-        
-        // Debug: Log result count for admin
-        error_log("[" . date('Y-m-d H:i:s') . "] DEBUG admin results - count: " . count($releases));
         
         // Convert database format to expected frontend format for admin
         foreach ($releases as &$release) {
@@ -173,16 +157,13 @@ try {
             $sql .= " AND (title LIKE ? OR artist LIKE ?)";
             $params[] = '%' . $search . '%';
             $params[] = '%' . $search . '%';
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public search added - search_value: " . json_encode('%' . $search . '%'));
         }
         
         // Add category filter for public if provided
         if ($category === 'releases') {
             $sql .= " AND show_in_releases = 1";
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public category filter added - category: releases");
         } elseif ($category === 'discography') {
             $sql .= " AND show_in_discography = 1";
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public category filter added - category: discography");
         }
         // If $category is null or 'all', no category filtering (backward compatible)
         
@@ -194,22 +175,13 @@ try {
                     END, 
                     release_date DESC";
         
-        // Debug: Log final SQL and parameters for public
-        error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public SQL - sql: " . json_encode($sql) . ", params: " . json_encode($params));
-        
         try {
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG about to execute public query");
-            
             $releases = $db->query($sql, $params);
-            error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public query executed successfully");
             
         } catch (Exception $e) {
             error_log("[" . date('Y-m-d H:i:s') . "] FATAL PUBLIC DB Error - message: " . $e->getMessage() . ", code: " . $e->getCode());
             throw $e;
         }
-        
-        // Debug: Log result count for public
-        error_log("[" . date('Y-m-d H:i:s') . "] DEBUG public results - count: " . count($releases));
         
         // Convert to frontend format with artists as string for public view
         foreach ($releases as &$release) {
@@ -235,9 +207,6 @@ try {
             }
         }
     }
-    
-    // Debug: Log before final response
-    error_log("[" . date('Y-m-d H:i:s') . "] DEBUG before response - releases_count: " . count($releases));
     
     jsonResponse([
         "success" => true,

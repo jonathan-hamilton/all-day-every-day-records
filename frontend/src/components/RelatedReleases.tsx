@@ -62,8 +62,7 @@ const RelatedReleases: React.FC<RelatedReleasesProps> = ({ currentReleaseId, art
           .filter(release => {
             // Check if any of the release's artists match the primary artist name
             return release.artists_with_roles?.includes(primaryArtist.name) && release.id !== currentReleaseId;
-          })
-          .slice(0, 4);
+          });
 
         setState({
           loading: false,

@@ -457,14 +457,28 @@ const ReleaseDetailPage: React.FC = () => {
         </Box>
       </Box>
 
-      {/* YouTube Video Embeds - Full Width Centered */}
-      {getYouTubeUrls(release.streaming_links).map((videoUrl, index) => (
-        <YouTubeEmbed 
-          key={index}
-          videoUrl={videoUrl} 
-          title={`${release.title}${index > 0 ? ` (Video ${index + 1})` : ''}`}
-        />
-      ))}
+      {/* YouTube Video Embeds - 2-Column Grid */}
+      {getYouTubeUrls(release.streaming_links).length > 0 && (
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',           // 1 column on mobile
+              md: 'repeat(2, 1fr)' // 2 columns on desktop/tablet
+            },
+            gap: 3,
+            mb: 6
+          }}
+        >
+          {getYouTubeUrls(release.streaming_links).map((videoUrl, index) => (
+            <YouTubeEmbed 
+              key={index}
+              videoUrl={videoUrl} 
+              title={`${release.title}${index > 0 ? ` (Video ${index + 1})` : ''}`}
+            />
+          ))}
+        </Box>
+      )}
 
       {/* Related Releases */}
       <RelatedReleases 

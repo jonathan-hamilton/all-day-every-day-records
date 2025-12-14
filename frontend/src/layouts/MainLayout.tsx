@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { Box, Container } from '@mui/material'
+import { Box, Container, Toolbar } from '@mui/material'
 import { Navigation } from '../components'
 
 export default function MainLayout() {
@@ -14,6 +14,9 @@ export default function MainLayout() {
     }}>
       {/* Navigation Header */}
       <Navigation />
+      
+      {/* Spacer to offset fixed navbar */}
+      <Toolbar />
       
       {/* Main content area with consistent width */}
       <Box sx={{ 

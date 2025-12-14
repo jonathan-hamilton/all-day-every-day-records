@@ -191,10 +191,11 @@ export default function Navigation() {
 
   return (
     <>
-      <AppBar position="static" color="primary" sx={{ 
+      <AppBar position="fixed" color="primary" sx={{ 
         width: '100vw',
         left: 0,
         right: 0,
+        top: 0,
         margin: 0,
         padding: 0,
         backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
@@ -204,8 +205,7 @@ export default function Navigation() {
         backgroundAttachment: 'scroll', // Changed from 'local' to prevent bleeding
         overflow: 'hidden',
         height: 'auto',
-        position: 'relative', // Ensure proper containment
-        zIndex: 1000, // Higher z-index to prevent interference
+        zIndex: 1100, // Higher z-index for fixed positioning
         '&::before': {
           content: '""',
           position: 'absolute',

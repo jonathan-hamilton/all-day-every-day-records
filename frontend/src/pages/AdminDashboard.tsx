@@ -88,10 +88,12 @@ const AdminDashboard: React.FC = () => {
   const [videoSearchTerm, setVideoSearchTerm] = useState<string>('');
   
   // YouTube URL validation helper
-  const isValidYouTubeUrl = (url: string): boolean => {
-    if (!url || url.trim() === '') return true; // Empty URLs are valid (optional field)
+  const isValidYouTubeUrl = (url: string | undefined): boolean => {
+    // Empty/undefined URLs are valid (optional fields)
+    if (!url || url.trim() === '') return true;
     
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/)|youtu\.be\/)[\w-]+/;
+    // Allow YouTube video URLs and YouTube Music URLs (including playlists)
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/|playlist\?list=)|youtu\.be\/|music\.youtube\.com\/(watch\?v=|playlist\?list=))[\w-]+/;
     return youtubeRegex.test(url.trim());
   };
   
@@ -209,7 +211,6 @@ const AdminDashboard: React.FC = () => {
       const data = await response.json();
       
       if (data.success) {
-        console.log('DEBUG: Releases data received:', data.releases);
         setReleases(data.releases || []);
       } else {
         setError(data.error || 'Failed to fetch releases');
@@ -858,7 +859,7 @@ const AdminDashboard: React.FC = () => {
                     </Button>
                     {formData.cover_image_url && (
                       <Typography variant="body2" color="success.main">
-                        ✓ Image uploaded successfully
+                        ✓ Cover image ready
                       </Typography>
                     )}
                   </Stack>
@@ -1178,9 +1179,7 @@ const AdminDashboard: React.FC = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredReleases.map((release) => {
-                      console.log(`DEBUG: Release ${release.title} has tag:`, release.tag);
-                      return (
+                    filteredReleases.map((release) => (
                       <TableRow key={release.id} hover sx={{ cursor: 'pointer' }}>
                         <TableCell onClick={() => handleEditRelease(release)} sx={{ width: 80 }}>
                           <Box
@@ -1293,8 +1292,7 @@ const AdminDashboard: React.FC = () => {
                           </Box>
                         </TableCell>
                       </TableRow>
-                      );
-                    })
+                    ))
                   )}
                 </TableBody>
               </Table>
