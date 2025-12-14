@@ -33,6 +33,10 @@ export interface Release {
   tag: ReleaseTag;
   show_in_releases: boolean;
   show_in_discography: boolean;
+  instagram_url?: string;
+  facebook_url?: string;
+  tiktok_url?: string;
+  twitter_url?: string;
   metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;

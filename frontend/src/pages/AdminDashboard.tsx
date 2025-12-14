@@ -61,6 +61,10 @@ interface Release {
   youtube_music_url: string;
   youtube_url: string;
   youtube2_url: string;
+  instagram_url: string;
+  facebook_url: string;
+  tiktok_url: string;
+  twitter_url: string;
   tag: 'None' | 'Featured' | 'New' | 'Recent' | 'Removed';
   show_in_releases: boolean;
   show_in_discography: boolean;
@@ -140,6 +144,10 @@ const AdminDashboard: React.FC = () => {
     youtube_music_url: '',
     youtube_url: '',
     youtube2_url: '',
+    instagram_url: '',
+    facebook_url: '',
+    tiktok_url: '',
+    twitter_url: '',
     tag: 'None',
     show_in_releases: true,
     show_in_discography: false
@@ -303,6 +311,10 @@ const AdminDashboard: React.FC = () => {
       youtube_music_url: '',
       youtube_url: '',
       youtube2_url: '',
+      instagram_url: '',
+      facebook_url: '',
+      tiktok_url: '',
+      twitter_url: '',
       tag: 'None',
       show_in_releases: true,
       show_in_discography: false
@@ -333,6 +345,10 @@ const AdminDashboard: React.FC = () => {
       youtube_music_url: '',
       youtube_url: '',
       youtube2_url: '',
+      instagram_url: '',
+      facebook_url: '',
+      tiktok_url: '',
+      twitter_url: '',
       tag: 'None',
       show_in_releases: true,
       show_in_discography: false
@@ -961,6 +977,47 @@ const AdminDashboard: React.FC = () => {
                     value={formData.youtube_music_url || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, youtube_music_url: e.target.value }))}
                     placeholder="https://music.youtube.com/..."
+                  />
+                </Stack>
+
+                {/* Social Media Links */}
+                <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'white' }}>
+                  Social Media Links
+                </Typography>
+                
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                  <TextField
+                    fullWidth
+                    label="Instagram URL"
+                    value={formData.instagram_url || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, instagram_url: e.target.value }))}
+                    placeholder="https://instagram.com/..."
+                  />
+                  
+                  <TextField
+                    fullWidth
+                    label="Facebook URL"
+                    value={formData.facebook_url || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, facebook_url: e.target.value }))}
+                    placeholder="https://facebook.com/..."
+                  />
+                </Stack>
+                
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                  <TextField
+                    fullWidth
+                    label="TikTok URL"
+                    value={formData.tiktok_url || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tiktok_url: e.target.value }))}
+                    placeholder="https://tiktok.com/@..."
+                  />
+                  
+                  <TextField
+                    fullWidth
+                    label="Twitter/X URL"
+                    value={formData.twitter_url || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, twitter_url: e.target.value }))}
+                    placeholder="https://twitter.com/..."
                   />
                 </Stack>
 

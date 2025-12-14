@@ -12,8 +12,8 @@
 | **Sprint 5** | **COMPLETE ✅** | **3/3 stories** | **100%** |
 | **Sprint 6** | **COMPLETE ✅** | **3/3 stories** | **100%** |
 | **Sprint 7** | **COMPLETE ✅** | **4/4 stories** | **100%** |
-| Sprint 8 | 17% COMPLETE 🏗️ | 1/6 stories | 17% |
-| **TOTALS** | **41/44 STORIES** | **41/44 stories** | **93%** |
+| Sprint 8 | 33% COMPLETE 🏗️ | 2/6 stories | 33% |
+| **TOTALS** | **42/44 STORIES** | **42/44 stories** | **95%** |
 
 *Last Updated: December 14, 2025*
 

@@ -15,6 +15,7 @@ import { createServices } from '../services';
 import type { ReleaseWithDetails } from '../types/Release';
 import type { ReleaseArtist } from '../types/Artist';
 import StreamingLinkButtons from '../components/StreamingLinkButtons';
+import SocialMediaLinks from '../components/SocialMediaLinks';
 import YouTubeEmbed from '../components/YouTubeEmbed';
 import RelatedReleases from '../components/RelatedReleases';
 
@@ -454,6 +455,14 @@ const ReleaseDetailPage: React.FC = () => {
 
           {/* Streaming Links */}
           <StreamingLinkButtons streamingLinks={release.streaming_links} />
+
+          {/* Social Media Links */}
+          <SocialMediaLinks 
+            instagramUrl={release.instagram_url}
+            facebookUrl={release.facebook_url}
+            tiktokUrl={release.tiktok_url}
+            twitterUrl={release.twitter_url}
+          />
         </Box>
       </Box>
 
