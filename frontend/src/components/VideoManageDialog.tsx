@@ -77,13 +77,8 @@ export const VideoManageDialog: React.FC<VideoManageDialogProps> = ({
   const isValidYouTubeUrl = (url: string): boolean => {
     if (!url.trim()) return true; // Empty URLs are allowed
     
-    const patterns = [
-      /^https?:\/\/(www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/,
-      /^https?:\/\/(www\.)?youtu\.be\/([a-zA-Z0-9_-]+)/,
-      /^https?:\/\/(www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]+)/
-    ];
-    
-    return patterns.some(pattern => pattern.test(url));
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/)|youtu\.be\/)[\w-]+/;
+    return youtubeRegex.test(url.trim());
   };
 
   // Handle form input changes
@@ -100,15 +95,17 @@ export const VideoManageDialog: React.FC<VideoManageDialogProps> = ({
 
   // Validate all URLs
   const validateUrls = (): boolean => {
-    const urls = Object.values(state.videos);
-    const invalidUrls = urls.filter(url => url.trim() && !isValidYouTubeUrl(url));
+    const urlEntries = Object.entries(state.videos);
     
-    if (invalidUrls.length > 0) {
-      setState(prev => ({
-        ...prev,
-        error: 'Please provide valid YouTube URLs. Invalid URLs will be ignored.'
-      }));
-      return false;
+    for (const [position, url] of urlEntries) {
+      if (url.trim() && !isValidYouTubeUrl(url)) {
+        const positionNumber = position.replace('position', '');
+        setState(prev => ({
+          ...prev,
+          error: `Invalid YouTube URL in position ${positionNumber}. Please enter a valid YouTube video URL (e.g., https://www.youtube.com/watch?v=...)`
+        }));
+        return false;
+      }
     }
     
     return true;

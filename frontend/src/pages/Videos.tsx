@@ -5,7 +5,7 @@
  * Fetches from dedicated videos endpoint and navigates to detail pages on click.
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { 
   Box, 
   Typography, 
@@ -19,6 +19,7 @@ import { PlayCircleFilled as PlayIcon, Search as SearchIcon } from '@mui/icons-m
 import { createServices } from '../services'
 import type { Video } from '../types'
 import VideoGridItem from '../components/VideoGridItem'
+import { AlphabeticalNav } from '../components'
 
 interface VideoState {
   loading: boolean
@@ -29,11 +30,15 @@ interface VideoState {
 export default function Videos() {
   const services = useMemo(() => createServices(), [])
   const [searchTerm, setSearchTerm] = useState('')
+  const [activeLetter, setActiveLetter] = useState<string>('')
   const [state, setState] = useState<VideoState>({
     loading: true,
     error: null,
     videos: []
   })
+
+  // Refs for letter sections
+  const letterRefs = useRef<Record<string, HTMLElement | null>>({});
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -73,6 +78,90 @@ export default function Videos() {
       video.artist.toLowerCase().includes(lowerSearch)
     )
   }, [state.videos, searchTerm])
+
+  // Group videos by first letter of artist name
+  const groupedVideos = useMemo(() => {
+    const grouped: Record<string, Video[]> = {};
+    
+    filteredVideos.forEach((video) => {
+      const firstLetter = video.artist.charAt(0).toUpperCase();
+      // Handle non-alphabetic characters
+      const letter = /[A-Z]/.test(firstLetter) ? firstLetter : '#';
+      
+      if (!grouped[letter]) {
+        grouped[letter] = [];
+      }
+      grouped[letter].push(video);
+    });
+    
+    return grouped;
+  }, [filteredVideos]);
+
+  // Calculate available letters (sorted alphabetically)
+  const availableLetters = useMemo(() => {
+    return Object.keys(groupedVideos)
+      .filter(letter => letter !== '#') // Exclude special characters
+      .sort();
+  }, [groupedVideos]);
+
+  // Handle letter click - scroll to section
+  const handleLetterClick = useCallback((letter: string) => {
+    const targetElement = letterRefs.current[letter];
+    if (targetElement) {
+      // Update active letter immediately for visual feedback
+      setActiveLetter(letter);
+      
+      const headerOffset = 120; // Offset to avoid header overlap
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, []);
+
+  // Track active letter based on scroll position
+  useEffect(() => {
+    if (availableLetters.length === 0) return;
+
+    // Set initial active letter to the first available letter
+    if (!activeLetter && availableLetters.length > 0) {
+      setActiveLetter(availableLetters[0]);
+    }
+
+    const observers: IntersectionObserver[] = [];
+    
+    const observerOptions = {
+      root: null,
+      rootMargin: '-100px 0px -80% 0px', // Trigger when section enters top 20%
+      threshold: 0
+    };
+    
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const letter = entry.target.getAttribute('data-letter');
+          if (letter) {
+            setActiveLetter(letter);
+          }
+        }
+      });
+    };
+    
+    Object.entries(letterRefs.current).forEach(([, element]) => {
+      if (element) {
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+        observer.observe(element);
+        observers.push(observer);
+      }
+    });
+    
+    return () => {
+      observers.forEach((observer) => observer.disconnect());
+    };
+  }, [availableLetters]);
 
   // Loading state
   if (state.loading) {
@@ -270,22 +359,64 @@ export default function Videos() {
       )}
 
       {hasFilteredResults && (
-        <Box 
-          sx={{ 
-            display: 'grid', 
-            gridTemplateColumns: { 
-              xs: 'repeat(1, 1fr)', 
-              sm: 'repeat(2, 1fr)', 
-              md: 'repeat(3, 1fr)', 
-              lg: 'repeat(4, 1fr)' 
-            },
-            gap: 3
-          }}
-        >
-          {filteredVideos.map((video) => (
-            <VideoGridItem key={video.id} video={video} />
-          ))}
-        </Box>
+        <>
+          {/* Alphabetical Navigation */}
+          <AlphabeticalNav
+            availableLetters={availableLetters}
+            activeLetter={activeLetter}
+            onLetterClick={handleLetterClick}
+          />
+
+          {/* Grouped Videos by Letter */}
+          {Object.entries(groupedVideos)
+            .sort(([letterA], [letterB]) => {
+              // Sort with # at the end
+              if (letterA === '#') return 1;
+              if (letterB === '#') return -1;
+              return letterA.localeCompare(letterB);
+            })
+            .map(([letter, letterVideos]) => (
+              <Box key={letter} sx={{ mb: 6 }}>
+                {/* Letter Header with Ref */}
+                <Typography
+                  ref={(el) => {
+                    letterRefs.current[letter] = el;
+                  }}
+                  data-letter={letter}
+                  variant="h4"
+                  component="h2"
+                  sx={{
+                    mt: 4,
+                    mb: 3,
+                    fontWeight: 'bold',
+                    color: 'white',
+                    borderBottom: '2px solid red',
+                    pb: 1
+                  }}
+                >
+                  {letter}
+                </Typography>
+
+                {/* Video Grid for This Letter */}
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                      xs: 'repeat(1, 1fr)',
+                      sm: 'repeat(2, 1fr)',
+                      md: 'repeat(3, 1fr)',
+                      lg: 'repeat(4, 1fr)'
+                    },
+                    gap: 3
+                  }}
+                >
+                  {letterVideos.map((video) => (
+                    <VideoGridItem key={video.id} video={video} />
+                  ))}
+                </Box>
+              </Box>
+            ))}
+        </>
       )}
     </Container>
   )

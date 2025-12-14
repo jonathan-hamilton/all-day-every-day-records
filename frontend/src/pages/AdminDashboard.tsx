@@ -87,6 +87,14 @@ const AdminDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [videoSearchTerm, setVideoSearchTerm] = useState<string>('');
   
+  // YouTube URL validation helper
+  const isValidYouTubeUrl = (url: string): boolean => {
+    if (!url || url.trim() === '') return true; // Empty URLs are valid (optional field)
+    
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/)|youtu\.be\/)[\w-]+/;
+    return youtubeRegex.test(url.trim());
+  };
+  
   // Auto-clear success messages after 3 seconds
   useEffect(() => {
     if (success) {
@@ -427,6 +435,22 @@ const AdminDashboard: React.FC = () => {
       return;
     }
 
+    // Validate YouTube URLs
+    if (!isValidYouTubeUrl(formData.youtube_url)) {
+      setError('Invalid YouTube URL. Please enter a valid YouTube video URL (e.g., https://www.youtube.com/watch?v=...)');
+      return;
+    }
+
+    if (!isValidYouTubeUrl(formData.youtube2_url)) {
+      setError('Invalid YouTube URL 2. Please enter a valid YouTube video URL (e.g., https://www.youtube.com/watch?v=...)');
+      return;
+    }
+
+    if (!isValidYouTubeUrl(formData.youtube_music_url)) {
+      setError('Invalid YouTube Music URL. Please enter a valid YouTube Music URL.');
+      return;
+    }
+
     setSaving(true);
     setError(null);
 
@@ -534,6 +558,12 @@ const AdminDashboard: React.FC = () => {
   const handleVideoSubmit = async () => {
     if (!videoFormData.title || !videoFormData.artist || !videoFormData.youtube_url) {
       setError('Please fill in all required fields (Title, Artist, YouTube URL)');
+      return;
+    }
+
+    // Validate YouTube URL
+    if (!isValidYouTubeUrl(videoFormData.youtube_url)) {
+      setError('Invalid YouTube URL. Please enter a valid YouTube video URL (e.g., https://www.youtube.com/watch?v=...)');
       return;
     }
 
