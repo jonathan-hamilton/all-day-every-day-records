@@ -126,7 +126,7 @@ const AdminDashboard: React.FC = () => {
   
   // Form state
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
-  const [isCreating, setIsCreating] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState<Partial<Release>>({
     title: '',
     artist: '',
@@ -734,7 +734,7 @@ const AdminDashboard: React.FC = () => {
           }
         }}>
           <Typography variant="h6" gutterBottom sx={{ color: 'white' }}>
-            {isCreating ? 'Create New Release' : editingRelease ? `Edit: ${editingRelease?.title}` : 'Create New Release'}
+            {editingRelease ? `Edit: ${editingRelease?.title}` : 'Create New Release'}
           </Typography>
               
               <Stack spacing={3} sx={{ 
@@ -859,7 +859,7 @@ const AdminDashboard: React.FC = () => {
                     </Button>
                     {formData.cover_image_url && (
                       <Typography variant="body2" color="success.main">
-                        ✓ Cover image ready
+                        {editingRelease ? `✓ Current cover image: ${formData.cover_image_url}` : '✓ Cover image ready'}
                       </Typography>
                     )}
                   </Stack>
@@ -1010,7 +1010,7 @@ const AdminDashboard: React.FC = () => {
                     }
                   }}
                 >
-                  {saving ? 'Saving...' : (isCreating ? 'Create Release' : 'Update Release')}
+                  {saving ? 'Saving...' : (editingRelease ? 'Update Release' : 'Create Release')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -1031,34 +1031,11 @@ const AdminDashboard: React.FC = () => {
               </Stack>
             </Paper>
 
-          {/* Releases List Header and Button */}
+          {/* Releases List Header */}
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h6" sx={{ color: 'white' }}>
               All Releases
             </Typography>
-            <Box>
-              {editingRelease ? (
-                <Button
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={handleCreateNew}
-                  size="large"
-                  sx={{ mr: 1 }}
-                >
-                  Create New
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={handleCreateNew}
-                  size="large"
-                  disabled={isCreating}
-                >
-                  {isCreating ? 'Creating...' : 'Create New Release'}
-                </Button>
-              )}
-            </Box>
           </Box>
 
           {/* Search Bar */}

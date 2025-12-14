@@ -100,7 +100,20 @@ all-day-every-day-records/
   - ✅ **BONUS**: Fixed navbar positioning for persistent navigation while scrolling
   - ✅ **BONUS**: Unlimited artist releases display (removed 4-item limit)
 
-### 📝 Next Sprint: Sprint 8 - Advanced Features & Production Deployment (0/5 stories)
+### 📝 Sprint 8: Advanced Features & Production Deployment (1/6 stories - 17% complete) 🏗️
+
+**Sprint 8 In Progress**:
+- ✅ **S8.1 Complete**: Auto-Rotating Homepage Carousel - Enhanced discovery experience
+  - Auto-rotation every 5 seconds with pause on hover
+  - Mouse drag (desktop) and touch swipe (mobile) navigation
+  - Manual interaction pauses auto-play for 10 seconds
+  - Navigation arrows removed, dots and keyboard navigation maintained
+  - Responsive design and accessibility features
+- ⏸️ S8.2: Audio Player Widget Integration
+- ⏸️ S8.3: Social Media Links on Release Details
+- ⏸️ S8.4: Homepage Section Label Corrections
+- ⏸️ S8.5: Performance Optimization & Production Deployment
+- ⏸️ S8.6: Backend Security Analysis & Hardening
 
 ### 🎉 Recent Achievements
 - **S7.1 Complete**: ✅ A-Z Alphabetical Navigation Widget - Enhanced browsing experience

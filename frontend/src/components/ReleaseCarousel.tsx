@@ -10,16 +10,11 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Box, 
   Typography, 
-  IconButton, 
   Button,
   useTheme, 
   useMediaQuery,
   Skeleton 
 } from '@mui/material';
-import { 
-  ArrowBackIos as ArrowBackIosIcon, 
-  ArrowForwardIos as ArrowForwardIosIcon 
-} from '@mui/icons-material';
 import { createServices } from '../services';
 import type { ReleaseCarouselSlide as ReleaseSlideData } from '../types';
 import ReleaseCarouselSlide from './ReleaseCarouselSlide';
@@ -37,7 +32,6 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
   autoPlay = true,
   autoPlayInterval = 5000,
   maxSlides = 8,
-  showNavigation = true,
   showIndicators = true,
   tag = 'New' // Default to 'New' releases
 }) => {
@@ -53,6 +47,10 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [mouseStart, setMouseStart] = useState<number | null>(null);
+  const [mouseEnd, setMouseEnd] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [manuallyPaused, setManuallyPaused] = useState(false);
 
   // Memoize services to prevent re-creation
   const services = useMemo(() => createServices(), []);
@@ -123,6 +121,7 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
 
   const goToSlide = useCallback((slideIndex: number) => {
     if (slideIndex >= 0 && slideIndex <= maxSlideIndex) {
+      setManuallyPaused(true);
       setCurrentSlide(slideIndex);
     }
   }, [maxSlideIndex]);
@@ -147,9 +146,56 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
     const isRightSwipe = distance < -minSwipeDistance;
 
     if (isLeftSwipe && totalSlides > slidesPerView) {
+      setManuallyPaused(true);
       goToNext();
     } else if (isRightSwipe && totalSlides > slidesPerView) {
+      setManuallyPaused(true);
       goToPrevious();
+    }
+  };
+
+  // Mouse drag handling for desktop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default drag behavior
+    setMouseEnd(null);
+    setMouseStart(e.clientX);
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault(); // Prevent default drag behavior
+    setMouseEnd(e.clientX);
+  };
+
+  const handleMouseUp = () => {
+    if (!mouseStart || !mouseEnd || !isDragging) {
+      setIsDragging(false);
+      return;
+    }
+    
+    const distance = mouseStart - mouseEnd;
+    const isLeftDrag = distance > minSwipeDistance;
+    const isRightDrag = distance < -minSwipeDistance;
+
+    if (isLeftDrag && totalSlides > slidesPerView) {
+      setManuallyPaused(true);
+      goToNext();
+    } else if (isRightDrag && totalSlides > slidesPerView) {
+      setManuallyPaused(true);
+      goToPrevious();
+    }
+    
+    setIsDragging(false);
+    setMouseStart(null);
+    setMouseEnd(null);
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      setMouseStart(null);
+      setMouseEnd(null);
     }
   };
 
@@ -181,13 +227,24 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
 
   // Auto-play functionality
   useEffect(() => {
-    if (!autoPlay || isHovered || totalSlides <= slidesPerView || loading) {
+    if (!autoPlay || isHovered || manuallyPaused || totalSlides <= slidesPerView || loading) {
       return;
     }
 
     const interval = setInterval(goToNext, autoPlayInterval);
     return () => clearInterval(interval);
-  }, [autoPlay, autoPlayInterval, goToNext, isHovered, totalSlides, slidesPerView, loading]);
+  }, [autoPlay, autoPlayInterval, goToNext, isHovered, manuallyPaused, totalSlides, slidesPerView, loading]);
+
+  // Resume auto-play after manual pause (after 10 seconds of no interaction)
+  useEffect(() => {
+    if (!manuallyPaused) return;
+
+    const resumeTimeout = setTimeout(() => {
+      setManuallyPaused(false);
+    }, 10000);
+
+    return () => clearTimeout(resumeTimeout);
+  }, [manuallyPaused, currentSlide]);
 
   // Loading state
   if (loading) {
@@ -322,7 +379,10 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
         borderRadius: 2
       }}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        handleMouseLeave();
+      }}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="region"
@@ -344,114 +404,22 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
       <Box sx={{ 
         position: 'relative',
         overflow: 'hidden',
-        mx: { xs: 2, md: 4 }
+        mx: { xs: 2, md: 4 },
+        cursor: isDragging ? 'grabbing' : 'grab',
+        userSelect: 'none',
+        '& *': {
+          cursor: isDragging ? 'grabbing !important' : 'grab !important',
+          userSelect: 'none'
+        }
       }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onDragStart={(e) => e.preventDefault()}
       >
-        
-        {/* Navigation Arrows */}
-        {showNavigation && totalSlides > slidesPerView && (
-          <>
-            {/* Previous Arrow */}
-            <IconButton
-              onClick={goToPrevious}
-              sx={{
-                position: 'absolute',
-                left: { xs: -16, md: -20 },
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 2,
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                boxShadow: theme.shadows[2],
-                width: { xs: 40, md: 48 },
-                height: { xs: 40, md: 48 },
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 1)',
-                  boxShadow: theme.shadows[4],
-                },
-                '&:disabled': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                  color: 'rgba(0, 0, 0, 0.26)',
-                },
-                display: { xs: 'none', sm: 'flex' }
-              }}
-              aria-label="Previous slide"
-              disabled={currentSlide === 0 && !autoPlay}
-            >
-              <ArrowBackIosIcon sx={{ fontSize: { xs: 16, md: 20 } }} />
-            </IconButton>
-
-            {/* Next Arrow */}
-            <IconButton
-              onClick={goToNext}
-              sx={{
-                position: 'absolute',
-                right: { xs: -16, md: -20 },
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 2,
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                boxShadow: theme.shadows[2],
-                width: { xs: 40, md: 48 },
-                height: { xs: 40, md: 48 },
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 1)',
-                  boxShadow: theme.shadows[4],
-                },
-                '&:disabled': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                  color: 'rgba(0, 0, 0, 0.26)',
-                },
-                display: { xs: 'none', sm: 'flex' }
-              }}
-              aria-label="Next slide"
-              disabled={currentSlide === maxSlideIndex && !autoPlay}
-            >
-              <ArrowForwardIosIcon sx={{ fontSize: { xs: 16, md: 20 } }} />
-            </IconButton>
-
-            {/* Mobile Navigation Buttons */}
-            <Box sx={{ 
-              display: { xs: 'flex', sm: 'none' },
-              position: 'absolute',
-              bottom: -50,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              gap: 2
-            }}>
-              <IconButton
-                onClick={goToPrevious}
-                sx={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                  }
-                }}
-                aria-label="Previous slide"
-                disabled={currentSlide === 0 && !autoPlay}
-              >
-                <ArrowBackIosIcon />
-              </IconButton>
-              <IconButton
-                onClick={goToNext}
-                sx={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                  }
-                }}
-                aria-label="Next slide"
-                disabled={currentSlide === maxSlideIndex && !autoPlay}
-              >
-                <ArrowForwardIosIcon />
-              </IconButton>
-            </Box>
-          </>
-        )}
 
         {/* Slides Container */}
         <Box sx={{
@@ -488,8 +456,8 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
             display: 'flex',
             justifyContent: 'center',
             gap: 1,
-            mt: { xs: 7, sm: 2 }, // Extra space on mobile for navigation buttons
-            pb: { xs: 2, sm: 0 }
+            mt: 2,
+            pb: 0
           }}>
             {Array.from({ length: maxSlideIndex + 1 }).map((_, index) => (
               <Box
@@ -549,9 +517,9 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
         sx={{ position: 'absolute', left: '-10000px' }}
         component="p"
       >
-        Use arrow keys or swipe to navigate through {totalSlides} new releases. 
+        Use arrow keys, drag with mouse, or swipe to navigate through {totalSlides} new releases. 
         Currently showing slide {currentSlide + 1} of {maxSlideIndex + 1}. 
-        {autoPlay && !isHovered ? 'Auto-play is active.' : 'Auto-play is paused.'}
+        {autoPlay && !isHovered && !manuallyPaused ? 'Auto-play is active.' : 'Auto-play is paused.'}
       </Typography>
     </Box>
   );

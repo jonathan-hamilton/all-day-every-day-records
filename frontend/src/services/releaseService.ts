@@ -92,20 +92,31 @@ export class ReleaseService {
       
       // Ensure we always return an array and map fields to expected format
       if (Array.isArray(releases)) {
-        return releases.map(release => ({
-          ...release,
-          // Map API fields to expected frontend fields
-          artists_with_roles: release.artists || release.artist || '',
-          release_type: (release.format || 'album') as ReleaseType,
-          is_featured: release.tag === 'Featured',
-          status: (release.tag === 'Removed' ? 'archived' : 'published') as ReleaseStatus,
-          tag: (release.tag || 'None') as ReleaseTag,
-          // Ensure required fields have defaults
-          track_count: release.track_count || 1,
-          display_order: release.display_order || 0,
-          created_at: release.created_at || new Date().toISOString(),
-          updated_at: release.updated_at || new Date().toISOString(),
-        } satisfies ReleaseOverview));
+        return releases.map(release => {
+          const mappedRelease: ReleaseOverview = {
+            id: release.id,
+            title: release.title,
+            artists_with_roles: release.artists || release.artist || '',
+            release_type: (release.format || 'album') as ReleaseType,
+            is_featured: release.tag === 'Featured',
+            status: (release.tag === 'Removed' ? 'archived' : 'published') as ReleaseStatus,
+            tag: (release.tag || 'None') as ReleaseTag,
+            track_count: release.track_count || 1,
+            display_order: release.display_order || 0,
+            created_at: release.created_at || new Date().toISOString(),
+            updated_at: release.updated_at || new Date().toISOString(),
+            cover_image_url: release.cover_image_url,
+            release_date: release.release_date,
+            description: release.description,
+            spotify_url: release.spotify_url,
+            apple_music_url: release.apple_music_url,
+            amazon_music_url: release.amazon_music_url,
+            youtube_url: release.youtube_url,
+            showInReleases: true,
+            showInDiscography: true
+          };
+          return mappedRelease;
+        });
       }
       
       return [];
@@ -223,13 +234,12 @@ export class ReleaseService {
       const response = await this.apiService.get<{ success: boolean; release: ReleaseWithDetails }>(`/get-releases-by-id.php?id=${id}`);
       
       // Handle wrapped response from API
-      const release = response.success ? response.release : response as any;
-      
-      // Ensure the release has the expected structure
-      if (!release || typeof release !== 'object') {
+      if (!response || !response.success || !response.release) {
         return null;
       }
 
+      const release = response.release;
+      
       // Provide defaults for required arrays if missing
       return {
         ...release,
