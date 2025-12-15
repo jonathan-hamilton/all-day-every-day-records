@@ -81,14 +81,15 @@ export const ReleaseFilters: React.FC<ReleaseFiltersProps> = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
           <TextField
             fullWidth
-            placeholder="Search by title or artist..."
+            size="small"
+            placeholder="Title or Artist"
             value={filters.search}
             onChange={handleSearchChange}
             InputProps={{
               startAdornment: <SearchIcon sx={{ mr: 1, color: 'white' }} />,
             }}
             sx={{ 
-              maxWidth: { xs: '100%', sm: 400 },
+              maxWidth: { xs: '100%', sm: 260 },
               '& .MuiOutlinedInput-root': {
                 backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 '& input': {

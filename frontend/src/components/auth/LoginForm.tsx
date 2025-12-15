@@ -294,14 +294,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             'Sign In'
           )}
         </Button>
-
-        {/* Development Credentials Note */}
-        <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.900', borderRadius: 1 }}>
-          <Typography variant="body2" sx={{ color: 'grey.400', textAlign: 'center' }}>
-            <strong>Development Mode:</strong><br />
-            Use credentials: admin/admin123 or dev/dev123
-          </Typography>
-        </Box>
       </Paper>
     </Box>
   );

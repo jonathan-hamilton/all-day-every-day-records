@@ -305,7 +305,8 @@ export default function Videos() {
           <Box sx={{ mb: 2 }}>
             <TextField
               fullWidth
-              placeholder="Search by title or artist..."
+              size="small"
+              placeholder="Title or Artist"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -316,7 +317,7 @@ export default function Videos() {
                 ),
               }}
               sx={{ 
-                maxWidth: { xs: '100%', sm: 400 },
+                maxWidth: { xs: '100%', sm: 260 },
                 '& .MuiOutlinedInput-root': {
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   '& input': {

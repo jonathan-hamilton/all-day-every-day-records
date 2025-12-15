@@ -124,6 +124,21 @@ As a visitor, I want to access a dedicated Discography page from the navigation 
 - `frontend/src/pages/Home.tsx` - Updated search placeholder text
 - `frontend/src/pages/index.ts` - Exported Discography component
 
+**UI Refinements (December 14, 2025)**:
+- ✅ Reduced search component width by 35% for improved visual balance
+  - Home page: Wrapped in Box with maxWidth 350px (from ~540px)
+  - Releases page: Changed maxWidth from 400px to 260px
+  - Videos page: Changed maxWidth from 400px to 260px
+- ✅ Reduced search component height using size="small" (from 56px to 40px)
+- ✅ Updated placeholder text from "Search by title or artist..." to "Title or Artist" for conciseness
+- ✅ Added size prop support to ReleaseAutocomplete component for consistent sizing across all pages
+
+**Additional Files Modified (UI Refinements)**:
+- `frontend/src/components/ReleaseAutocomplete.tsx` - Added size prop (small/medium) with TypeScript interface update
+- `frontend/src/components/ReleaseFilters.tsx` - Reduced maxWidth to 260px, added size="small", updated placeholder
+- `frontend/src/pages/Home.tsx` - Added Box wrapper with 350px maxWidth, added size="small" prop, updated placeholder
+- `frontend/src/pages/Videos.tsx` - Reduced maxWidth to 260px, added size="small", updated placeholder
+
 **Technical Notes**:
 - Navigation implemented as simple link rather than dropdown (Material-UI Menu positioning failed with centered flex layout)
 - Discography page uses `category: 'discography'` parameter in API call

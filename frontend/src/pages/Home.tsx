@@ -37,10 +37,13 @@ export default function Home() {
     <Box sx={{ textAlign: 'center' }}>
       {/* S4.1 Search Autocomplete */}
       <Container maxWidth="sm" sx={{ pt: 4, pb: 4 }}>
-        <ReleaseAutocomplete
-          onSelectRelease={(release) => navigate(`/releases/${release.id}`)}
-          placeholder="Search by title or artist..."
-        />
+        <Box sx={{ maxWidth: { xs: '100%', sm: 350 }, mx: 'auto' }}>
+          <ReleaseAutocomplete
+            onSelectRelease={(release) => navigate(`/releases/${release.id}`)}
+            placeholder="Title or Artist"
+            size="small"
+          />
+        </Box>
       </Container>
 
       {/* New Releases Section */}

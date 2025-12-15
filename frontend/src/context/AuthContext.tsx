@@ -3,11 +3,10 @@
  * Based on reference N&D pattern - session-based authentication only
  */
 
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { AuthContextType, User } from '../types/Auth';
 import { getCurrentApiConfig } from '../config/api';
-import { setGlobalCsrfTokenGetter } from '../services';
 
 // Create authentication context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,17 +17,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
 
   // Get API configuration
   const apiConfig = getCurrentApiConfig();
 
-  // Set up CSRF token getter for API service
+  // Check for existing session on mount
   useEffect(() => {
-    setGlobalCsrfTokenGetter(() => csrfToken);
-  }, [csrfToken]);
+    checkAuthStatus();
+  }, []);
 
-  const checkAuthStatus = useCallback(async () => {
+  const checkAuthStatus = async () => {
     try {
       setIsLoading(true);
       
@@ -53,12 +51,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } finally {
       setIsLoading(false);
     }
-  }, [apiConfig.baseURL]);
-
-  // Check for existing session on mount
-  useEffect(() => {
-    checkAuthStatus();
-  }, [checkAuthStatus]);
+  };
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -79,10 +72,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
-        // Store CSRF token from login response
-        if (data.csrfToken) {
-          setCsrfToken(data.csrfToken);
-        }
         return true;
       } else {
         setError(data.error || 'Login failed');
@@ -109,7 +98,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
-      setCsrfToken(null);
     }
   };
 
@@ -122,7 +110,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     isAuthenticated,
     isLoading,
     error,
-    csrfToken,
     login,
     logout,
     clearError,

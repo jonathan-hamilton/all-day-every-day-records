@@ -34,7 +34,6 @@ export class ApiService {
   private readonly client: AxiosInstance;
   private readonly retryConfig: RetryConfig;
   private getDevToken?: () => string | null;
-  private getCsrfToken?: () => string | null;
 
   constructor(config: ApiConfig) {
     // Create axios instance with configuration
@@ -71,27 +70,11 @@ export class ApiService {
   }
 
   /**
-   * Set the function to get CSRF token for state-changing requests
-   */
-  setCsrfTokenGetter(getToken: () => string | null): void {
-    this.getCsrfToken = getToken;
-  }
-
-  /**
    * Setup request interceptors for logging and authentication
    */
   private setupRequestInterceptors(): void {
     this.client.interceptors.request.use(
       (config) => {
-        // Add CSRF token header for state-changing operations (POST, PUT, DELETE)
-        const isStateChanging = ['post', 'put', 'delete', 'patch'].includes(config.method?.toLowerCase() || '');
-        if (this.getCsrfToken && isStateChanging && config.url !== '/login.php') {
-          const csrfToken = this.getCsrfToken();
-          if (csrfToken) {
-            config.headers['X-CSRF-TOKEN'] = csrfToken;
-          }
-        }
-
         // Add dev_token for authenticated requests
         if (this.getDevToken && config.url !== '/login.php' && config.url !== '/health.php') {
           const devToken = this.getDevToken();

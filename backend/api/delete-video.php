@@ -7,9 +7,6 @@ handleCORS();
 // Require authentication
 $user = requireAuth();
 
-// Require CSRF token for state-changing operation
-requireCSRFToken();
-
 // Only handle POST/DELETE requests
 if (!in_array($_SERVER['REQUEST_METHOD'], ['POST', 'DELETE'])) {
     jsonResponse(["error" => "Only POST or DELETE methods allowed"], 405);

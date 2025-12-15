@@ -15,6 +15,7 @@ import type { ReleaseOverview } from '../types';
 interface ReleaseAutocompleteProps {
   onSelectRelease: (release: ReleaseOverview) => void;
   placeholder?: string;
+  size?: 'small' | 'medium';
 }
 
 /**
@@ -24,7 +25,8 @@ interface ReleaseAutocompleteProps {
  */
 export const ReleaseAutocomplete: React.FC<ReleaseAutocompleteProps> = ({
   onSelectRelease,
-  placeholder = 'Search releases...'
+  placeholder = 'Search releases...',
+  size = 'medium'
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [allReleases, setAllReleases] = useState<ReleaseOverview[]>([]);
@@ -103,6 +105,7 @@ export const ReleaseAutocomplete: React.FC<ReleaseAutocompleteProps> = ({
       renderInput={(params) => (
         <TextField
           {...params}
+          size={size}
           placeholder={placeholder}
           variant="outlined"
           inputProps={{
