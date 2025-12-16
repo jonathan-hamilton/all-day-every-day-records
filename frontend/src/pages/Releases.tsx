@@ -77,7 +77,15 @@ export default function Releases() {
       };
 
       const data = await services.releases.getReleases(params);
-      setReleases(data);
+      
+      // Sort alphabetically by artist name
+      const sortedData = [...data].sort((a, b) => {
+        const artistA = a.artists_with_roles?.split('(')[0].trim() || 'Unknown';
+        const artistB = b.artists_with_roles?.split('(')[0].trim() || 'Unknown';
+        return artistA.localeCompare(artistB);
+      });
+      
+      setReleases(sortedData);
     } catch (err) {
       console.error('Error fetching releases:', err);
       setError('Failed to load releases. Please try again.');
@@ -101,22 +109,9 @@ export default function Releases() {
     fetchReleases();
   };
 
-  // Handle letter click - scroll to section
+  // Handle letter click - filter by letter (toggle on/off)
   const handleLetterClick = useCallback((letter: string) => {
-    const targetElement = letterRefs.current[letter];
-    if (targetElement) {
-      // Update active letter immediately for visual feedback
-      setActiveLetter(letter);
-      
-      const headerOffset = 120; // Offset to avoid header overlap
-      const elementPosition = targetElement.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
+    setActiveLetter(prev => prev === letter ? '' : letter);
   }, []);
 
   // Track active letter based on scroll position
@@ -185,7 +180,13 @@ export default function Releases() {
       <ReleaseFilters
         filters={filters}
         onFiltersChange={handleFiltersChange}
-        resultCount={releases.length}
+        resultCount={releases.filter(release => {
+          if (!activeLetter) return true;
+          const artistName = release.artists_with_roles?.split('(')[0].trim() || 'Unknown';
+          const firstLetter = artistName.charAt(0).toUpperCase();
+          const letter = /[A-Z]/.test(firstLetter) ? firstLetter : '#';
+          return letter === activeLetter;
+        }).length}
         isLoading={loading}
       />
 
@@ -244,56 +245,32 @@ export default function Releases() {
                 onLetterClick={handleLetterClick}
               />
 
-              {/* Grouped Releases by Letter */}
-              {Object.entries(groupedReleases)
-                .sort(([letterA], [letterB]) => {
-                  // Sort with # at the end
-                  if (letterA === '#') return 1;
-                  if (letterB === '#') return -1;
-                  return letterA.localeCompare(letterB);
-                })
-                .map(([letter, letterReleases]) => (
-                  <Box key={letter} sx={{ mb: 6 }}>
-                    {/* Letter Header with Ref */}
-                    <Typography
-                      ref={(el) => {
-                        letterRefs.current[letter] = el;
-                      }}
-                      data-letter={letter}
-                      variant="h4"
-                      component="h2"
-                      sx={{
-                        mt: 4,
-                        mb: 3,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        borderBottom: '2px solid red',
-                        pb: 1
-                      }}
-                    >
-                      {letter}
-                    </Typography>
-
-                    {/* Release Grid for This Letter */}
-                    <Box
-                      sx={{
-                        display: 'grid',
-                        gridTemplateColumns: {
-                          xs: 'repeat(1, 1fr)',
-                          sm: 'repeat(2, 1fr)',
-                          md: 'repeat(3, 1fr)',
-                          lg: 'repeat(4, 1fr)'
-                        },
-                        gridAutoRows: '1fr',
-                        gap: 3
-                      }}
-                    >
-                      {letterReleases.map((release) => (
-                        <ReleaseCard key={release.id} release={release} />
-                      ))}
-                    </Box>
-                  </Box>
-                ))}
+              {/* All Releases in Alphabetical Order */}
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: {
+                    xs: 'repeat(1, 1fr)',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)',
+                    lg: 'repeat(4, 1fr)'
+                  },
+                  gridAutoRows: '1fr',
+                  gap: 3
+                }}
+              >
+                {releases
+                  .filter(release => {
+                    if (!activeLetter) return true;
+                    const artistName = release.artists_with_roles?.split('(')[0].trim() || 'Unknown';
+                    const firstLetter = artistName.charAt(0).toUpperCase();
+                    const letter = /[A-Z]/.test(firstLetter) ? firstLetter : '#';
+                    return letter === activeLetter;
+                  })
+                  .map((release) => (
+                    <ReleaseCard key={release.id} release={release} />
+                  ))}
+              </Box>
             </>
           ) : (
             <Box sx={{ textAlign: 'center', py: 8 }}>

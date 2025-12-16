@@ -48,10 +48,17 @@ export default function Videos() {
         // Fetch from dedicated videos endpoint (sorted by artist, then title)
         const videos = await services.videos.getVideos()
 
+        // Sort alphabetically by artist name
+        const sortedVideos = [...videos].sort((a, b) => {
+          const artistA = a.artist || 'Unknown';
+          const artistB = b.artist || 'Unknown';
+          return artistA.localeCompare(artistB);
+        });
+
         setState({
           loading: false,
           error: null,
-          videos: videos
+          videos: sortedVideos
         })
       } catch (error) {
         console.error('Failed to fetch videos:', error)
@@ -104,22 +111,9 @@ export default function Videos() {
       .sort();
   }, [groupedVideos]);
 
-  // Handle letter click - scroll to section
+  // Handle letter click - filter by letter (toggle on/off)
   const handleLetterClick = useCallback((letter: string) => {
-    const targetElement = letterRefs.current[letter];
-    if (targetElement) {
-      // Update active letter immediately for visual feedback
-      setActiveLetter(letter);
-      
-      const headerOffset = 120; // Offset to avoid header overlap
-      const elementPosition = targetElement.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
+    setActiveLetter(prev => prev === letter ? '' : letter);
   }, []);
 
   // Track active letter based on scroll position
@@ -341,7 +335,16 @@ export default function Videos() {
             />
           </Box>
           <Typography variant="body2" sx={{ color: 'white' }}>
-            {filteredVideos.length} video{filteredVideos.length !== 1 ? 's' : ''} found
+            {(() => {
+              const count = filteredVideos.filter(video => {
+                if (!activeLetter) return true;
+                const artistName = video.artist || 'Unknown';
+                const firstLetter = artistName.charAt(0).toUpperCase();
+                const letter = /[A-Z]/.test(firstLetter) ? firstLetter : '#';
+                return letter === activeLetter;
+              }).length;
+              return `${count} video${count !== 1 ? 's' : ''} found`;
+            })()}
           </Typography>
         </Box>
       )}
@@ -368,55 +371,31 @@ export default function Videos() {
             onLetterClick={handleLetterClick}
           />
 
-          {/* Grouped Videos by Letter */}
-          {Object.entries(groupedVideos)
-            .sort(([letterA], [letterB]) => {
-              // Sort with # at the end
-              if (letterA === '#') return 1;
-              if (letterB === '#') return -1;
-              return letterA.localeCompare(letterB);
-            })
-            .map(([letter, letterVideos]) => (
-              <Box key={letter} sx={{ mb: 6 }}>
-                {/* Letter Header with Ref */}
-                <Typography
-                  ref={(el) => {
-                    letterRefs.current[letter] = el;
-                  }}
-                  data-letter={letter}
-                  variant="h4"
-                  component="h2"
-                  sx={{
-                    mt: 4,
-                    mb: 3,
-                    fontWeight: 'bold',
-                    color: 'white',
-                    borderBottom: '2px solid red',
-                    pb: 1
-                  }}
-                >
-                  {letter}
-                </Typography>
-
-                {/* Video Grid for This Letter */}
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: {
-                      xs: 'repeat(1, 1fr)',
-                      sm: 'repeat(2, 1fr)',
-                      md: 'repeat(3, 1fr)',
-                      lg: 'repeat(4, 1fr)'
-                    },
-                    gap: 3
-                  }}
-                >
-                  {letterVideos.map((video) => (
-                    <VideoGridItem key={video.id} video={video} />
-                  ))}
-                </Box>
-              </Box>
-            ))}
+          {/* All Videos in Alphabetical Order */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+                lg: 'repeat(4, 1fr)'
+              },
+              gap: 3
+            }}
+          >
+            {filteredVideos
+              .filter(video => {
+                if (!activeLetter) return true;
+                const artistName = video.artist || 'Unknown';
+                const firstLetter = artistName.charAt(0).toUpperCase();
+                const letter = /[A-Z]/.test(firstLetter) ? firstLetter : '#';
+                return letter === activeLetter;
+              })
+              .map((video) => (
+                <VideoGridItem key={video.id} video={video} />
+              ))}
+          </Box>
         </>
       )}
     </Container>

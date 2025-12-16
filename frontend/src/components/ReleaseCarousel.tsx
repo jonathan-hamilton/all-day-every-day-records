@@ -58,6 +58,7 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
   // Responsive slides per view calculation
   const slidesPerView = isMobile ? 1 : isTablet ? 2 : 3;
   const totalSlides = releases.length;
+  // Ensure we don't scroll past the point where we have enough slides to fill the view
   const maxSlideIndex = Math.max(0, totalSlides - slidesPerView);
 
   // Fetch new releases data
@@ -108,16 +109,29 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
     retryFetch();
   }, [maxSlides, services.releases, tag]);
 
-  // Navigation functions
+  // Navigation functions with proper wrapping
   const goToNext = useCallback(() => {
     if (totalSlides <= slidesPerView) return;
-    setCurrentSlide(prev => prev >= maxSlideIndex ? 0 : prev + 1);
-  }, [maxSlideIndex, totalSlides, slidesPerView]);
+    setCurrentSlide(prev => {
+      const next = prev + 1;
+      // If we've scrolled past the original slides, wrap to beginning
+      if (next >= totalSlides) {
+        return 0;
+      }
+      return next;
+    });
+  }, [totalSlides, slidesPerView]);
 
   const goToPrevious = useCallback(() => {
     if (totalSlides <= slidesPerView) return;
-    setCurrentSlide(prev => prev <= 0 ? maxSlideIndex : prev - 1);
-  }, [maxSlideIndex, totalSlides, slidesPerView]);
+    setCurrentSlide(prev => {
+      // If we're at the beginning, wrap to the end
+      if (prev <= 0) {
+        return totalSlides - 1;
+      }
+      return prev - 1;
+    });
+  }, [totalSlides, slidesPerView]);
 
   const goToSlide = useCallback((slideIndex: number) => {
     if (slideIndex >= 0 && slideIndex <= maxSlideIndex) {
@@ -432,11 +446,11 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
         role="tabpanel"
         aria-label={`Slide ${currentSlide + 1} of ${maxSlideIndex + 1}`}
         >
-          {releases.map((release, index) => (
+          {[...releases, ...releases].map((release, index) => (
             <Box
               key={`${release.id}-${index}`}
               sx={{
-                width: `calc(${75 / slidesPerView}% - ${(2 * (slidesPerView - 1)) / slidesPerView}rem)`,
+                width: `calc(${100 / slidesPerView}% - ${(2 * (slidesPerView - 1)) / slidesPerView}rem)`,
                 flexShrink: 0,
                 height: 'auto'
               }}

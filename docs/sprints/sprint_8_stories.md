@@ -73,6 +73,12 @@ As a visitor to the homepage, I want the featured releases carousel to auto-rota
 - Drag detection with threshold (50px minimum swipe distance)
 - Cursor styling with CSS override for nested clickable elements
 - Type safety improvements in ReleaseOverview interface
+- **Infinite Scrolling Enhancement** (December 15, 2025):
+  - Implemented seamless infinite loop by duplicating release items in render array
+  - Carousel shows 3 items at a time (1 mobile, 2 tablet, 3 desktop) with no blank spaces
+  - Navigation wraps at totalSlides boundary for smooth continuous scrolling
+  - Restored visual spacing between items (gap: 2, ~16px) for improved readability
+  - Ensures all 8 featured releases are accessible with proper wrapping behavior
 
 **Files Modified**:
 - `frontend/src/components/ReleaseCarousel.tsx` - Complete carousel enhancement

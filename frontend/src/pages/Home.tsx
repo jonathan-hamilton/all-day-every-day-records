@@ -34,59 +34,109 @@ export default function Home() {
   }, [services.releases])
 
   return (
-    <Box sx={{ textAlign: 'center' }}>
-      {/* S4.1 Search Autocomplete */}
-      <Container maxWidth="sm" sx={{ pt: 4, pb: 4 }}>
-        <Box sx={{ maxWidth: { xs: '100%', sm: 350 }, mx: 'auto' }}>
-          <ReleaseAutocomplete
-            onSelectRelease={(release) => navigate(`/releases/${release.id}`)}
-            placeholder="Title or Artist"
-            size="small"
-          />
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Page Header */}
+      <Typography 
+        variant="h3" 
+        component="h1" 
+        gutterBottom
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          gap: 1,
+          mb: 4,
+          textAlign: 'center',
+          color: 'white'
+        }}
+      >
+        Home
+      </Typography>
+
+      {/* Search Box with Background */}
+      <Box 
+        sx={{ 
+          p: 3, 
+          mb: 4,
+          backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          position: 'relative',
+          borderRadius: 1,
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            borderRadius: 'inherit',
+            zIndex: 1,
+            pointerEvents: 'none'
+          },
+          '& > *': {
+            position: 'relative',
+            zIndex: 2
+          }
+        }}
+      >
+        {/* S4.1 Search Autocomplete */}
+        <Box sx={{ mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 260 } }}>
+              <ReleaseAutocomplete
+                onSelectRelease={(release) => navigate(`/releases/${release.id}`)}
+                placeholder="Title or Artist"
+                size="small"
+              />
+            </Box>
+          </Box>
         </Box>
-      </Container>
+      </Box>
 
       {/* New Releases Section */}
-      <Box sx={{ pt: 6, pb: 0 }}>
-        <Typography 
-          variant="h4" 
-          component="h2" 
-          gutterBottom
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            gap: 1,
-            mb: 4,
-            textAlign: 'center',
-            color: 'white'
-          }}
-        >
-          <AlbumIcon fontSize="large" />
-          New Releases
-        </Typography>
+      <Typography 
+        variant="h4" 
+        component="h2" 
+        gutterBottom
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          gap: 1,
+          mb: 4,
+          pt: 2,
+          textAlign: 'center',
+          color: 'white'
+        }}
+      >
+        <AlbumIcon fontSize="large" />
+        New Releases
+      </Typography>
         
-        {loading ? (
-          <Box sx={{ py: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center',
-            gap: 3,
-            px: 2,
-            mb: 6,
-            flexWrap: 'wrap'
-          }}>
-            {featuredReleases.map((release) => (
-              <Box key={release.id} sx={{ width: { xs: '100%', sm: '58.5%', md: '390px' }, maxWidth: '520px' }}>
-                <ReleaseCard release={release} />
-              </Box>
-            ))}
-          </Box>
-        )}
-      </Box>
+      {loading ? (
+        <Box sx={{ py: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          gap: 3,
+          px: 2,
+          mb: 6,
+          flexWrap: 'wrap'
+        }}>
+          {featuredReleases.map((release) => (
+            <Box key={release.id} sx={{ width: { xs: '100%', sm: '58.5%', md: '390px' }, maxWidth: '520px' }}>
+              <ReleaseCard release={release} />
+            </Box>
+          ))}
+        </Box>
+      )}
 
       {/* S2.1 Homepage Featured Releases Carousel */}
       <Box sx={{ pt: 6, pb: 0 }}>
@@ -122,6 +172,6 @@ export default function Home() {
         maxVideos={4}
         showTitle={true}
       />
-    </Box>
+    </Container>
   )
 }
