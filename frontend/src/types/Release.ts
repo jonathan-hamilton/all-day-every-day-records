@@ -37,6 +37,7 @@ export interface Release {
   facebook_url?: string;
   tiktok_url?: string;
   twitter_url?: string;
+  audio_url?: string;
   metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;

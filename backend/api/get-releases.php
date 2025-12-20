@@ -41,6 +41,7 @@ try {
                     facebook_url,
                     tiktok_url,
                     twitter_url,
+                    audio_url,
                     tag,
                     show_in_releases,
                     show_in_discography,
@@ -152,6 +153,7 @@ try {
                     facebook_url,
                     tiktok_url,
                     twitter_url,
+                    audio_url,
                     tag,
                     show_in_releases,
                     show_in_discography

@@ -24,14 +24,14 @@ Sprint 8 completes the All Day Every Day Records platform with advanced UI enhan
 | Story ID | Title | Status | Dependencies |
 |----------|-------|--------|--------------|
 | S8.1 | Auto-Rotating Homepage Carousel | COMPLETE ✅ | None |
-| S8.2 | Audio Player Widget Integration | PENDING ⏸️ | None |
+| S8.2 | Audio Player Widget Integration (consolidated with S8.7) | COMPLETE ✅ | None |
 | S8.3 | Social Media Links on Release Details | COMPLETE ✅ | None |
 | S8.4 | Homepage Section Label Corrections | COMPLETE ✅ | None |
 | S8.5 | Performance Optimization & Production Deployment | PENDING ⏸️ | S8.1, S8.2, S8.3, S8.4, S8.6, S8.7 |
 | S8.6 | Backend Security Analysis & Hardening | IN PROGRESS ⚙️ | None |
-| S8.7 | 30-Second Audio Preview System | PENDING ⏸️ | None |
+| S8.7 | 30-Second Audio Preview System (consolidated into S8.2) | COMPLETE ✅ | None |
 
-**Sprint 8 Progress: 3/7 stories (43% COMPLETE)**
+**Sprint 8 Progress: 5/7 stories (71% COMPLETE)**
 
 ---
 
@@ -103,40 +103,60 @@ As a visitor to the homepage, I want the featured releases carousel to auto-rota
 
 ### S8.2: Audio Player Widget Integration
 **Priority**: HIGH  
-**Status**: PENDING ⏸️  
-**Estimate**: 8-10 hours
+**Status**: COMPLETE ✅  
+**Estimate**: 8-10 hours  
+**Completion Date**: December 20, 2025  
+**Consolidated**: This story was implemented with S8.7 (30-Second Audio Preview System) as a single unified feature
 
 **User Story**:  
 As a visitor viewing a release detail page, I want to listen to audio samples or full tracks so that I can preview the music before purchasing or streaming.
 
-**Acceptance Criteria**:
-- Audio player widget displays on release detail pages when audio URL is configured
-- Player supports Spotify embed URLs for streaming integration
-- Player displays artist name, release title, and track information
-- Play/pause controls functional with visual feedback
-- Volume control and progress bar displayed
-- Responsive player design matches site theme (grunge aesthetic)
-- Admin can configure audio player URL per release in admin dashboard
-- Audio URL field added to release edit form with validation
-- Player only renders if audio URL exists (conditional display)
-- Mobile-responsive player with touch-friendly controls
+**Acceptance Criteria** (Consolidated S8.2 + S8.7):
+✅ Audio player displays minimal speaker icon on release detail pages when audio exists
+✅ Icon positioned inline with release title for clean integration
+✅ Click icon to play/pause MP3 audio preview
+✅ Pulsing animation during playback for visual feedback
+✅ Audio loops continuously (no time limit - user preference)
+✅ Admin can upload MP3 files via release edit form
+✅ File upload validates: MP3 format, 2MB max size, 35 seconds max duration
+✅ Client-side duration validation using HTML5 Audio API
+✅ Server-side validation: MIME type (audio/mpeg), file extension (.mp3), size
+✅ Environment-aware file storage (dev: /var/www/html/uploads/audio/, prod: /release-audio/)
+✅ Database stores audio_url in releases table
+✅ Old audio files automatically deleted when uploading replacement
+✅ Admin can delete audio via "Remove Audio" button
+✅ Responsive controls work on mobile and desktop
+✅ No progress bar or time display (minimal UI)
+
+**Implementation Summary**:
+- Created database migration `009_add_audio_url.sql` with VARCHAR(500) column and index
+- Implemented `backend/api/upload-audio.php` with full validation (requireAuth, MIME type, extension, size)
+- Updated backend APIs: `upsert-release.php`, `get-releases.php`, `get-releases-by-id.php` to handle audio_url
+- Created minimal `AudioPlayer.tsx` component (IconButton with speaker icon, pulsing CSS animation, loop support)
+- Integrated audio upload in `AdminDashboard.tsx` with client-side validation (file extension, size, duration check)
+- Positioned AudioPlayer inline with release title on `ReleaseDetailPage.tsx` using flexbox
+- File storage pattern: `{release_id}_audio.mp3` with environment-aware paths
+- Consolidated S8.7 (30-second preview) into single implementation with user-controlled looping
+
+**Technical Notes**:
+- Used HTML5 Audio API for client-side duration validation before upload
+- Environment detection uses getConfig() for dev vs production paths
+- AudioPlayer uses React hooks (useState, useEffect, useRef) for state management
+- Pulsing animation implemented with CSS keyframes
+- Flexbox layout (display: flex, alignItems: center, gap: 2) for title/icon positioning
+- Material-UI components: IconButton, Tooltip, Grid, VolumeUpIcon
+
+**Files Modified**:
+- `backend/database/migrations/009_add_audio_url.sql` (NEW)
+- `backend/api/upload-audio.php` (NEW)
+- `backend/api/upsert-release.php` (MODIFIED)
+- `backend/api/get-releases.php` (MODIFIED)
+- `frontend/src/components/AudioPlayer.tsx` (NEW)
+- `frontend/src/pages/AdminDashboard.tsx` (MODIFIED)
+- `frontend/src/pages/ReleaseDetailPage.tsx` (MODIFIED)
+- `frontend/src/types/Release.ts` (MODIFIED)
 
 **Dependencies**: None (extends Sprint 3 release detail pages and admin CRUD)
-
-**Developer Notes**:
-- Use Spotify embed iframe for streaming integration
-- Alternative: HTML5 `<audio>` element for direct MP3 URLs
-- Database: Add `audio_url` VARCHAR(500) column to `releases` table
-- Backend: Update `upsert-release.php` to handle audio_url field
-- Frontend component: `AudioPlayer.tsx` with Material-UI styling
-- Admin form: Add text field in AdminDashboard release edit dialog
-- Validation: Check for valid Spotify URL or MP3/audio file URL
-- File locations:
-  - `frontend/src/components/AudioPlayer.tsx` (NEW)
-  - `frontend/src/pages/ReleaseDetailPage.tsx` (MODIFIED)
-  - `frontend/src/pages/AdminDashboard.tsx` (MODIFIED - add audio_url field)
-  - `backend/api/upsert-release.php` (MODIFIED)
-  - `backend/database/migrations/005_add_audio_url.sql` (NEW)
 
 ---
 
@@ -439,8 +459,12 @@ As a product owner, I want the PHP backend thoroughly analyzed for security vuln
 
 ### S8.7: 30-Second Audio Preview System
 **Priority**: MEDIUM  
-**Status**: PENDING ⏸️  
-**Estimate**: 8-10 hours
+**Status**: COMPLETE ✅  
+**Estimate**: 8-10 hours  
+**Completion Date**: December 20, 2025  
+**Consolidated**: This story was merged into S8.2 implementation as a unified audio preview feature
+
+**Note**: See S8.2 for complete implementation details. The functionality originally planned for S8.7 (MP3 file upload, validation, simple playback controls) was implemented as part of S8.2, creating a single cohesive audio preview system rather than two separate implementations.
 
 **User Story**:  
 As a visitor viewing a release detail page, I want to listen to a short audio preview so that I can sample the music before deciding to stream or purchase.

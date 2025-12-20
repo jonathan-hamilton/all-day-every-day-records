@@ -25,6 +25,7 @@ import {
   Tab,
   Checkbox,
   FormControlLabel,
+  Grid,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -54,6 +55,7 @@ interface Release {
   release_date: string;
   description: string;
   cover_image_url: string;
+  audio_url: string;
   spotify_url: string;
   apple_music_url: string;
   amazon_music_url: string;
@@ -137,6 +139,7 @@ const AdminDashboard: React.FC = () => {
     release_date: '',
     description: '',
     cover_image_url: '',
+    audio_url: '',
     spotify_url: '',
     apple_music_url: '',
     amazon_music_url: '',
@@ -410,6 +413,88 @@ const AdminDashboard: React.FC = () => {
       }
     };
     input.click();
+  };
+
+  const handleUploadAudio = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'audio/mpeg,.mp3';
+    input.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      // Client-side validation: File extension
+      if (!file.name.toLowerCase().endsWith('.mp3')) {
+        setError('Only MP3 files are allowed');
+        return;
+      }
+
+      // Client-side validation: File size (2MB max)
+      const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+      if (file.size > maxSize) {
+        setError('File size must be less than 2MB');
+        return;
+      }
+
+      // Client-side validation: Audio duration (35 seconds max)
+      try {
+        const isValid = await new Promise<boolean>((resolve) => {
+          const audio = new Audio(URL.createObjectURL(file));
+          audio.onloadedmetadata = () => {
+            URL.revokeObjectURL(audio.src);
+            if (audio.duration > 35) {
+              setError('Audio must be 35 seconds or less');
+              resolve(false);
+            } else {
+              resolve(true);
+            }
+          };
+          audio.onerror = () => {
+            URL.revokeObjectURL(audio.src);
+            setError('Invalid audio file');
+            resolve(false);
+          };
+        });
+
+        if (!isValid) return;
+      } catch (err) {
+        setError('Failed to validate audio file');
+        console.error('Validation error:', err);
+        return;
+      }
+
+      // Upload the file
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('release_id', editingRelease?.id?.toString() || '0');
+
+      try {
+        setError(null);
+        const response = await fetch(`${apiConfig.baseURL}/upload-audio.php`, {
+          method: 'POST',
+          credentials: 'include',
+          body: uploadFormData,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setFormData(prev => ({ ...prev, audio_url: data.audio_url }));
+          setSuccess('Audio file uploaded successfully!');
+        } else {
+          setError(data.error || 'Failed to upload audio');
+        }
+      } catch (err) {
+        setError('Network error uploading audio');
+        console.error('Upload error:', err);
+      }
+    };
+    input.click();
+  };
+
+  const handleDeleteAudio = () => {
+    setFormData(prev => ({ ...prev, audio_url: '' }));
+    setSuccess('Audio file removed');
   };
 
   const handleSubmit = async () => {
@@ -831,26 +916,68 @@ const AdminDashboard: React.FC = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, cover_image_url: e.target.value }))}
                 />
 
-                {/* Upload Cover Image Button - Primary way to set cover image */}
+                {/* Upload Cover Image and Audio Preview - Combined Row */}
                 <Box sx={{ mb: 3 }}>
-                  <Typography variant="subtitle2" gutterBottom sx={{ color: 'white' }}>
-                    Cover Image *
-                  </Typography>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Button
-                      variant={formData.cover_image_url ? "outlined" : "contained"}
-                      startIcon={<UploadIcon />}
-                      onClick={handleUploadCoverImage}
-                      color={formData.cover_image_url ? "success" : "primary"}
-                    >
-                      {formData.cover_image_url ? "Change Cover Image" : "Upload Cover Image"}
-                    </Button>
-                    {formData.cover_image_url && (
-                      <Typography variant="body2" color="success.main">
-                        {editingRelease ? `✓ Current cover image: ${formData.cover_image_url}` : '✓ Cover image ready'}
+                  <Grid container spacing={3}>
+                    {/* Cover Image */}
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="subtitle2" gutterBottom sx={{ color: 'white' }}>
+                        Cover Image *
                       </Typography>
-                    )}
-                  </Stack>
+                      <Stack direction="column" spacing={1}>
+                        <Button
+                          variant={formData.cover_image_url ? "outlined" : "contained"}
+                          startIcon={<UploadIcon />}
+                          onClick={handleUploadCoverImage}
+                          color={formData.cover_image_url ? "success" : "primary"}
+                          fullWidth
+                        >
+                          {formData.cover_image_url ? "Change Cover Image" : "Upload Cover Image"}
+                        </Button>
+                        {formData.cover_image_url && (
+                          <Typography variant="caption" color="success.main">
+                            {editingRelease ? `✓ Current cover image: ${formData.cover_image_url}` : '✓ Cover image ready'}
+                          </Typography>
+                        )}
+                      </Stack>
+                    </Grid>
+
+                    {/* Audio Preview */}
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="subtitle2" gutterBottom sx={{ color: 'white' }}>
+                        Audio Preview
+                      </Typography>
+                      <Stack direction="column" spacing={1}>
+                        <Button
+                          variant={formData.audio_url ? "outlined" : "contained"}
+                          startIcon={<UploadIcon />}
+                          onClick={handleUploadAudio}
+                          color={formData.audio_url ? "success" : "primary"}
+                          fullWidth
+                        >
+                          {formData.audio_url ? "Change Audio Sample" : "Upload Audio Sample"}
+                        </Button>
+                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                          MP3 format, max 2MB, max 35 seconds
+                        </Typography>
+                        {formData.audio_url && (
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <Typography variant="caption" color="success.main">
+                              ✓ Audio preview ready
+                            </Typography>
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              size="small"
+                              onClick={handleDeleteAudio}
+                            >
+                              Remove
+                            </Button>
+                          </Stack>
+                        )}
+                      </Stack>
+                    </Grid>
+                  </Grid>
                 </Box>
 
                 {/* Description */}

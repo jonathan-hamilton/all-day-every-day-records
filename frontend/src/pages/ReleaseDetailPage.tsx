@@ -18,6 +18,7 @@ import StreamingLinkButtons from '../components/StreamingLinkButtons';
 import SocialMediaLinks from '../components/SocialMediaLinks';
 import YouTubeEmbed from '../components/YouTubeEmbed';
 import RelatedReleases from '../components/RelatedReleases';
+import AudioPlayer from '../components/AudioPlayer';
 
 interface ReleaseDetailPageState {
   loading: boolean;
@@ -234,23 +235,36 @@ const ReleaseDetailPage: React.FC = () => {
         <Box>
           <Box
             sx={{
-              backgroundImage: 'url(/images/title-inverse.png)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              padding: 1.5,
-              textAlign: 'left',
-              display: 'inline-block',
-              width: 'fit-content',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
               marginBottom: '8px'
             }}
           >
-            <Typography variant="h3" component="h1" sx={{ 
-              fontWeight: 'bold',
-              color: 'black',
-              margin: 0
-            }}>
-              {release.title}
-            </Typography>
+            <Box
+              sx={{
+                backgroundImage: 'url(/images/title-inverse.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                padding: 1.5,
+                textAlign: 'left',
+                display: 'inline-block',
+                width: 'fit-content',
+              }}
+            >
+              <Typography variant="h3" component="h1" sx={{ 
+                fontWeight: 'bold',
+                color: 'black',
+                margin: 0
+              }}>
+                {release.title}
+              </Typography>
+            </Box>
+            
+            {/* Audio Preview Icon */}
+            {release.audio_url && (
+              <AudioPlayer audioUrl={release.audio_url} />
+            )}
           </Box>
           
           <Box

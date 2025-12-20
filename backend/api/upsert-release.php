@@ -62,6 +62,7 @@ try {
                     facebook_url = ?,
                     tiktok_url = ?,
                     twitter_url = ?,
+                    audio_url = ?,
                     tag = ?,
                     show_in_releases = ?,
                     show_in_discography = ?,
@@ -85,6 +86,7 @@ try {
             $input['facebook_url'] ?? null,
             $input['tiktok_url'] ?? null,
             $input['twitter_url'] ?? null,
+            $input['audio_url'] ?? null,
             $input['tag'] ?? 'None',
             $showInReleases ? 1 : 0,
             $showInDiscography ? 1 : 0,
@@ -98,9 +100,9 @@ try {
         $sql = "INSERT INTO releases 
                 (title, artist, description, release_date, format, cover_image_url, 
                 spotify_url, apple_music_url, amazon_music_url, youtube_music_url, youtube_url, youtube2_url,
-                instagram_url, facebook_url, tiktok_url, twitter_url, tag,
+                instagram_url, facebook_url, tiktok_url, twitter_url, audio_url, tag,
                 show_in_releases, show_in_discography, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         
         $params = [
             $input['title'],
@@ -119,6 +121,7 @@ try {
             $input['facebook_url'] ?? null,
             $input['tiktok_url'] ?? null,
             $input['twitter_url'] ?? null,
+            $input['audio_url'] ?? null,
             $input['tag'] ?? 'None',
             $showInReleases ? 1 : 0,
             $showInDiscography ? 1 : 0
