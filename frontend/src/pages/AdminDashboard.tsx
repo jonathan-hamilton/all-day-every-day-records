@@ -920,7 +920,7 @@ const AdminDashboard: React.FC = () => {
                 <Box sx={{ mb: 3 }}>
                   <Grid container spacing={3}>
                     {/* Cover Image */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                       <Typography variant="subtitle2" gutterBottom sx={{ color: 'white' }}>
                         Cover Image *
                       </Typography>
@@ -943,7 +943,7 @@ const AdminDashboard: React.FC = () => {
                     </Grid>
 
                     {/* Audio Preview */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                       <Typography variant="subtitle2" gutterBottom sx={{ color: 'white' }}>
                         Audio Preview
                       </Typography>
