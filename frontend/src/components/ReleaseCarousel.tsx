@@ -441,7 +441,7 @@ export const ReleaseCarousel: React.FC<ReleaseCarouselProps> = ({
           transition: 'transform 0.3s ease-in-out',
           transform: `translateX(-${currentSlide * (100 / slidesPerView)}%)`,
           gap: 2,
-          justifyContent: 'center'
+          justifyContent: 'flex-start'
         }}
         role="tabpanel"
         aria-label={`Slide ${currentSlide + 1} of ${maxSlideIndex + 1}`}

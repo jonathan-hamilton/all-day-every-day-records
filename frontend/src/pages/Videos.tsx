@@ -120,11 +120,6 @@ export default function Videos() {
   useEffect(() => {
     if (availableLetters.length === 0) return;
 
-    // Set initial active letter to the first available letter
-    if (!activeLetter && availableLetters.length > 0) {
-      setActiveLetter(availableLetters[0]);
-    }
-
     const observers: IntersectionObserver[] = [];
     
     const observerOptions = {
@@ -268,34 +263,7 @@ export default function Videos() {
       </Typography>
 
       {hasVideos && (
-        <Box 
-          sx={{
-            mb: 4,
-            p: 3,
-            borderRadius: 2,
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            backgroundImage: 'url("/images/abstract-black-grunge-texture-scaled-900x120.png")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            position: 'relative',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.4)',
-              borderRadius: 'inherit',
-              zIndex: 1,
-              pointerEvents: 'none'
-            },
-            '& > *': {
-              position: 'relative',
-              zIndex: 2
-            }
-          }}
-        >
+        <Box sx={{ mb: 4 }}>
           <Box sx={{ mb: 2 }}>
             <TextField
               fullWidth

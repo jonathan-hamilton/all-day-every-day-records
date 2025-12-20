@@ -118,11 +118,6 @@ export default function Discography() {
   useEffect(() => {
     if (availableLetters.length === 0) return;
 
-    // Set initial active letter to the first available letter
-    if (!activeLetter && availableLetters.length > 0) {
-      setActiveLetter(availableLetters[0]);
-    }
-
     const observers: IntersectionObserver[] = [];
     
     const observerOptions = {

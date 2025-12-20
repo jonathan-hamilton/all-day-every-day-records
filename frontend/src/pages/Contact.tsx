@@ -5,7 +5,7 @@ import { CONTACT_INFO } from '../config/constants'
 export default function Contact() {
   return (
     <Box sx={{ color: 'white', maxWidth: 800, mx: 'auto' }}>
-      <Typography variant="h3" component="h1" gutterBottom sx={{ mb: 4 }}>
+      <Typography variant="h3" component="h1" gutterBottom sx={{ mb: 4, color: 'white' }}>
         Contact
       </Typography>
 
@@ -21,12 +21,11 @@ export default function Contact() {
         <Link 
           href={`mailto:${CONTACT_INFO.email}`}
           sx={{ 
-            color: '#9e9e9e',
+            color: 'white',
             fontSize: '1.1rem',
             textDecoration: 'none',
             '&:hover': {
-              textDecoration: 'underline',
-              color: 'white'
+              textDecoration: 'underline'
             }
           }}
         >
@@ -45,7 +44,7 @@ export default function Contact() {
         <Typography 
           variant="body1"
           sx={{ 
-            color: '#9e9e9e',
+            color: 'white',
             fontSize: '1.1rem'
           }}
         >

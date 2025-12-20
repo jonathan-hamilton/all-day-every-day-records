@@ -48,9 +48,12 @@ all-day-every-day-records/
 
 **Overall Progress: 98% Complete** (43/44 stories)
 
-**Recent Updates (December 15, 2025)**:
-- Enhanced homepage carousel with infinite scrolling and improved UX
-- Refined visual spacing across all page layouts
+**Recent Updates (December 20, 2025)**:
+- UI/UX Polish: Carousel alignment fix, search filter redesign, A-Z navigation improvements
+- Homepage carousel: Fixed first slide visibility and removed slide indicators
+- Search filters: Removed grey backgrounds across all pages while maintaining functionality
+- A-Z filter: Added scrollable drag-to-scroll with no auto-selection on page load
+- Contact page: Updated text colors to white and corrected address format (CA)
 
 ### ✅ Completed Phases
 - **Project Scaffolding**: Complete React 19 + TypeScript + Material-UI frontend (3/3 stories)

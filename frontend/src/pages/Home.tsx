@@ -53,47 +53,14 @@ export default function Home() {
         Home
       </Typography>
 
-      {/* Search Box with Background */}
-      <Box 
-        sx={{ 
-          p: 3, 
-          mb: 4,
-          backgroundImage: 'url(/images/abstract-black-grunge-texture-scaled-900x120.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          position: 'relative',
-          borderRadius: 1,
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            borderRadius: 'inherit',
-            zIndex: 1,
-            pointerEvents: 'none'
-          },
-          '& > *': {
-            position: 'relative',
-            zIndex: 2
-          }
-        }}
-      >
-        {/* S4.1 Search Autocomplete */}
-        <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-            <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 260 } }}>
-              <ReleaseAutocomplete
-                onSelectRelease={(release) => navigate(`/releases/${release.id}`)}
-                placeholder="Title or Artist"
-                size="small"
-              />
-            </Box>
-          </Box>
+      {/* S4.1 Search Autocomplete */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 260 } }}>
+          <ReleaseAutocomplete
+            onSelectRelease={(release) => navigate(`/releases/${release.id}`)}
+            placeholder="Title or Artist"
+            size="small"
+          />
         </Box>
       </Box>
 
@@ -163,7 +130,7 @@ export default function Home() {
         autoPlay={true}
         autoPlayInterval={5000}
         showNavigation={true}
-        showIndicators={true}
+        showIndicators={false}
         tag="Featured"
       />
 
