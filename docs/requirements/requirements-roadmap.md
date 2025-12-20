@@ -12,8 +12,8 @@
 | **Sprint 5** | **COMPLETE ✅** | **3/3 stories** | **100%** |
 | **Sprint 6** | **COMPLETE ✅** | **3/3 stories** | **100%** |
 | **Sprint 7** | **COMPLETE ✅** | **4/4 stories** | **100%** |
-| Sprint 8 | 50% COMPLETE 🏗️ | 3/6 stories | 50% |
-| **TOTALS** | **43/44 STORIES** | **43/44 stories** | **98%** |
+| Sprint 8 | 43% COMPLETE 🏗️ | 3/7 stories | 43% |
+| **TOTALS** | **43/45 STORIES** | **43/45 stories** | **96%** |
 
 *Last Updated: December 14, 2025*
 
@@ -32,7 +32,7 @@ This roadmap follows a **documentation-driven development** approach where each 
 - **Sprint 5**: Videos system implementation (3 stories)
 - **Sprint 6**: Discography system implementation (3 stories)
 - **Sprint 7**: Release page enhancements (4 stories)
-- **Sprint 8**: Advanced features and production deployment (5 stories)
+- **Sprint 8**: Advanced features and production deployment (7 stories)
 - **Target**: 2-week sprint cycles with continuous delivery
 
 ### Success Metrics
@@ -365,17 +365,30 @@ This roadmap follows a **documentation-driven development** approach where each 
 
 ## Sprint 8: Advanced Features & Production Deployment
 
-**Objective**: Implement advanced carousel, audio player, social media integration, and deploy to production
+**Objective**: Implement advanced carousel, audio preview, social media integration, and deploy to production
 **Target Duration**: 2 weeks
-**Story Count**: 5 stories
+**Story Count**: 7 stories
 
 ### Requirements Included:
 - **REQ-UI-12**: Use record icon for all three homepage section headings
 - **REQ-UI-13**: Implement drag-enabled carousel or auto-rotating carousel without navigation arrows
 - **REQ-RM-13**: Support audio player widget on release detail pages
 - **REQ-RM-14**: Support social media links on release detail pages
+- **REQ-RM-15**: Support 30-second audio preview playback on release detail pages
+- **REQ-RM-16**: Accept MP3 audio files up to 2MB and 35 seconds duration
+- **REQ-RM-17**: Limit audio preview playback to first 30 seconds
+- **REQ-RM-18**: Display toggle icon for audio preview playback
+- **REQ-RM-19**: Hide audio preview icon when no preview available
+- **REQ-RM-20**: Animate audio preview icon during playback
+- **REQ-RM-21**: Pause audio preview on page navigation
+- **REQ-RM-22**: Store audio preview files in file system
 - **REQ-AD-9**: Provide admin configuration for audio player widget
 - **REQ-AD-10**: Provide admin configuration for social media links
+- **REQ-AD-11**: Provide MP3 Preview upload field in release upsert form
+- **REQ-AD-12**: Validate audio preview files (format, size, duration)
+- **REQ-AD-13**: Display current preview audio filename in edit form
+- **REQ-AD-14**: Allow deletion and replacement of preview audio
+- **REQ-AD-15**: Automatically delete old preview file when uploading new one
 - **REQ-NFR-1**: Load initial page content within 3 seconds on standard broadband
 - **REQ-NFR-2**: Support concurrent access by up to 1000 users without performance degradation
 - **REQ-NFR-3**: Optimize image loading with appropriate compression and lazy loading
@@ -390,6 +403,14 @@ This roadmap follows a **documentation-driven development** approach where each 
 - Carousel replaced with drag-enabled or auto-rotating version (no navigation arrows)
 - Audio player widget embedded on release detail pages
 - Admin can configure audio player widget settings per release
+- 30-second audio preview functionality on release detail pages
+- Animated toggle icon (waveform/speaker) for audio preview playback
+- Audio preview limited to first 30 seconds with auto-stop
+- Admin MP3 Preview upload field in release upsert form
+- Audio file validation (MP3 only, 2MB max, 35 seconds max)
+- Preview audio file storage in backend/uploads/previews/
+- Current preview audio displayed in admin edit form
+- Delete and replace functionality for preview audio files
 - Social media links (Instagram, Facebook, TikTok, X) configurable on release detail pages
 - Admin interface for managing social media URLs per release
 - Record icon displayed on all homepage section headings

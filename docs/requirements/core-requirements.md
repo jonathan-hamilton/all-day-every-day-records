@@ -42,6 +42,14 @@
 - REQ-RM-12: System shall display streaming videos in 2-column layout on detail pages (stacked on narrow viewports)
 - REQ-RM-13: System shall support audio player widget on release detail pages, configurable via admin
 - REQ-RM-14: System shall support social media links (Instagram, Facebook, TikTok, X) on release detail pages, configurable via admin
+- REQ-RM-15: System shall support 30-second audio preview playback on release detail pages
+- REQ-RM-16: System shall accept MP3 audio files up to 2MB and 35 seconds duration for preview uploads
+- REQ-RM-17: System shall limit audio preview playback to first 30 seconds of uploaded file
+- REQ-RM-18: System shall display toggle icon (waveform/speaker) for audio preview playback on release detail pages
+- REQ-RM-19: System shall hide audio preview icon when no preview audio is available for a release
+- REQ-RM-20: System shall animate audio preview icon during playback to indicate active state
+- REQ-RM-21: System shall pause audio preview playback when user navigates away from release detail page
+- REQ-RM-22: System shall store audio preview files in file system at backend/uploads/previews/
 
 ### Content Display
 
@@ -68,6 +76,11 @@
 - REQ-AD-8: System shall provide dropdown/checkbox controls for categorizing releases as Releases, Discography, or both
 - REQ-AD-9: System shall provide admin configuration for audio player widget on release detail pages
 - REQ-AD-10: System shall provide admin configuration for social media links on release detail pages
+- REQ-AD-11: System shall provide MP3 Preview upload field in release upsert form
+- REQ-AD-12: System shall validate audio preview files for MP3 format, 2MB max size, and 35 seconds max duration
+- REQ-AD-13: System shall display current preview audio filename in edit form when preview exists
+- REQ-AD-14: System shall allow deletion and replacement of existing preview audio files
+- REQ-AD-15: System shall automatically delete old preview audio file when uploading new one for same release
 
 ## Non-Functional Requirements
 

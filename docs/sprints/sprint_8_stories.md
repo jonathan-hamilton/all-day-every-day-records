@@ -27,10 +27,11 @@ Sprint 8 completes the All Day Every Day Records platform with advanced UI enhan
 | S8.2 | Audio Player Widget Integration | PENDING ⏸️ | None |
 | S8.3 | Social Media Links on Release Details | COMPLETE ✅ | None |
 | S8.4 | Homepage Section Label Corrections | COMPLETE ✅ | None |
-| S8.5 | Performance Optimization & Production Deployment | PENDING ⏸️ | S8.1, S8.2, S8.3, S8.4, S8.6 |
+| S8.5 | Performance Optimization & Production Deployment | PENDING ⏸️ | S8.1, S8.2, S8.3, S8.4, S8.6, S8.7 |
 | S8.6 | Backend Security Analysis & Hardening | IN PROGRESS ⚙️ | None |
+| S8.7 | 30-Second Audio Preview System | PENDING ⏸️ | None |
 
-**Sprint 8 Progress: 3/6 stories (50% COMPLETE)**
+**Sprint 8 Progress: 3/7 stories (43% COMPLETE)**
 
 ---
 
@@ -436,21 +437,146 @@ As a product owner, I want the PHP backend thoroughly analyzed for security vuln
 
 ---
 
+### S8.7: 30-Second Audio Preview System
+**Priority**: MEDIUM  
+**Status**: PENDING ⏸️  
+**Estimate**: 8-10 hours
+
+**User Story**:  
+As a visitor viewing a release detail page, I want to listen to a short audio preview so that I can sample the music before deciding to stream or purchase.
+
+**Acceptance Criteria**:
+- Audio preview toggle icon (waveform/speaker) displays on release detail pages when preview is available
+- Icon is hidden when no audio preview exists for a release
+- Clicking icon plays/pauses the audio preview
+- Icon animates during playback to indicate active state (pulsing or waveform animation)
+- Audio preview automatically stops after 30 seconds of playback
+- Audio pauses when user navigates away from release detail page
+- Admin can upload MP3 preview file in release upsert form via "MP3 Preview" field
+- File upload validates MP3 format, 2MB max size, and 35 seconds max duration
+- Client-side validation checks audio duration before upload
+- Server-side validation enforces file type, size, and duration limits
+- Current preview audio filename displays in admin edit form when preview exists
+- Admin can delete and replace existing preview audio files
+- Old preview audio file automatically deleted when uploading new one for same release
+- Audio files stored in file system at `backend/uploads/previews/`
+- Database stores preview URL in `preview_audio_url` column
+- Responsive audio controls work on mobile and desktop
+- No progress bar displayed (simple play/pause toggle only)
+
+**Dependencies**: None (extends Sprint 3 release detail pages and admin CRUD)
+
+**Developer Notes**:
+- **Database Migration**:
+  - Create migration `008_add_audio_preview.sql`
+  - Add column: `preview_audio_url VARCHAR(500) NULL` to `releases` table
+  - Add index on `preview_audio_url` for query optimization
+
+- **Backend Implementation**:
+  - Create `upload-preview-audio.php` endpoint (similar to upload-cover-image.php)
+  - File validation: Check MP3 MIME type, max 2MB size
+  - Audio duration validation using getID3 library or similar
+  - Store files as: `{release_id}_preview.mp3` in `backend/uploads/previews/`
+  - Update `upsert-release.php` to handle preview_audio_url field
+  - Update `get-releases-by-id.php` to return preview_audio_url
+  - Implement delete logic: remove old file when uploading new one
+
+- **Frontend - ReleaseDetail Component**:
+  - Create `AudioPreviewPlayer.tsx` component
+  - Use HTML5 `<audio>` element with custom controls
+  - Implement waveform/speaker icon from Material-UI or custom SVG
+  - Icon states: hidden (no audio), static (paused), animated (playing)
+  - Animation: CSS keyframes for pulsing or waveform effect
+  - Playback limit: Use `ontimeupdate` event to stop at 30 seconds
+  - Page navigation: useEffect cleanup to pause audio on unmount
+  - Position near release title or cover image
+
+- **Frontend - Admin Form**:
+  - Add "MP3 Preview" file input field in AdminDashboard release form
+  - Client-side validation using HTML5 Audio API:
+    ```javascript
+    const audio = new Audio(URL.createObjectURL(file));
+    audio.onloadedmetadata = () => {
+      if (audio.duration > 35) {
+        alert('Audio must be 35 seconds or less');
+      }
+    };
+    ```
+  - Display current filename if preview exists: "Current: preview.mp3"
+  - Add "Delete Preview" button for existing previews
+  - Show upload progress indicator during file upload
+  - Validate file extension (.mp3) and MIME type before upload
+
+- **Audio Player Implementation**:
+  - HTML5 audio element: `<audio ref={audioRef} src={previewUrl} />`
+  - Play/pause toggle: `audioRef.current.play()` / `pause()`
+  - Time limit enforcement:
+    ```javascript
+    audioRef.current.ontimeupdate = () => {
+      if (audioRef.current.currentTime >= 30) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+    ```
+  - Icon animation: CSS class toggle on play/pause state
+
+- **File Storage Structure**:
+  ```
+  backend/uploads/previews/
+    ├── 1_preview.mp3
+    ├── 2_preview.mp3
+    └── 15_preview.mp3
+  ```
+
+- **Security Considerations**:
+  - Validate file extension AND MIME type (check magic bytes)
+  - Limit file size to prevent DoS attacks (2MB max)
+  - Store files outside web root if possible, serve via PHP script
+  - Sanitize filename to prevent path traversal attacks
+  - Rate limit upload endpoint to prevent abuse
+
+- **Audio Format Support**:
+  - MP3 only for initial implementation (simplest, widest browser support)
+  - HTML5 audio supports: MP3, WAV, OGG, M4A (browser-dependent)
+  - Future enhancement: Accept multiple formats, convert server-side if needed
+
+**Technical Rationale**:
+- File system storage preferred over database BLOBs for performance and scalability
+- Client-side duration check provides immediate feedback before upload
+- Server-side validation ensures security and data integrity
+- 30-second limit balances preview value with copyright considerations
+- Simple toggle interface minimizes UI complexity while providing core functionality
+
+**File locations**:
+- `backend/database/migrations/008_add_audio_preview.sql` (NEW)
+- `backend/api/upload-preview-audio.php` (NEW)
+- `backend/api/upsert-release.php` (MODIFIED - add preview_audio_url field)
+- `backend/api/get-releases-by-id.php` (MODIFIED - return preview_audio_url)
+- `frontend/src/components/AudioPreviewPlayer.tsx` (NEW)
+- `frontend/src/pages/ReleaseDetailPage.tsx` (MODIFIED - integrate audio player)
+- `frontend/src/pages/AdminDashboard.tsx` (MODIFIED - add MP3 upload field)
+- `frontend/src/types/Release.ts` (MODIFIED - add preview_audio_url field)
+
+---
+
 ## Integration Notes
 
 ### Cross-Story Integration
 - S8.1 (Carousel) works independently but enhances homepage UX
-- S8.2 (Audio) and S8.3 (Social) both extend release detail pages and admin forms
+- S8.2 (Audio Widget) and S8.7 (Audio Preview) both handle audio but serve different purposes (streaming vs preview)
+- S8.3 (Social) and S8.7 (Audio Preview) both extend release detail pages and admin forms
 - S8.4 (Labels) is standalone quick fix
 - S8.6 (Security) ensures all backend code is hardened before production
 - S8.5 (Deployment) integrates all previous work into production environment
 
 ### Technical Integration Points
-- Audio and social media require coordinated database migrations
-- Admin dashboard needs form updates for both S8.2 and S8.3
-- Release detail page integrates both audio player and social links
+- Audio preview (S8.7) and social media (S8.3) require coordinated database migrations
+- Admin dashboard needs form updates for S8.2, S8.3, and S8.7
+- Release detail page integrates audio preview player, audio widget, and social links
 - Security audit (S8.6) may identify issues requiring fixes across multiple files
 - Performance optimization (S8.5) affects all components from all sprints
+- S8.7 follows same file upload pattern as S3.5 (cover image uploads)
 
 ---
 
@@ -458,6 +584,7 @@ As a product owner, I want the PHP backend thoroughly analyzed for security vuln
 
 - Homepage carousel engagement increases with auto-rotation
 - Audio player usage tracked (play events, completion rates)
+- Audio preview engagement measured (play rate per release view, average listen duration)
 - Social media click-through rates measured
 - Security audit shows zero critical vulnerabilities
 - Page load times consistently under 3 seconds (Lighthouse score > 90)
@@ -484,20 +611,23 @@ Sprint 8 completion establishes:
 
 **Story Selection Justification**:
 1. **S8.1 (Carousel)**: Low-risk UX enhancement with high user engagement value
-2. **S8.2 (Audio Player)**: Core content feature enabling music preview and streaming
+2. **S8.2 (Audio Player)**: Core content feature enabling music streaming integration
 3. **S8.3 (Social Media)**: Industry-standard feature for artist promotion and engagement
 4. **S8.4 (Label Corrections)**: Quick fix ensuring content accuracy
 5. **S8.5 (Production)**: Critical final step for platform launch and user access
 6. **S8.6 (Security)**: Essential security hardening before production deployment
+7. **S8.7 (Audio Preview)**: Complements audio player with quick preview functionality for user engagement
 
 **Dependency Strategy**:
-- Stories 1-4 and 6 are independent and can be developed in parallel
+- Stories 1-4, 6, and 7 are independent and can be developed in parallel
 - S8.5 depends on completion of all other stories to ensure production readiness
 - S8.6 (Security) must complete before S8.5 (Deployment)
+- S8.7 follows established upload pattern from S3.5 (minimal risk)
 - Minimal dependency chain enables flexible sprint execution
 
 **Technical Debt Considerations**:
-- Audio player implementation establishes pattern for future multimedia widgets
+- Audio player (S8.2) and audio preview (S8.7) establish pattern for future multimedia widgets
+- Audio preview file upload reuses pattern from cover image uploads (consistent architecture)
 - Social media integration creates reusable URL validation utilities
 - Security audit creates ongoing security review process
 - Performance optimization work benefits entire application

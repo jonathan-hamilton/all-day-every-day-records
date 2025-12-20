@@ -46,7 +46,7 @@ all-day-every-day-records/
 
 ## Project Status
 
-**Overall Progress: 98% Complete** (43/44 stories)
+**Overall Progress: 96% Complete** (43/45 stories)
 
 **Recent Updates (December 20, 2025)**:
 - UI/UX Polish: Carousel alignment fix, search filter redesign, A-Z navigation improvements
@@ -106,13 +106,17 @@ all-day-every-day-records/
   - ✅ S7.4: 2-Column Video Layout on Detail Pages - Responsive grid layout with mobile stacking
   - ✅ **BONUS**: Fixed navbar positioning for persistent navigation while scrolling
 
-- **Sprint 8 Advanced Features & Production**: 50% COMPLETE 🏗️ (3/6 stories)
+- **Sprint 8 Advanced Features & Production**: 43% COMPLETE 🏗️ (3/7 stories)
   - ✅ S8.1: Auto-Rotating Homepage Carousel - Auto-rotation with drag/swipe, pause on hover, keyboard navigation
   - ✅ S8.3: Social Media Links on Release Details - Custom PNG icons with conditional rendering and admin management
   - ✅ S8.4: Homepage Section Label Corrections - Swapped section labels to match content (New/Featured)
+  - ⏸️ S8.2: Audio Player Widget Integration
+  - ⏸️ S8.5: Performance Optimization & Production Deployment
+  - ⏸️ S8.6: Backend Security Analysis & Hardening
+  - ⏸️ S8.7: 30-Second Audio Preview System
   - ✅ **BONUS**: Unlimited artist releases display (removed 4-item limit)
 
-### 📝 Sprint 8: Advanced Features & Production Deployment (1/6 stories - 17% complete) 🏗️
+### 📝 Sprint 8: Advanced Features & Production Deployment (3/7 stories - 43% complete) 🏗️
 
 **Sprint 8 In Progress**:
 - ✅ **S8.1 Complete**: Auto-Rotating Homepage Carousel - Enhanced discovery experience
@@ -121,11 +125,12 @@ all-day-every-day-records/
   - Manual interaction pauses auto-play for 10 seconds
   - Navigation arrows removed, dots and keyboard navigation maintained
   - Responsive design and accessibility features
+- ✅ **S8.3 Complete**: Social Media Links on Release Details - Custom PNG icons with conditional rendering
+- ✅ **S8.4 Complete**: Homepage Section Label Corrections - Swapped section labels (New/Featured)
 - ⏸️ S8.2: Audio Player Widget Integration
-- ⏸️ S8.3: Social Media Links on Release Details
-- ⏸️ S8.4: Homepage Section Label Corrections
 - ⏸️ S8.5: Performance Optimization & Production Deployment
 - ⏸️ S8.6: Backend Security Analysis & Hardening
+- ⏸️ S8.7: 30-Second Audio Preview System
 
 ### 🎉 Recent Achievements
 - **S7.1 Complete**: ✅ A-Z Alphabetical Navigation Widget - Enhanced browsing experience
